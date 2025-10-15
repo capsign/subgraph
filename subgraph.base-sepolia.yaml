@@ -1,0 +1,214 @@
+specVersion: 1.0.0
+schema:
+  file: ./schema.graphql
+dataSources:
+  # Diamond Factory - tracks all diamond creation
+  - kind: ethereum/contract
+    name: DiamondFactory
+    network: base-sepolia
+    source:
+      address: "0x036478441d6673FE1215c62df08e68a8255974cA"
+      abi: DiamondFactory
+      startBlock: 31965997
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Diamond
+        - Wallet
+        - Offering
+        - Token
+      abis:
+        - name: DiamondFactory
+          file: ./abis/DiamondFactory.json
+        - name: OfferingCore
+          file: ./abis/OfferingCoreFacet.json
+        - name: TokenMetadata
+          file: ./abis/TokenMetadataFacet.json
+        - name: WalletCore
+          file: ./abis/WalletCoreFacet.json
+      eventHandlers:
+        - event: DiamondCreated(indexed address,indexed address)
+          handler: handleDiamondCreated
+      file: ./src/mappings/diamond-factory.ts
+  
+  # EAS - tracks attestations
+  - kind: ethereum/contract
+    name: EAS
+    network: base-sepolia
+    source:
+      address: "0x4200000000000000000000000000000000000021"
+      abi: EAS
+      startBlock: 31965997
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Attestation
+        - Wallet
+      abis:
+        - name: EAS
+          file: ./abis/EAS.json
+      eventHandlers:
+        - event: Attested(indexed address,indexed address,bytes32,indexed bytes32)
+          handler: handleAttested
+        - event: Revoked(indexed address,indexed address,bytes32,indexed bytes32)
+          handler: handleRevoked
+      file: ./src/mappings/attestations.ts
+
+  # WalletFactory - tracks wallet creation with owner types (Permissionless)
+  - kind: ethereum/contract
+    name: WalletFactory
+    network: base-sepolia
+    source:
+      address: "0xc73f64276FDbD111c10E84e610745f6e29124429"
+      abi: WalletFactory
+      startBlock: 32372370
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Wallet
+        - Diamond
+      abis:
+        - name: WalletFactory
+          file: ./abis/WalletFactory.json
+        - name: WalletCore
+          file: ./abis/WalletCoreFacet.json
+      eventHandlers:
+        - event: WalletCreated(indexed address,indexed address,uint8,bytes32,indexed address)
+          handler: handleWalletCreated
+      file: ./src/mappings/wallet-factory.ts
+
+  # OfferingFactory - tracks offering creation (Permissionless)
+  - kind: ethereum/contract
+    name: OfferingFactory
+    network: base-sepolia
+    source:
+      address: "0x015f4F277c97491626F6bb13bF2daec5331fb6Fe"
+      abi: OfferingFactory
+      startBlock: 32372370
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Offering
+        - Diamond
+      abis:
+        - name: OfferingFactory
+          file: ./abis/OfferingFactory.json
+        - name: OfferingCore
+          file: ./abis/OfferingCoreFacet.json
+      eventHandlers:
+        - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
+          handler: handleOfferingCreated
+      file: ./src/mappings/offering-factory.ts
+
+  # TokenFactory - tracks token creation (Permissionless)
+  - kind: ethereum/contract
+    name: TokenFactory
+    network: base-sepolia
+    source:
+      address: "0xB69146d9aa67d4cad1A44146EF34FcDc182AE3A6"
+      abi: TokenFactory
+      startBlock: 32372370
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Diamond
+      abis:
+        - name: TokenFactory
+          file: ./abis/TokenFactory.json
+        - name: TokenMetadata
+          file: ./abis/TokenMetadataFacet.json
+      eventHandlers:
+        - event: TokenCreated(indexed address,indexed address,string,string,address[])
+          handler: handleTokenCreated
+      file: ./src/mappings/token-factory.ts
+
+templates:
+  # Offering Diamond Template
+  - kind: ethereum/contract
+    name: OfferingDiamond
+    network: base-sepolia
+    source:
+      abi: OfferingCore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Offering
+        - Investment
+      abis:
+        - name: OfferingCore
+          file: ./abis/OfferingCoreFacet.json
+      eventHandlers:
+        - event: OfferingInitialized(indexed address,indexed address,uint256,uint256)
+          handler: handleOfferingInitialized
+        - event: InvestmentMade(indexed address,indexed uint256,uint256,bytes32,bytes32)
+          handler: handleInvestmentMade
+        - event: InvestmentCountersigned(indexed uint256,indexed address,indexed address)
+          handler: handleInvestmentCountersigned
+        - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
+          handler: handleInvestmentRejected
+        - event: OfferingStatusChanged(uint8,uint8)
+          handler: handleOfferingStatusChanged
+      file: ./src/mappings/offerings.ts
+  
+  # Token Diamond Template
+  - kind: ethereum/contract
+    name: TokenDiamond
+    network: base-sepolia
+    source:
+      abi: TokenMetadata
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Lot
+      abis:
+        - name: TokenMetadata
+          file: ./abis/TokenMetadataFacet.json
+        - name: TokenBalances
+          file: ./abis/TokenBalancesFacet.json
+        - name: TokenLots
+          file: ./abis/TokenLotsFacet.json
+      eventHandlers:
+        - event: TokenInitialized(string,string,uint8)
+          handler: handleTokenInitialized
+      file: ./src/mappings/tokens.ts
+  
+  # Wallet Diamond Template
+  - kind: ethereum/contract
+    name: WalletDiamond
+    network: base-sepolia
+    source:
+      abi: WalletCore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Wallet
+        - Document
+        - DocumentSignature
+      abis:
+        - name: WalletCore
+          file: ./abis/WalletCoreFacet.json
+        - name: WalletDocuments
+          file: ./abis/WalletDocumentsFacet.json
+      eventHandlers:
+        - event: WalletInitialized(indexed address,string)
+          handler: handleWalletInitialized
+      file: ./src/mappings/wallets.ts
+

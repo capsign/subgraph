@@ -1,102 +1,146 @@
 #!/bin/bash
+
+# Deploy Subgraph to Goldsky
+# Usage: ./scripts/deploy.sh [base-sepolia|base]
+
 set -e
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Get the network from command line argument
-NETWORK=$1
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if we're in the subgraph directory
+if [ ! -f "subgraph.base-sepolia.yaml" ]; then
+    print_error "This script must be run from the subgraph directory"
+    exit 1
+fi
+
+# Get network parameter
+NETWORK=${1}
 
 if [ -z "$NETWORK" ]; then
-    echo -e "${RED}Error: Network argument required${NC}"
-    echo "Usage: ./scripts/deploy.sh [sepolia|mainnet]"
+    print_error "Network argument required"
+    echo "Usage: ./scripts/deploy.sh [base-sepolia|base]"
     exit 1
 fi
 
-# Validate network
-if [ "$NETWORK" != "sepolia" ] && [ "$NETWORK" != "mainnet" ]; then
-    echo -e "${RED}Error: Invalid network '$NETWORK'${NC}"
-    echo "Valid options: sepolia, mainnet"
-    exit 1
-fi
+# Set subgraph name based on network
+case $NETWORK in
+    "base-sepolia")
+        SUBGRAPH_NAME="capsign-base-sepolia"
+        YARN_SUFFIX="sepolia"
+        ;;
+    "base")
+        SUBGRAPH_NAME="capsign-base"
+        YARN_SUFFIX="mainnet"
+        ;;
+    *)
+        print_error "Unsupported network: $NETWORK"
+        print_status "Supported networks: base-sepolia, base"
+        exit 1
+        ;;
+esac
 
-# Set network name and start blocks for subgraph.yaml
-if [ "$NETWORK" = "sepolia" ]; then
-    GRAPH_NETWORK="base-sepolia"
-    GOLDSKY_NAME="capsign-base-sepolia"
-    START_BLOCK_INFRA="31965997"
-    START_BLOCK_FACTORY="32367301"
-else
-    GRAPH_NETWORK="base"
-    GOLDSKY_NAME="capsign-base"
-    START_BLOCK_INFRA="36593031"
-    START_BLOCK_FACTORY="36593031"
-fi
-
-echo -e "${GREEN}🚀 Deploying CapSign Subgraph to $NETWORK${NC}"
-echo "   Network: $GRAPH_NETWORK"
-echo "   Goldsky: $GOLDSKY_NAME"
-echo ""
-
-# Get current version from package.json
 VERSION=$(node -p "require('./package.json').version")
-echo -e "${YELLOW}📦 Version: $VERSION${NC}"
+SUBGRAPH_FULL_NAME="${SUBGRAPH_NAME}/${VERSION}"
+
+print_status "Deploying CapSign subgraph to $NETWORK using Goldsky..."
+print_status "Subgraph: $SUBGRAPH_FULL_NAME"
 echo ""
 
-# Backup original subgraph.yaml
-echo -e "${YELLOW}📋 Backing up subgraph.yaml...${NC}"
-cp subgraph.yaml subgraph.yaml.backup
-
-# Replace network and start blocks in subgraph.yaml
-echo -e "${YELLOW}🔄 Updating subgraph.yaml for $GRAPH_NETWORK...${NC}"
-if [ "$(uname)" = "Darwin" ]; then
-    # macOS - Replace both possible values with the target network
-    sed -i '' "s/network: base$/network: $GRAPH_NETWORK/g" subgraph.yaml
-    sed -i '' "s/network: base-sepolia$/network: $GRAPH_NETWORK/g" subgraph.yaml
-    # Update start blocks for infrastructure (DiamondFactory, EAS)
-    sed -i '' "s/startBlock: 31965997/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
-    sed -i '' "s/startBlock: 36593031/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
-    # Update start blocks for factories
-    sed -i '' "s/startBlock: 32367301/startBlock: $START_BLOCK_FACTORY/g" subgraph.yaml
-else
-    # Linux - Replace both possible values with the target network
-    sed -i "s/network: base$/network: $GRAPH_NETWORK/g" subgraph.yaml
-    sed -i "s/network: base-sepolia$/network: $GRAPH_NETWORK/g" subgraph.yaml
-    # Update start blocks for infrastructure
-    sed -i "s/startBlock: 31965997/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
-    sed -i "s/startBlock: 36593031/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
-    # Update start blocks for factories
-    sed -i "s/startBlock: 32367301/startBlock: $START_BLOCK_FACTORY/g" subgraph.yaml
+# Check if node_modules exists
+if [ ! -d "node_modules" ]; then
+    print_warning "node_modules not found, installing dependencies..."
+    pnpm install
 fi
 
-# Trap to restore on error or exit
-cleanup() {
-    echo -e "${YELLOW}🔙 Restoring original subgraph.yaml...${NC}"
-    mv subgraph.yaml.backup subgraph.yaml
-}
-trap cleanup EXIT
+# Check if goldsky CLI is available
+if ! command -v goldsky &> /dev/null; then
+    print_error "Goldsky CLI not found! Please install it first:"
+    echo "  npm install -g @goldsky/cli"
+    exit 1
+fi
 
-# Generate code
-echo -e "${YELLOW}🔨 Generating TypeScript types...${NC}"
-pnpm run codegen
+print_status "Step 1/6: Running codegen..."
+if pnpm run codegen:$YARN_SUFFIX; then
+    print_success "Codegen completed"
+else
+    print_error "Codegen failed"
+    exit 1
+fi
 
-# Build
-echo -e "${YELLOW}🏗️  Building subgraph for $GRAPH_NETWORK...${NC}"
-graph build
+print_status "Step 2/6: Building subgraph..."
+if pnpm run build:$YARN_SUFFIX; then
+    print_success "Build completed"
+else
+    print_error "Build failed"
+    exit 1
+fi
 
-# Deploy to Goldsky
-echo -e "${YELLOW}🚢 Deploying to Goldsky...${NC}"
-goldsky subgraph deploy $GOLDSKY_NAME/$VERSION --path .
+print_status "Step 3/6: Deleting existing prod tag..."
+print_warning "You will be prompted to confirm deletion of the 'prod' tag"
+if goldsky subgraph tag delete $SUBGRAPH_FULL_NAME --tag prod; then
+    print_success "Prod tag deleted"
+else
+    print_warning "Prod tag deletion failed (might not exist yet)"
+fi
 
-# Tag as prod
-echo -e "${YELLOW}🏷️  Tagging as prod...${NC}"
-goldsky subgraph tag create $GOLDSKY_NAME/$VERSION --tag prod
+print_status "Step 4/6: Deleting existing subgraph version..."
+if goldsky subgraph delete $SUBGRAPH_FULL_NAME; then
+    print_success "Subgraph version deleted"
+else
+    print_warning "Subgraph deletion failed (might not exist yet)"
+fi
 
+print_status "Step 5/6: Deploying new subgraph version..."
+if goldsky subgraph deploy $SUBGRAPH_FULL_NAME --path .; then
+    print_success "Subgraph deployed successfully"
+else
+    print_error "Subgraph deployment failed"
+    exit 1
+fi
+
+print_status "Step 6/6: Creating prod tag..."
+if goldsky subgraph tag create $SUBGRAPH_FULL_NAME --tag prod; then
+    print_success "Prod tag created"
+else
+    print_error "Failed to create prod tag"
+    exit 1
+fi
+
+print_success "🎉 Subgraph deployment complete!"
 echo ""
-echo -e "${GREEN}✅ Deployment complete!${NC}"
-echo -e "   Subgraph: ${GREEN}$GOLDSKY_NAME/$VERSION${NC}"
-echo -e "   Tag: ${GREEN}prod${NC}"
-
+print_status "Deployment Summary:"
+echo "  📊 Subgraph: $SUBGRAPH_FULL_NAME"
+echo "  🏷️  Tag: prod"
+echo "  🌐 Network: $NETWORK"
+echo ""
+print_status "Next steps:"
+echo "  1. Wait for subgraph to sync (check Goldsky dashboard)"
+echo "  2. Test factory operations to verify subgraph indexing"
+echo "  3. Check that new implementations appear in subgraph queries"
+echo ""
+print_status "Useful commands:"
+echo "  goldsky subgraph list                    # List all subgraphs"
+echo "  goldsky subgraph logs $SUBGRAPH_FULL_NAME  # View deployment logs"
+echo "  goldsky subgraph status $SUBGRAPH_FULL_NAME # Check sync status"
