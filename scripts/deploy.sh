@@ -53,18 +53,18 @@ cp subgraph.yaml subgraph.yaml.backup
 # Replace network and start blocks in subgraph.yaml
 echo -e "${YELLOW}🔄 Updating subgraph.yaml for $GRAPH_NETWORK...${NC}"
 if [ "$(uname)" = "Darwin" ]; then
-    # macOS
-    sed -i '' "s/network: base-sepolia/network: $GRAPH_NETWORK/g" subgraph.yaml
-    sed -i '' "s/network: base/network: $GRAPH_NETWORK/g" subgraph.yaml
+    # macOS - Replace both possible values with the target network
+    sed -i '' "s/network: base$/network: $GRAPH_NETWORK/g" subgraph.yaml
+    sed -i '' "s/network: base-sepolia$/network: $GRAPH_NETWORK/g" subgraph.yaml
     # Update start blocks for infrastructure (DiamondFactory, EAS)
     sed -i '' "s/startBlock: 31965997/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
     sed -i '' "s/startBlock: 36593031/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
     # Update start blocks for factories
     sed -i '' "s/startBlock: 32367301/startBlock: $START_BLOCK_FACTORY/g" subgraph.yaml
 else
-    # Linux
-    sed -i "s/network: base-sepolia/network: $GRAPH_NETWORK/g" subgraph.yaml
-    sed -i "s/network: base/network: $GRAPH_NETWORK/g" subgraph.yaml
+    # Linux - Replace both possible values with the target network
+    sed -i "s/network: base$/network: $GRAPH_NETWORK/g" subgraph.yaml
+    sed -i "s/network: base-sepolia$/network: $GRAPH_NETWORK/g" subgraph.yaml
     # Update start blocks for infrastructure
     sed -i "s/startBlock: 31965997/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
     sed -i "s/startBlock: 36593031/startBlock: $START_BLOCK_INFRA/g" subgraph.yaml
