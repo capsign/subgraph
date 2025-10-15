@@ -1,0 +1,428 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "_diamondFactory",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_facetRegistry",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "WalletFactory_init",
+      "inputs": [
+        {
+          "name": "admin",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_diamondFactory",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "createWallet",
+      "inputs": [
+        {
+          "name": "config",
+          "type": "tuple",
+          "internalType": "struct IWalletFactory.WalletConfig",
+          "components": [
+            {
+              "name": "owner",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "ownerType",
+              "type": "uint8",
+              "internalType": "enum WalletFactoryStorage.OwnerType"
+            },
+            {
+              "name": "owners",
+              "type": "bytes[]",
+              "internalType": "bytes[]"
+            },
+            {
+              "name": "walletType",
+              "type": "string",
+              "internalType": "string"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "wallet",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "getAllWallets",
+      "inputs": [
+        {
+          "name": "offset",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "limit",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "wallets",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getDiamondFactory",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getOwnerWallets",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getTotalWallets",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getWalletCountByType",
+      "inputs": [
+        {
+          "name": "ownerType",
+          "type": "uint8",
+          "internalType": "enum WalletFactoryStorage.OwnerType"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getWalletInfo",
+      "inputs": [
+        {
+          "name": "wallet",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct WalletFactoryStorage.WalletInfo",
+          "components": [
+            {
+              "name": "wallet",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "owner",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "ownerType",
+              "type": "uint8",
+              "internalType": "enum WalletFactoryStorage.OwnerType"
+            },
+            {
+              "name": "createdAt",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "publicKeyHash",
+              "type": "bytes32",
+              "internalType": "bytes32"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "predictWalletAddress",
+      "inputs": [
+        {
+          "name": "config",
+          "type": "tuple",
+          "internalType": "struct IWalletFactory.WalletConfig",
+          "components": [
+            {
+              "name": "owner",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "ownerType",
+              "type": "uint8",
+              "internalType": "enum WalletFactoryStorage.OwnerType"
+            },
+            {
+              "name": "owners",
+              "type": "bytes[]",
+              "internalType": "bytes[]"
+            },
+            {
+              "name": "walletType",
+              "type": "string",
+              "internalType": "string"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "FunctionAccessChanged",
+      "inputs": [
+        {
+          "name": "functionSig",
+          "type": "bytes4",
+          "indexed": true,
+          "internalType": "bytes4"
+        },
+        {
+          "name": "role",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Initialized",
+      "inputs": [
+        {
+          "name": "version",
+          "type": "uint64",
+          "indexed": false,
+          "internalType": "uint64"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "UserRoleUpdated",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "role",
+          "type": "uint8",
+          "indexed": true,
+          "internalType": "uint8"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "indexed": false,
+          "internalType": "bool"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "WalletCreated",
+      "inputs": [
+        {
+          "name": "wallet",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "owner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "ownerType",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "enum WalletFactoryStorage.OwnerType"
+        },
+        {
+          "name": "publicKeyHash",
+          "type": "bytes32",
+          "indexed": false,
+          "internalType": "bytes32"
+        },
+        {
+          "name": "deployer",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "WalletFactoryInitialized",
+      "inputs": [
+        {
+          "name": "admin",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "diamondFactory",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "AccessControl_CallerIsNotAuthorized",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AccessControl_CannotRemoveAdmin",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "CallerIsNotAuthorized",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "DelegateNotAllowed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidInitialization",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NotInitializing",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "OnlyDelegate",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ReentrancyGuardReentrantCall",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "WalletFactory_AlreadyInitialized",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "WalletFactory_InvalidDiamondFactory",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "WalletFactory_InvalidOwner",
+      "inputs": []
+    }
+  ]
+}

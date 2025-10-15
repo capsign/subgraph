@@ -1,0 +1,178 @@
+type Diamond @entity {
+  id: ID! # Diamond address
+  diamondType: String! # WALLET, OFFERING, TOKEN
+  creator: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  
+  # Polymorphic relationships (optional - diamonds may be tracked separately)
+  wallet: Wallet
+  offering: Offering
+  token: Token
+}
+
+type Wallet @entity {
+  id: ID! # Wallet address
+  type: String! # "EOA", "Passkey", "MPC"
+  deployer: Bytes! # Address that deployed the wallet
+  createdAt: BigInt!
+  createdTx: Bytes!
+  
+  # Owners (multiple allowed)
+  owners: [Owner!]! @derivedFrom(field: "wallet")
+  
+  # Documents
+  documents: [Document!]! @derivedFrom(field: "wallet")
+  
+  # Relationships
+  tokens: [Lot!]! @derivedFrom(field: "owner")
+  investments: [Investment!]! @derivedFrom(field: "investor")
+  attestations: [Attestation!]! @derivedFrom(field: "wallet")
+}
+
+type Owner @entity {
+  id: ID! # wallet-address or wallet-publicKeyHash
+  wallet: Wallet!
+  ownerType: OwnerType!
+  address: Bytes # For EOA and MPC owners
+  publicKey: Bytes # For Passkey owners (64 bytes: x + y coordinates)
+  publicKeyHash: Bytes # For Passkey owners (hash for indexing)
+  addedAt: BigInt!
+  addedTx: Bytes!
+}
+
+enum OwnerType {
+  EOA
+  Passkey
+  MPC
+}
+
+type Document @entity {
+  id: ID! # documentId (bytes32)
+  wallet: Wallet!
+  contentHash: Bytes!
+  storageURI: String!
+  category: String!
+  title: String!
+  creator: Bytes!
+  createdAt: BigInt!
+  requiredSigners: [Bytes!]!
+  
+  # Signatures
+  signatures: [DocumentSignature!]! @derivedFrom(field: "document")
+}
+
+type DocumentSignature @entity {
+  id: ID! # documentId-signer
+  document: Document!
+  signer: Bytes!
+  signedAt: BigInt!
+}
+
+type Offering @entity {
+  id: ID! # Offering address
+  issuer: Bytes!
+  admin: Bytes! # Admin address for access control
+  token: Token!
+  paymentToken: Bytes!
+  paymentRecipient: Bytes!
+  pricePerToken: BigInt!
+  minInvestment: BigInt!
+  maxAmount: BigInt!
+  deadline: BigInt!
+  totalInvested: BigInt!
+  investorCount: BigInt!
+  status: OfferingStatus!
+  deployer: Bytes! # Address that deployed the offering
+  createdAt: BigInt!
+  createdTx: Bytes!
+  uri: String # Optional metadata URI
+  complianceModules: [Bytes!]! # Compliance modules used
+  
+  # Relationships
+  investments: [Investment!]! @derivedFrom(field: "offering")
+}
+
+enum OfferingStatus {
+  ACTIVE
+  PAUSED
+  CLOSED
+  FINALIZED
+}
+
+type Investment @entity {
+  id: ID! # offering-investmentId
+  offering: Offering!
+  investor: Wallet!
+  investmentId: BigInt!
+  amount: BigInt!
+  tokenQuantity: BigInt!
+  investedAt: BigInt!
+  isCountersigned: Boolean!
+  countersignedAt: BigInt
+  isRejected: Boolean!
+  rejectedAt: BigInt
+  identityUID: Bytes!
+  qualificationUID: Bytes!
+}
+
+type Token @entity {
+  id: ID! # Token address
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  admin: Bytes! # Admin address for access control
+  creator: Bytes! # Original creator (kept for backwards compatibility)
+  deployer: Bytes! # Address that deployed the token
+  createdAt: BigInt!
+  createdTx: Bytes!
+  assetType: TokenAssetType!
+  complianceConditions: [Bytes!]! # Compliance conditions used
+  
+  # Relationships
+  lots: [Lot!]! @derivedFrom(field: "token")
+  offerings: [Offering!]! @derivedFrom(field: "token")
+}
+
+enum TokenAssetType {
+  SHARE
+  UNIT_INTEREST
+  SAFE
+  EMPLOYEE_STOCK_OPTION
+  WARRANT
+  SAR
+}
+
+type Lot @entity {
+  id: ID! # token-lotId
+  token: Token!
+  lotId: BigInt!
+  owner: Wallet!
+  balance: BigInt!
+  quantity: BigInt! # Alias for balance
+  acquisitionDate: BigInt!
+  createdAt: BigInt! # Alias for acquisitionDate
+  costBasis: BigInt!
+  acquiredFrom: Bytes!
+  parentLotId: BigInt # For lot splits/transfers
+  assetId: String # Token identifier
+  paymentCurrency: Bytes # Currency used for acquisition
+  metadata: String
+}
+
+type Attestation @entity {
+  id: ID! # attestation UID
+  schema: Bytes! # Schema UID
+  attester: Bytes!
+  wallet: Wallet! # The wallet this attestation is about
+  data: Bytes!
+  createdAt: BigInt!
+  expiresAt: BigInt
+  revoked: Boolean!
+  revokedAt: BigInt
+  
+  # Decoded fields for investor verification
+  offering: Bytes # Offering address this attestation is for
+  isVerified: Boolean # Whether the investor is verified for the offering
+}

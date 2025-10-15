@@ -1,0 +1,16 @@
+{
+  "name": "capsign-subgraph",
+  "version": "0.2.16",
+  "description": "CapSign Protocol Subgraph for Base (Goldsky)",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy:sepolia": "./scripts/deploy.sh sepolia",
+    "deploy:mainnet": "./scripts/deploy.sh mainnet"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.56.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}
+
