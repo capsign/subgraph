@@ -153,10 +153,10 @@ templates:
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,uint256,uint256)
           handler: handleOfferingInitialized
-        - event: InvestmentMade(indexed address,indexed uint256,uint256,bytes32,bytes32)
-          handler: handleInvestmentMade
-        - event: InvestmentCountersigned(indexed uint256,indexed address,indexed address)
-          handler: handleInvestmentCountersigned
+        - event: FundsDeposited(indexed address,indexed uint256,uint256,bytes32,bytes32)
+          handler: handleFundsDeposited
+        - event: InvestmentAccepted(indexed uint256,indexed address,indexed address)
+          handler: handleInvestmentAccepted
         - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentRejected
         - event: OfferingStatusChanged(uint8,uint8)

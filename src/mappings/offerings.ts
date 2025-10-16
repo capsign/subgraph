@@ -1,7 +1,7 @@
 import {
   OfferingInitialized,
-  InvestmentMade,
-  InvestmentCountersigned,
+  FundsDeposited,
+  InvestmentAccepted,
   InvestmentRejected,
   OfferingStatusChanged,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
@@ -59,7 +59,7 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   }
 }
 
-export function handleInvestmentMade(event: InvestmentMade): void {
+export function handleFundsDeposited(event: FundsDeposited): void {
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
 
@@ -69,7 +69,7 @@ export function handleInvestmentMade(event: InvestmentMade): void {
   investment.investor = event.params.investor.toHexString();
   investment.investmentId = event.params.investmentId;
   investment.amount = event.params.amount;
-  investment.tokenQuantity = BigInt.fromI32(0); // Will be set after countersigning
+  investment.tokenQuantity = BigInt.fromI32(0); // Will be set after acceptance
   investment.investedAt = event.block.timestamp;
   investment.isCountersigned = false;
   investment.isRejected = false;
@@ -83,8 +83,8 @@ export function handleInvestmentMade(event: InvestmentMade): void {
   offering.save();
 }
 
-export function handleInvestmentCountersigned(
-  event: InvestmentCountersigned
+export function handleInvestmentAccepted(
+  event: InvestmentAccepted
 ): void {
   const investmentId = event.address.toHexString() + "-" + event.params.investmentId.toString();
   const investment = Investment.load(investmentId);
