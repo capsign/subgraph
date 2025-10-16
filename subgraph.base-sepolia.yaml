@@ -88,9 +88,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xBD7285997BF148FED0988d215232a6A8fA5Cd9C2"
+      address: "0x0a552c4ca1a8b60f57a431802a3BF996C816b809"
       abi: OfferingFactory
-      startBlock: 32438951
+      startBlock: 32441700
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -113,9 +113,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xE8b72488525840162bbc69F3E24dbd23f623EA0D"
+      address: "0x8354a4068e0Ea98f00d802831ECA959312637CA9"
       abi: TokenFactory
-      startBlock: 32438951
+      startBlock: 32441700
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

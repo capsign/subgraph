@@ -65,7 +65,7 @@ dataSources:
     source:
       address: "0x6C43a796DD55f4a5B39A47289DF2B9006eC2913B"
       abi: WalletFactory
-      startBlock: 36929350
+      startBlock: 36931236
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -90,7 +90,7 @@ dataSources:
     source:
       address: "0x85173dD621238e8521c7363Dc5325D59435951Cb"
       abi: OfferingFactory
-      startBlock: 36929350
+      startBlock: 36931236
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -115,7 +115,7 @@ dataSources:
     source:
       address: "0xd03252523fAd8C1909FFc1620ce24644475a9599"
       abi: TokenFactory
-      startBlock: 36929350
+      startBlock: 36931236
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
