@@ -151,7 +151,7 @@ templates:
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
       eventHandlers:
-        - event: OfferingInitialized(indexed address,indexed address,uint256,uint256)
+        - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
         - event: FundsDeposited(indexed address,indexed uint256,uint256,bytes32,bytes32)
           handler: handleFundsDeposited

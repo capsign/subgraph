@@ -73,7 +73,7 @@ type Offering @entity {
   id: ID! # Offering address
   issuer: Bytes!
   admin: Bytes! # Admin address for access control
-  token: Token!
+  token: Token # Nullable in case token isn't indexed yet
   paymentToken: Bytes!
   paymentRecipient: Bytes!
   pricePerToken: BigInt!

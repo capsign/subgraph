@@ -23,31 +23,20 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
     offering.complianceModules = []; // Empty array fallback
   }
 
-  // Update offering with initialization data
+  // Update offering with initialization data from event
   offering.issuer = event.params.issuer;
   offering.token = event.params.token.toHexString();
+  offering.paymentToken = event.params.paymentToken;
+  offering.paymentRecipient = event.params.paymentRecipient;
   offering.pricePerToken = event.params.pricePerToken;
+  offering.minInvestment = event.params.minInvestment;
   offering.maxAmount = event.params.maxAmount;
-  
-  // Initialize payment fields with defaults if not set
-  const zeroAddress = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
-  if (!offering.paymentToken || offering.paymentToken.equals(zeroAddress)) {
-    offering.paymentToken = event.params.issuer; // Placeholder
-  }
-  if (!offering.paymentRecipient || offering.paymentRecipient.equals(zeroAddress)) {
-    offering.paymentRecipient = event.params.issuer; // Placeholder
-  }
-  if (!offering.minInvestment || offering.minInvestment.equals(BigInt.fromI32(0))) {
-    offering.minInvestment = BigInt.fromI32(0);
-  }
-  if (!offering.deadline || offering.deadline.equals(BigInt.fromI32(0))) {
-    offering.deadline = BigInt.fromI32(0);
-  }
+  offering.deadline = event.params.deadline;
+  offering.uri = event.params.uri; // Offering metadata URI
   
   offering.totalInvested = BigInt.fromI32(0);
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
-  offering.uri = ""; // TODO: Add URI support when available
   offering.save();
   
   // Update diamond type
