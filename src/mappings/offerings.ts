@@ -7,6 +7,7 @@ import {
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import { Offering, Investment, Diamond } from "../../generated/schema";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { fetchOfferingMetadata, getOfferingTypeEnum } from "../utils/metadata";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
   const offeringAddress = event.address.toHexString();
@@ -21,6 +22,7 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
     offering.admin = event.params.issuer; // Fallback to issuer
     offering.deployer = event.transaction.from;
     offering.complianceModules = []; // Empty array fallback
+    offering.metadataFetched = false;
   }
 
   // Update offering with initialization data from event
@@ -37,6 +39,33 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   offering.totalInvested = BigInt.fromI32(0);
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
+
+  // Fetch and parse metadata if URI is provided
+  // Note: Metadata fetching is currently disabled for non-IPFS URIs
+  // For Vercel Blob and other HTTP URLs, metadata will be fetched client-side
+  if (event.params.uri && event.params.uri.length > 0) {
+    // Store the URI for client-side fetching
+    offering.metadataFetched = false;
+    
+    // TODO: Enable IPFS fetching when supported by Graph provider
+    // const metadata = fetchOfferingMetadata(event.params.uri);
+    // if (metadata !== null) {
+    //   offering.name = metadata.name;
+    //   offering.description = metadata.description;
+    //   offering.image = metadata.image;
+    //   offering.offeringType = getOfferingTypeEnum(metadata.offeringType);
+    //   offering.issuerName = metadata.issuerName;
+    //   offering.issuerJurisdiction = metadata.issuerJurisdiction;
+    //   offering.issuerWebsite = metadata.issuerWebsite;
+    //   offering.issuerLogo = metadata.issuerLogo;
+    //   offering.generalSolicitation = metadata.generalSolicitation;
+    //   offering.investorLimit = metadata.investorLimit;
+    //   offering.metadataFetched = true;
+    // }
+  } else {
+    offering.metadataFetched = false;
+  }
+  
   offering.save();
   
   // Update diamond type

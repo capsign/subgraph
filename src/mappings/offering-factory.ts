@@ -48,6 +48,7 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
   offering.uri = null;
+  offering.metadataFetched = false;
 
   offering.save();
 

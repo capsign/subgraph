@@ -89,6 +89,19 @@ type Offering @entity {
   uri: String # Optional metadata URI
   complianceModules: [Bytes!]! # Compliance modules used
   
+  # Parsed metadata (fetched from URI)
+  name: String
+  description: String
+  image: String
+  offeringType: OfferingType # 506b, 506c, reg_a, reg_cf, custom
+  issuerName: String
+  issuerJurisdiction: String
+  issuerWebsite: String
+  issuerLogo: String
+  generalSolicitation: Boolean
+  investorLimit: BigInt # 0 = unlimited
+  metadataFetched: Boolean! # True if metadata was successfully fetched
+  
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
 }
@@ -98,6 +111,15 @@ enum OfferingStatus {
   PAUSED
   CLOSED
   FINALIZED
+}
+
+enum OfferingType {
+  TYPE_506B
+  TYPE_506C
+  REG_A
+  REG_CF
+  CUSTOM
+  UNKNOWN
 }
 
 type Investment @entity {
@@ -172,7 +194,42 @@ type Attestation @entity {
   revoked: Boolean!
   revokedAt: BigInt
   
-  # Decoded fields for investor verification
-  offering: Bytes # Offering address this attestation is for
-  isVerified: Boolean # Whether the investor is verified for the offering
+  # Decoded fields for unified investor schema: (address offering, bool isVerified, bytes32[] classifications)
+  offering: Bytes # Offering address (0x0 = universal/global attestation)
+  isVerified: Boolean # KYC/identity verification status
+  classifications: [Bytes!]! # Investor classifications (e.g., ACCREDITED, NON_ACCREDITED, SOPHISTICATED)
+}
+
+# ============ FACET REGISTRY ============
+
+type Facet @entity {
+  id: ID! # Facet address
+  name: String!
+  selectors: [String!]!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  deploymentSalt: Bytes # Salt used for CREATE2 deployment (if deployed via registry)
+  removed: Boolean!
+  removedAt: BigInt
+  removedTx: Bytes
+}
+
+type FacetRegistryEvent @entity {
+  id: ID! # tx-logIndex
+  eventType: FacetRegistryEventType!
+  facet: Bytes!
+  facetName: String!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  
+  # For FacetDeployed events
+  deploymentSalt: Bytes
+  selectors: [String!]
+}
+
+enum FacetRegistryEventType {
+  REGISTERED
+  REMOVED
+  DEPLOYED
 }
