@@ -90,9 +90,9 @@ dataSources:
     name: WalletFactory
     network: base
     source:
-      address: "0x0833E9A07BEfb0B078a192fBAAb432370586C655"
+      address: "0x1F2280Fa980a402eAA5c6c22A2764a804d3C778c"
       abi: WalletFactory
-      startBlock: 32626304
+      startBlock: 37231264
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

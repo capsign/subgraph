@@ -1,14 +1,16 @@
 {
   "name": "capsign-subgraph",
-  "version": "0.2.41",
+  "version": "0.2.43",
   "description": "CapSign Protocol Subgraph for Base (Goldsky)",
   "scripts": {
     "codegen:sepolia": "graph codegen subgraph.base-sepolia.yaml",
     "codegen:mainnet": "graph codegen subgraph.base.yaml",
     "build:sepolia": "graph build subgraph.base-sepolia.yaml",
     "build:mainnet": "graph build subgraph.base.yaml",
-    "deploy:sepolia": "./scripts/deploy.sh base-sepolia",
-    "deploy:mainnet": "./scripts/deploy.sh base"
+    "deploy:sepolia": "pnpm run codegen:sepolia && pnpm run build:sepolia && goldsky subgraph deploy capsign-base-sepolia/$(node -p \"require('./package.json').version\") --path .",
+    "deploy:mainnet": "pnpm run codegen:mainnet && pnpm run build:mainnet && goldsky subgraph deploy capsign-base/$(node -p \"require('./package.json').version\") --path .",
+    "deploy:sepolia:full": "./scripts/deploy.sh base-sepolia",
+    "deploy:mainnet:full": "./scripts/deploy.sh base"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.56.0",
