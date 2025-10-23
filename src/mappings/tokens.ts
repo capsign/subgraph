@@ -12,9 +12,12 @@ import {
   StockDividendApplied,
   EntityPublicStatusUpdated,
   LotCreated,
+  LotAdjusted,
+  CustomIdUpdated,
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
-import { ShareClass, Diamond, TokenRoleMember, CorporateAction, Lot } from "../../generated/schema";
+import { ShareClass, Diamond, TokenRoleMember, CorporateAction, Lot, LotAdjustment, CustomIdUpdate } from "../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
+import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 
 /**
  * Handle TokenInitialized event
@@ -97,12 +100,40 @@ export function handleLotCreated(event: LotCreated): void {
   lot.balance = event.params.quantity;
   lot.quantity = event.params.quantity;
   lot.costBasis = event.params.costBasis;
-  lot.acquisitionDate = event.block.timestamp;
-  lot.createdAt = event.block.timestamp;
+  lot.acquisitionDate = event.params.acquisitionDate;
+  lot.createdAt = event.params.acquisitionDate; // Use acquisitionDate as createdAt
   lot.acquiredFrom = event.address; // Token contract address
   lot.parentLotId = null; // No parent lot for newly created lots
-  lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000"); // Default to ETH
+  lot.customId = event.params.customId; // Custom ID from event
+  lot.uri = event.params.uri; // URI from event
+  lot.data = event.params.data; // Additional data from event
   lot.frozen = false; // New lots are not frozen by default
+  
+  // Map transfer type enum to string
+  const transferTypeMap = ["INTERNAL", "SALE", "GIFT", "INHERITANCE", "INCOME"];
+  lot.transferType = transferTypeMap[event.params.tType];
+  
+  // Set payment currency from event
+  const paymentCurrency = event.params.paymentCurrency;
+  lot.paymentCurrency = paymentCurrency;
+  
+  // If payment currency is zero address, it's ETH (18 decimals)
+  // Otherwise, read decimals from the ERC20 contract
+  if (paymentCurrency.toHexString() === "0x0000000000000000000000000000000000000000") {
+    lot.paymentDecimals = 18; // ETH
+  } else {
+    // Bind to ERC20 contract and read decimals
+    const erc20 = ERC20.bind(paymentCurrency);
+    const decimalsResult = erc20.try_decimals();
+    
+    if (!decimalsResult.reverted) {
+      lot.paymentDecimals = decimalsResult.value;
+    } else {
+      // Fallback to 18 if we can't read decimals
+      lot.paymentDecimals = 18;
+    }
+  }
+  
   lot.save();
   
   // Update total supply (use rawQuantity from event)
@@ -333,5 +364,82 @@ export function handleEntityPublicStatusUpdated(event: EntityPublicStatusUpdated
   if (shareClass) {
     shareClass.isPublic = event.params.isPublic;
     shareClass.save();
+  }
+}
+
+/**
+ * Handle LotAdjusted event from TokenLotsFacet
+ * Creates adjustment history record and updates lots
+ */
+export function handleLotAdjusted(event: LotAdjusted): void {
+  const oldLotId = event.params.oldLotId.toHexString();
+  const newLotId = event.params.newLotId.toHexString();
+  
+  // Create adjustment record
+  const adjustmentId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const adjustment = new LotAdjustment(adjustmentId);
+  
+  adjustment.oldLot = oldLotId;
+  adjustment.newLot = newLotId;
+  adjustment.operator = event.params.operator;
+  adjustment.owner = event.params.owner;
+  adjustment.newQuantity = event.params.newQuantity;
+  adjustment.newCostBasis = event.params.newCostBasis;
+  adjustment.paymentCurrency = event.params.paymentCurrency;
+  adjustment.acquisitionDate = event.params.acquisitionDate;
+  adjustment.uri = event.params.uri;
+  adjustment.data = event.params.data;
+  adjustment.reason = event.params.reason;
+  
+  // Map transfer type enum to string
+  const transferTypeMap = ["INTERNAL", "SALE", "GIFT", "INHERITANCE", "INCOME"];
+  adjustment.transferType = transferTypeMap[event.params.tType];
+  
+  adjustment.adjustedCostBasis = event.params.adjustedCostBasis;
+  adjustment.timestamp = event.block.timestamp;
+  adjustment.transaction = event.transaction.hash;
+  adjustment.lot = newLotId; // For reverse lookup
+  
+  adjustment.save();
+  
+  // Update old lot to mark as adjusted/frozen
+  const oldLot = Lot.load(oldLotId);
+  if (oldLot) {
+    oldLot.frozen = true; // Mark as frozen since it's been adjusted
+    oldLot.save(); // Don't forget to save!
+  }
+  
+  // Update new lot with adjustedFrom reference
+  const newLot = Lot.load(newLotId);
+  if (newLot) {
+    newLot.adjustedFrom = oldLotId;
+    newLot.save();
+  }
+}
+
+/**
+ * Handle CustomIdUpdated event from TokenLotsFacet
+ * Records custom ID changes
+ */
+export function handleCustomIdUpdated(event: CustomIdUpdated): void {
+  const lotId = event.params.lotId.toHexString();
+  
+  // Create custom ID update record
+  const updateId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  const update = new CustomIdUpdate(updateId);
+  
+  update.lot = lotId;
+  update.oldCustomId = event.params.oldCustomId;
+  update.newCustomId = event.params.newCustomId;
+  update.timestamp = event.block.timestamp;
+  update.transaction = event.transaction.hash;
+  
+  update.save();
+  
+  // Update lot's custom ID
+  const lot = Lot.load(lotId);
+  if (lot) {
+    lot.customId = event.params.newCustomId;
+    lot.save();
   }
 }

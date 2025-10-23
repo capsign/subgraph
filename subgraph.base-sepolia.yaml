@@ -213,11 +213,17 @@ templates:
           file: ./abis/TokenBalancesFacet.json
         - name: TokenLots
           file: ./abis/TokenLotsFacet.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: TokenInitialized(string,string,uint8)
           handler: handleTokenInitialized
-        - event: LotCreated(indexed address,indexed bytes32,indexed uint256,uint256,uint256,uint256)
+        - event: LotCreated(indexed address,indexed bytes32,indexed uint256,uint256,uint256,address,uint256,uint256,string,bytes,uint8)
           handler: handleLotCreated
+        - event: LotAdjusted(indexed bytes32,indexed bytes32,indexed address,address,uint256,uint256,address,uint256,string,bytes,string,uint8,uint256)
+          handler: handleLotAdjusted
+        - event: CustomIdUpdated(indexed bytes32,uint256,uint256)
+          handler: handleCustomIdUpdated
         - event: MaxSupplyUpdated(uint256)
           handler: handleMaxSupplyUpdated
         - event: Paused(address)

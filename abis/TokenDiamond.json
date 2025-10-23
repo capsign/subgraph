@@ -1247,49 +1247,6 @@
     "anonymous": false
   },
   {
-    "type": "event",
-    "name": "LotCreated",
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "customId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "quantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "rawQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "costBasis",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
     "type": "error",
     "name": "CallerIsNotAuthorized",
     "inputs": []
@@ -1338,5 +1295,188 @@
     "type": "error",
     "name": "ReentrancyGuardReentrantCall",
     "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "CustomIdUpdated",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "oldCustomId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newCustomId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotAdjusted",
+    "inputs": [
+      {
+        "name": "oldLotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "newLotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "operator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "newQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newCostBasis",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "paymentCurrency",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "acquisitionDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "tType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IToken.TransferType"
+      },
+      {
+        "name": "adjustedCostBasis",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotCreated",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "customId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "quantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "rawQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "paymentCurrency",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "costBasis",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "acquisitionDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      },
+      {
+        "name": "tType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IToken.TransferType"
+      }
+    ],
+    "anonymous": false
   }
 ]

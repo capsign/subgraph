@@ -442,7 +442,16 @@ type Lot @entity {
   parentLotId: BigInt # For lot splits/transfers
   assetId: String # Token identifier
   paymentCurrency: Bytes # Currency used for acquisition
+  paymentDecimals: Int # Decimals of the payment currency
+  customId: BigInt # Custom ID for user-friendly lot identification
+  uri: String # URI of the lot
+  data: Bytes # Additional data associated with the lot
+  transferType: String # Transfer type (INTERNAL, SALE, GIFT, INHERITANCE, INCOME)
   metadata: String
+  
+  # Adjustment history
+  adjustedFrom: Lot # Reference to parent lot if this was created via adjustment
+  adjustments: [LotAdjustment!]! @derivedFrom(field: "lot")
   
   # State
   frozen: Boolean!
@@ -452,6 +461,35 @@ type Lot @entity {
   # esoGrant: ESOGrant # If this is an ESO grant lot
   # sarGrant: SARGrant # If this is a SAR grant lot
   # safeConversion: SAFEConversion # If this lot was created from SAFE conversion
+}
+
+type LotAdjustment @entity {
+  id: ID! # tx-hash-logIndex
+  oldLot: Lot!
+  newLot: Lot!
+  operator: Bytes!
+  owner: Bytes!
+  newQuantity: BigInt!
+  newCostBasis: BigInt!
+  paymentCurrency: Bytes!
+  acquisitionDate: BigInt!
+  uri: String!
+  data: Bytes!
+  reason: String!
+  transferType: String!
+  adjustedCostBasis: BigInt! # The delta in cost basis
+  timestamp: BigInt!
+  transaction: Bytes!
+  lot: Lot! # For reverse lookup
+}
+
+type CustomIdUpdate @entity {
+  id: ID! # tx-hash-logIndex
+  lot: Lot!
+  oldCustomId: BigInt!
+  newCustomId: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
 }
 
 type Attestation @entity {
