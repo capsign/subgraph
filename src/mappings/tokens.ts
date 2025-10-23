@@ -102,6 +102,7 @@ export function handleLotCreated(event: LotCreated): void {
   lot.acquiredFrom = event.address; // Token contract address
   lot.parentLotId = null; // No parent lot for newly created lots
   lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000"); // Default to ETH
+  lot.frozen = false; // New lots are not frozen by default
   lot.save();
   
   // Update total supply (use rawQuantity from event)
