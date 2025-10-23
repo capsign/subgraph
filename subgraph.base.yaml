@@ -18,7 +18,7 @@ dataSources:
         - Diamond
         - Wallet
         - Offering
-        - Token
+        - ShareClass
       abis:
         - name: DiamondFactory
           file: ./abis/DiamondFactory.json
@@ -115,9 +115,9 @@ dataSources:
     name: OfferingFactory
     network: base
     source:
-      address: "0xA84Ca367909043252b81452c0676b6cd8823d9b8"
+      address: "0x7cb5E8c0bc83b5F6ADD4FC6ED4abe23150Ac0847"
       abi: OfferingFactory
-      startBlock: 37139107
+      startBlock: 37149253
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -148,7 +148,7 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Token
+        - ShareClass
         - Diamond
       abis:
         - name: TokenFactory
@@ -174,9 +174,12 @@ templates:
       entities:
         - Offering
         - Investment
+        - DocumentSignature
       abis:
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
+        - name: OfferingDocuments
+          file: ./abis/OfferingDocumentsFacet.json
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
@@ -195,17 +198,17 @@ templates:
     name: TokenDiamond
     network: base
     source:
-      abi: TokenMetadata
+      abi: TokenDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Token
+        - ShareClass
         - Lot
       abis:
-        - name: TokenMetadata
-          file: ./abis/TokenMetadataFacet.json
+        - name: TokenDiamond
+          file: ./abis/TokenDiamond.json
         - name: TokenBalances
           file: ./abis/TokenBalancesFacet.json
         - name: TokenLots
@@ -213,6 +216,30 @@ templates:
       eventHandlers:
         - event: TokenInitialized(string,string,uint8)
           handler: handleTokenInitialized
+        - event: LotCreated(indexed address,indexed bytes32,indexed uint256,uint256,uint256,uint256)
+          handler: handleLotCreated
+        - event: MaxSupplyUpdated(uint256)
+          handler: handleMaxSupplyUpdated
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+        - event: AccountFrozen(indexed address)
+          handler: handleAccountFrozen
+        - event: AccountUnfrozen(indexed address)
+          handler: handleAccountUnfrozen
+        - event: LotFrozen(indexed bytes32)
+          handler: handleLotFrozen
+        - event: LotUnfrozen(indexed bytes32)
+          handler: handleLotUnfrozen
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+        - event: StockSplitApplied(uint256,uint256)
+          handler: handleStockSplitApplied
+        - event: StockDividendApplied(uint256,uint256,bool)
+          handler: handleStockDividendApplied
+        - event: EntityPublicStatusUpdated(bool)
+          handler: handleEntityPublicStatusUpdated
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
@@ -237,5 +264,11 @@ templates:
       eventHandlers:
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
+        - event: DocumentUploaded(indexed bytes32,indexed bytes32,indexed address)
+          handler: handleDocumentUploaded
+        - event: DocumentSigned(indexed bytes32,indexed address,uint256)
+          handler: handleDocumentSigned
+        - event: DocumentDeleted(indexed bytes32,indexed address)
+          handler: handleDocumentDeleted
       file: ./src/mappings/wallets.ts
 

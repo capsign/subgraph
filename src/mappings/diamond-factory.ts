@@ -1,5 +1,5 @@
 import { DiamondCreated } from "../../generated/DiamondFactory/DiamondFactory";
-import { Diamond, Wallet, Offering, Token } from "../../generated/schema";
+import { Diamond, Wallet, Offering } from "../../generated/schema";
 import {
   OfferingDiamond,
   TokenDiamond,

@@ -6,7 +6,7 @@ import {
   OfferingStatusChanged,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import { Offering, Investment, Diamond } from "../../generated/schema";
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import { fetchOfferingMetadata, getOfferingTypeEnum } from "../utils/metadata";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
@@ -138,7 +138,8 @@ export function handleOfferingStatusChanged(
   if (!offering) return;
 
   // Map uint8 to enum string
-  const statusMap = ["ACTIVE", "PAUSED", "CLOSED", "FINALIZED"];
+  // Matches OfferingCoreStorage.OfferingStatus: DRAFT(0), ACTIVE(1), COMPLETED(2), CANCELLED(3)
+  const statusMap = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"];
   offering.status = statusMap[event.params.newStatus];
   offering.save();
 }

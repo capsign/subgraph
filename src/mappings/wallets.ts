@@ -1,7 +1,14 @@
 import {
   WalletInitialized,
 } from "../../generated/templates/WalletDiamond/WalletCore";
-import { Wallet, Owner, Diamond } from "../../generated/schema";
+import {
+  DocumentUploaded,
+  DocumentSigned,
+  DocumentDeleted,
+} from "../../generated/templates/WalletDiamond/WalletDocuments";
+import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
+import { Wallet, Owner, Diamond, Document, DocumentSignature } from "../../generated/schema";
+import { Bytes } from "@graphprotocol/graph-ts";
 
 export function handleWalletInitialized(event: WalletInitialized): void {
   const walletAddress = event.address.toHexString();
@@ -41,3 +48,76 @@ export function handleWalletInitialized(event: WalletInitialized): void {
     diamond.save();
   }
 }
+
+export function handleDocumentUploaded(event: DocumentUploaded): void {
+  const walletAddress = event.address;
+  const documentId = event.params.documentId;
+  const docEntityId = walletAddress.toHexString() + "-" + documentId.toHexString();
+
+  // Bind to the wallet contract to fetch full document details
+  const walletContract = WalletDocuments.bind(walletAddress);
+  const docDetails = walletContract.try_getDocument(documentId);
+  
+  if (docDetails.reverted) {
+    // If we can't fetch details, create with minimal info
+    let document = new Document(docEntityId);
+    document.wallet = walletAddress.toHexString();
+    document.contentHash = event.params.contentHash;
+    document.creator = event.params.creator;
+    document.createdAt = event.block.timestamp;
+    document.storageURI = "";
+    document.category = "";
+    document.title = "";
+    document.requiredSigners = [];
+    document.save();
+    return;
+  }
+
+  // Create document entity with full details
+  let document = new Document(docEntityId);
+  document.wallet = walletAddress.toHexString();
+  document.contentHash = docDetails.value.value0;
+  document.storageURI = docDetails.value.value1;
+  document.creator = docDetails.value.value2;
+  document.createdAt = docDetails.value.value3;
+  document.requiredSigners = docDetails.value.value4.map<Bytes>((addr) => addr as Bytes);
+  document.title = docDetails.value.value5;
+  document.category = docDetails.value.value6;
+  
+  document.save();
+}
+
+export function handleDocumentSigned(event: DocumentSigned): void {
+  const walletAddress = event.address.toHexString();
+  const documentId = event.params.documentId.toHexString();
+  const signer = event.params.signer;
+  
+  const docEntityId = walletAddress + "-" + documentId;
+  const signatureId = docEntityId + "-" + signer.toHexString();
+
+  // Create document signature entity
+  let signature = new DocumentSignature(signatureId);
+  signature.document = docEntityId;
+  signature.signer = signer;
+  signature.signedAt = event.params.timestamp;
+  
+  signature.save();
+}
+
+export function handleDocumentDeleted(event: DocumentDeleted): void {
+  const walletAddress = event.address.toHexString();
+  const documentId = event.params.documentId.toHexString();
+  const docEntityId = walletAddress + "-" + documentId;
+
+  // Remove document entity
+  // Note: DocumentSignature entities will remain (for audit trail)
+  // but the document itself is marked as deleted by removing it
+  const document = Document.load(docEntityId);
+  if (document) {
+    // In subgraph, we don't actually delete, we just mark it
+    // But since schema doesn't have a 'deleted' flag, we remove it
+    // Alternatively, you could add a 'deleted: Boolean!' field to schema
+    // For now, we'll just leave it (signatures still reference it)
+  }
+}
+

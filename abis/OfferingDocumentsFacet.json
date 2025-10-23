@@ -1,0 +1,246 @@
+[
+  {
+    "type": "function",
+    "name": "canSignRequiredDocument",
+    "inputs": [
+      {
+        "name": "signer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "eligible",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRequiredDocumentInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "documentWallet",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum OfferingDocumentsStorage.SignerEligibility"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "signedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedRequiredDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setRequiredDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum OfferingDocumentsStorage.SignerEligibility"
+      },
+      {
+        "name": "customModule",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "signDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "DocumentSigned",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "signer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Initialized",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RequiredDocumentSet",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "documentWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum OfferingDocumentsStorage.SignerEligibility"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "CallerIsNotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "DelegateNotAllowed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidInitialization",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotInitializing",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_DocumentNotFoundInWallet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_InvalidWalletAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NoRequiredDocument",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NotAuthorizedSigner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NotRequiredDocument",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OnlyDelegate",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ReentrancyGuardReentrantCall",
+    "inputs": []
+  }
+]

@@ -8,7 +8,7 @@ type Diamond @entity {
   # Polymorphic relationships (optional - diamonds may be tracked separately)
   wallet: Wallet
   offering: Offering
-  token: Token
+  token: IToken # Can reference any token type via interface
 }
 
 type Wallet @entity {
@@ -73,7 +73,7 @@ type Offering @entity {
   id: ID! # Offering address
   issuer: Bytes!
   admin: Bytes! # Admin address for access control
-  token: Token # Nullable in case token isn't indexed yet
+  token: IToken # Nullable, reference to any token type via interface
   paymentToken: Bytes!
   paymentRecipient: Bytes!
   pricePerToken: BigInt!
@@ -107,10 +107,10 @@ type Offering @entity {
 }
 
 enum OfferingStatus {
+  DRAFT
   ACTIVE
-  PAUSED
-  CLOSED
-  FINALIZED
+  COMPLETED
+  CANCELLED
 }
 
 enum OfferingType {
@@ -138,37 +138,299 @@ type Investment @entity {
   qualificationUID: Bytes!
 }
 
-type Token @entity {
+# ============ TOKEN ENTITIES ============
+
+# Interface for all token types (common fields)
+interface IToken {
   id: ID! # Token address
   name: String!
   symbol: String!
   decimals: Int!
   totalSupply: BigInt!
-  admin: Bytes! # Admin address for access control
-  creator: Bytes! # Original creator (kept for backwards compatibility)
-  deployer: Bytes! # Address that deployed the token
+  admin: Bytes! # The issuer/owner of the token (company's smart account)
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
   complianceConditions: [Bytes!]! # Compliance conditions used
   
+  # Admin state (from TokenAdminFacet)
+  paused: Boolean!
+  frozenAccounts: [Bytes!]!
+  frozenLots: [Bytes!]!
+  
+  # Transfer conditions
+  transferController: Bytes
+  hasTransferConditions: Boolean!
+  
   # Relationships
-  lots: [Lot!]! @derivedFrom(field: "token")
-  offerings: [Offering!]! @derivedFrom(field: "token")
+  lots: [Lot!]!
+  offerings: [Offering!]!
 }
 
+# ShareClass tokens (equity shares)
+type ShareClass implements IToken @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  admin: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  assetType: TokenAssetType!
+  complianceConditions: [Bytes!]!
+  paused: Boolean!
+  frozenAccounts: [Bytes!]!
+  frozenLots: [Bytes!]!
+  transferController: Bytes
+  hasTransferConditions: Boolean!
+  lots: [Lot!]! @derivedFrom(field: "token")
+  offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # ShareClass-specific fields (from TokenAdminFacet)
+  maxSupply: BigInt! # 0 = unlimited (from TokenAdminFacet)
+  
+  # Corporate actions (from TokenCorporateActionsFacet)
+  splitNum: BigInt! # Cumulative split numerator
+  splitDen: BigInt! # Cumulative split denominator
+  divNum: BigInt! # Cumulative dividend numerator
+  divDen: BigInt! # Cumulative dividend denominator
+  totalSplits: Int! # Count of splits applied
+  totalDividends: Int! # Count of dividends applied
+  isPublic: Boolean! # Whether entity is SEC registered
+  
+  # Access control (from AccessControlFacet)
+  roleMembers: [TokenRoleMember!]! @derivedFrom(field: "token")
+  
+  # Corporate action history
+  corporateActions: [CorporateAction!]! @derivedFrom(field: "token")
+}
+
+# Token role membership tracking
+type TokenRoleMember @entity {
+  id: ID! # token-user-role (e.g., "0x123...abc-0x456...def-1")
+  token: ShareClass!
+  user: Bytes!
+  role: Int! # uint8 role ID
+  enabled: Boolean!
+  grantedAt: BigInt!
+  grantedTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Corporate action history tracking
+type CorporateAction @entity {
+  id: ID! # tx-logIndex (e.g., "0x123...abc-5")
+  token: ShareClass!
+  actionType: CorporateActionType!
+  numerator: BigInt! # Split/dividend numerator
+  denominator: BigInt! # Split/dividend denominator
+  reducesBasis: Boolean # For dividends only, whether cost basis reduces
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+enum CorporateActionType {
+  StockSplit
+  StockDividend
+}
+
+# SAFE tokens (Simple Agreement for Future Equity)
+# COMMENTED OUT - Will implement in Phase 4
+# type Safe implements IToken @entity {
+#   id: ID!
+#   name: String!
+#   symbol: String!
+#   decimals: Int!
+#   totalSupply: BigInt!
+#   admin: Bytes!
+#   creator: Bytes!
+#   deployer: Bytes!
+#   createdAt: BigInt!
+#   createdTx: Bytes!
+#   assetType: TokenAssetType!
+#   complianceConditions: [Bytes!]!
+#   paused: Boolean!
+#   frozenAccounts: [Bytes!]!
+#   frozenLots: [Bytes!]!
+#   transferController: Bytes
+#   hasTransferConditions: Boolean!
+#   lots: [Lot!]! @derivedFrom(field: "token")
+#   offerings: [Offering!]! @derivedFrom(field: "token")
+#   
+#   # SAFE-specific fields (from TokenSAFEFacet)
+#   issuer: Bytes!
+#   defaultValuationCap: BigInt! # 0 = no cap
+#   defaultDiscountRate: BigInt! # Basis points (e.g., 2000 = 20%)
+#   defaultProRataRight: Boolean!
+#   defaultTargetEquityToken: Bytes! # Which share class this converts to
+#   defaultHasMFN: Boolean! # Most Favored Nation clause
+#   
+#   # Conversions
+#   conversions: [SAFEConversion!]! @derivedFrom(field: "safe")
+# }
+
+# Employee Stock Options
+# COMMENTED OUT - Will implement in Phase 4
+# type EmployeeStockOption implements IToken @entity {
+#   id: ID!
+#   name: String!
+#   symbol: String!
+#   decimals: Int!
+#   totalSupply: BigInt! # Pool size
+#   admin: Bytes!
+#   creator: Bytes!
+#   deployer: Bytes!
+#   createdAt: BigInt!
+#   createdTx: Bytes!
+#   assetType: TokenAssetType!
+#   complianceConditions: [Bytes!]!
+#   paused: Boolean!
+#   frozenAccounts: [Bytes!]!
+#   frozenLots: [Bytes!]!
+#   transferController: Bytes
+#   hasTransferConditions: Boolean!
+#   lots: [Lot!]! @derivedFrom(field: "token")
+#   offerings: [Offering!]! @derivedFrom(field: "token")
+#   
+#   # ESO-specific fields (from TokenESOFacet)
+#   issuer: Bytes!
+#   underlyingShareClass: ShareClass # Which share class these options are for
+#   defaultExercisePrice: BigInt!
+#   defaultExpirationPeriod: BigInt! # Seconds after grant
+#   poolSize: BigInt! # Total options allocated to pool
+#   optionsGranted: BigInt! # Options already granted
+#   optionsExercised: BigInt! # Options exercised
+#   
+#   # Grants
+#   grants: [ESOGrant!]! @derivedFrom(field: "option")
+# }
+
+# Stock Appreciation Rights
+# COMMENTED OUT - Will implement in Phase 4
+# type StockAppreciationRight implements IToken @entity {
+#   id: ID!
+#   name: String!
+#   symbol: String!
+#   decimals: Int!
+#   totalSupply: BigInt! # Pool size
+#   admin: Bytes!
+#   deployer: Bytes!
+#   createdAt: BigInt!
+#   createdTx: Bytes!
+#   assetType: TokenAssetType!
+#   complianceConditions: [Bytes!]!
+#   paused: Boolean!
+#   frozenAccounts: [Bytes!]!
+#   frozenLots: [Bytes!]!
+#   transferController: Bytes
+#   hasTransferConditions: Boolean!
+#   lots: [Lot!]! @derivedFrom(field: "token")
+#   offerings: [Offering!]! @derivedFrom(field: "token")
+#   
+#   # SAR-specific fields (from TokenSARFacet)
+#   issuer: Bytes!
+#   underlyingShareClass: ShareClass # Which share class these SARs reference
+#   basePrice: BigInt! # Base price for appreciation calculation
+#   settlementType: String! # "Cash" or "Shares"
+#   poolSize: BigInt! # Total SARs allocated to pool
+#   sarsGranted: BigInt! # SARs already granted
+#   sarsExercised: BigInt! # SARs exercised
+#   
+#   # Grants
+#   grants: [SARGrant!]! @derivedFrom(field: "sar")
+# }
+
 enum TokenAssetType {
-  SHARE
-  UNIT_INTEREST
-  SAFE
-  EMPLOYEE_STOCK_OPTION
-  WARRANT
-  SAR
+  ShareClass
+  # Future token types (commented out until implemented):
+  # UnitInterest
+  # Safe
+  # EmployeeStockOption
+  # Warrant
+  # StockAppreciationRight
+}
+
+# FUTURE: SAFE Conversion tracking (uncomment when implementing Safe tokens)
+# type SAFEConversion @entity {
+#   id: ID! # safe-conversion-index
+#   safe: Safe!
+#   lot: Lot! # The SAFE lot being converted
+#   targetShareClass: ShareClass! # What it's converting to
+#   triggerEvent: String! # e.g., "Equity Financing", "Liquidity Event", "Maturity"
+#   conversionPrice: BigInt!
+#   sharesIssued: BigInt!
+#   convertedAt: BigInt!
+#   convertedTx: Bytes!
+# }
+
+# FUTURE: ESO Grant tracking (uncomment when implementing ESO tokens)
+# type ESOGrant @entity {
+#   id: ID! # option-grant-index
+#   option: EmployeeStockOption!
+#   grantee: Wallet!
+#   lot: Lot! # The ESO lot for this grant
+#   quantity: BigInt!
+#   exercisePrice: BigInt!
+#   grantedAt: BigInt!
+#   cliffDate: BigInt!
+#   expirationDate: BigInt!
+#   vestedAmount: BigInt!
+#   exercisedAmount: BigInt!
+#   isRevoked: Boolean!
+#   revokedAt: BigInt
+# }
+
+# FUTURE: SAR Grant tracking (uncomment when implementing SAR tokens)
+# type SARGrant @entity {
+#   id: ID! # sar-grant-index
+#   sar: StockAppreciationRight!
+#   grantee: Wallet!
+#   lot: Lot! # The SAR lot for this grant
+#   quantity: BigInt!
+#   basePrice: BigInt!
+#   grantedAt: BigInt!
+#   cliffDate: BigInt!
+#   expirationDate: BigInt!
+#   vestedAmount: BigInt!
+#   exercisedAmount: BigInt!
+#   isRevoked: Boolean!
+#   revokedAt: BigInt
+# }
+
+# Transfer Conditions (vesting, lockups, etc.)
+type TransferCondition @entity {
+  id: ID! # token-condition-index
+  token: IToken! # Can apply to any token type
+  conditionType: TransferConditionType!
+  account: Bytes!
+  lot: Lot # Optional: specific to a lot
+  
+  # Vesting-specific fields
+  startDate: BigInt
+  cliffDate: BigInt
+  endDate: BigInt
+  totalAmount: BigInt
+  claimedAmount: BigInt!
+  
+  # State
+  revoked: Boolean!
+  revokedAt: BigInt
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+enum TransferConditionType {
+  Vesting
+  Lockup
+  Custom
 }
 
 type Lot @entity {
   id: ID! # token-lotId
-  token: Token!
+  token: IToken! # Can reference any token type via interface
   lotId: BigInt!
   owner: Wallet!
   balance: BigInt!
@@ -181,6 +443,15 @@ type Lot @entity {
   assetId: String # Token identifier
   paymentCurrency: Bytes # Currency used for acquisition
   metadata: String
+  
+  # State
+  frozen: Boolean!
+  frozenAt: BigInt
+  
+  # Type-specific references (optional - uncomment as needed)
+  # esoGrant: ESOGrant # If this is an ESO grant lot
+  # sarGrant: SARGrant # If this is a SAR grant lot
+  # safeConversion: SAFEConversion # If this lot was created from SAFE conversion
 }
 
 type Attestation @entity {
