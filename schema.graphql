@@ -586,3 +586,55 @@ enum FacetRegistryEventType {
   REMOVED
   DEPLOYED
 }
+
+# ============ FACTORY PAYMENT TRACKING ============
+
+type FactoryPaymentConfig @entity {
+  id: ID! # factory-address
+  factory: Bytes!
+  factoryType: FactoryType! # TOKEN, OFFERING, WALLET
+  feeRecipient: Bytes!
+  paymentsEnabled: Boolean!
+  deploymentCount: BigInt!
+  
+  # Payment tokens
+  paymentTokens: [FactoryPaymentToken!]! @derivedFrom(field: "factoryConfig")
+  
+  # Payments collected
+  payments: [FactoryPayment!]! @derivedFrom(field: "factory")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+type FactoryPaymentToken @entity {
+  id: ID! # factory-token
+  factoryConfig: FactoryPaymentConfig!
+  paymentToken: Bytes!
+  feeAmount: BigInt!
+  isActive: Boolean!
+  totalCollected: BigInt!
+  
+  configuredAt: BigInt!
+  configuredTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+type FactoryPayment @entity {
+  id: ID! # tx-logIndex
+  factory: FactoryPaymentConfig!
+  payer: Bytes!
+  paymentToken: Bytes!
+  amount: BigInt!
+  deploymentType: String! # "Token", "Offering", "Wallet"
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+enum FactoryType {
+  TOKEN
+  OFFERING
+  WALLET
+}

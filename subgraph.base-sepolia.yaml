@@ -125,6 +125,9 @@ dataSources:
       entities:
         - Offering
         - Diamond
+        - FactoryPaymentConfig
+        - FactoryPaymentToken
+        - FactoryPayment
       abis:
         - name: OfferingFactory
           file: ./abis/OfferingFactory.json
@@ -133,6 +136,16 @@ dataSources:
       eventHandlers:
         - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
           handler: handleOfferingCreated
+        - event: PaymentModuleInitialized(indexed address)
+          handler: handlePaymentModuleInitialized
+        - event: PaymentTokenConfigured(indexed address,uint256,bool)
+          handler: handlePaymentTokenConfigured
+        - event: PaymentCollected(indexed address,indexed address,uint256,string)
+          handler: handlePaymentCollected
+        - event: FeeRecipientUpdated(indexed address)
+          handler: handleFeeRecipientUpdated
+        - event: PaymentsStatusChanged(bool)
+          handler: handlePaymentsStatusChanged
       file: ./src/mappings/offering-factory.ts
 
   # TokenFactory - tracks token creation (Permissionless)
@@ -150,6 +163,9 @@ dataSources:
       entities:
         - ShareClass
         - Diamond
+        - FactoryPaymentConfig
+        - FactoryPaymentToken
+        - FactoryPayment
       abis:
         - name: TokenFactory
           file: ./abis/TokenFactory.json
@@ -158,6 +174,16 @@ dataSources:
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[])
           handler: handleTokenCreated
+        - event: PaymentModuleInitialized(indexed address)
+          handler: handlePaymentModuleInitialized
+        - event: PaymentTokenConfigured(indexed address,uint256,bool)
+          handler: handlePaymentTokenConfigured
+        - event: PaymentCollected(indexed address,indexed address,uint256,string)
+          handler: handlePaymentCollected
+        - event: FeeRecipientUpdated(indexed address)
+          handler: handleFeeRecipientUpdated
+        - event: PaymentsStatusChanged(bool)
+          handler: handlePaymentsStatusChanged
       file: ./src/mappings/token-factory.ts
 
 templates:
