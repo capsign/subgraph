@@ -18,6 +18,7 @@ import {
 import { ShareClass, Diamond, TokenRoleMember, CorporateAction, Lot, LotAdjustment, CustomIdUpdate } from "../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
+import { createActivity } from "./activity";
 
 /**
  * Handle TokenInitialized event
@@ -97,8 +98,7 @@ export function handleLotCreated(event: LotCreated): void {
   lot.token = tokenAddress;
   lot.assetId = tokenAddress; // For now, assetId = tokenAddress
   lot.owner = event.params.to.toHexString(); // Reference to Wallet entity by ID
-  lot.balance = event.params.quantity;
-  lot.quantity = event.params.quantity;
+  lot.quantity = event.params.rawQuantity; // Store RAW quantity (before corporate actions)
   lot.costBasis = event.params.costBasis;
   lot.acquisitionDate = event.params.acquisitionDate;
   lot.createdAt = event.params.acquisitionDate; // Use acquisitionDate as createdAt
@@ -135,6 +135,18 @@ export function handleLotCreated(event: LotCreated): void {
   }
   
   lot.save();
+  
+  // Create activity for lot received
+  const activity = createActivity(
+    "lot-received-" + lotId,
+    "LOT_RECEIVED",
+    event.params.to,
+    event.params.acquisitionDate,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.lot = lotId;
+  activity.save();
   
   // Update total supply (use rawQuantity from event)
   shareClass.totalSupply = shareClass.totalSupply.plus(event.params.rawQuantity);
@@ -321,6 +333,18 @@ export function handleStockSplitApplied(event: StockSplitApplied): void {
     action.timestamp = event.block.timestamp;
     action.tx = event.transaction.hash;
     action.save();
+    
+    // Create activity for corporate action
+    const activity = createActivity(
+      "corporate-action-" + actionId,
+      "CORPORATE_ACTION",
+      shareClass.admin,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.corporateAction = actionId;
+    activity.save();
   }
 }
 
@@ -350,6 +374,18 @@ export function handleStockDividendApplied(event: StockDividendApplied): void {
     action.timestamp = event.block.timestamp;
     action.tx = event.transaction.hash;
     action.save();
+    
+    // Create activity for corporate action
+    const activity = createActivity(
+      "corporate-action-" + actionId,
+      "CORPORATE_ACTION",
+      shareClass.admin,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.corporateAction = actionId;
+    activity.save();
   }
 }
 
@@ -372,8 +408,67 @@ export function handleEntityPublicStatusUpdated(event: EntityPublicStatusUpdated
  * Creates adjustment history record and updates lots
  */
 export function handleLotAdjusted(event: LotAdjusted): void {
+  const tokenAddress = event.address.toHexString();
   const oldLotId = event.params.oldLotId.toHexString();
   const newLotId = event.params.newLotId.toHexString();
+  
+  // Load old lot to get original values
+  const oldLot = Lot.load(oldLotId);
+  if (!oldLot) {
+    // Old lot doesn't exist, can't proceed
+    return;
+  }
+  
+  // Load token to ensure it exists
+  const shareClass = ShareClass.load(tokenAddress);
+  if (!shareClass) {
+    return;
+  }
+  
+  // Create the new lot entity (LotCreated event is not emitted for adjusted lots)
+  const newLot = new Lot(newLotId);
+  newLot.lotId = BigInt.fromByteArray(event.params.newLotId);
+  newLot.token = tokenAddress;
+  newLot.assetId = tokenAddress;
+  newLot.owner = event.params.owner.toHexString();
+  newLot.quantity = event.params.newQuantity; // This is the RAW quantity
+  newLot.costBasis = event.params.newCostBasis;
+  newLot.acquisitionDate = event.params.acquisitionDate;
+  newLot.createdAt = event.block.timestamp; // Use block timestamp for adjusted lots
+  newLot.acquiredFrom = event.address; // Token contract address
+  newLot.parentLotId = BigInt.fromByteArray(event.params.oldLotId);
+  newLot.customId = oldLot.customId; // Preserve custom ID
+  newLot.uri = event.params.uri;
+  newLot.data = event.params.data;
+  newLot.frozen = false;
+  newLot.adjustedFrom = oldLotId;
+  
+  // Map transfer type enum to string
+  const transferTypeMap = ["INTERNAL", "SALE", "GIFT", "INHERITANCE", "INCOME"];
+  newLot.transferType = transferTypeMap[event.params.tType];
+  
+  // Handle payment currency from the adjustment event
+  const paymentCurrency = event.params.paymentCurrency;
+  newLot.paymentCurrency = paymentCurrency;
+  
+  // If payment currency is zero address, it's ETH (18 decimals)
+  // Otherwise, read decimals from the ERC20 contract
+  if (paymentCurrency.toHexString() === "0x0000000000000000000000000000000000000000") {
+    newLot.paymentDecimals = 18; // ETH
+  } else {
+    // Bind to ERC20 contract and read decimals
+    const erc20 = ERC20.bind(paymentCurrency);
+    const decimalsResult = erc20.try_decimals();
+    
+    if (!decimalsResult.reverted) {
+      newLot.paymentDecimals = decimalsResult.value;
+    } else {
+      // Fallback to old lot's payment decimals if we can't read from ERC20
+      newLot.paymentDecimals = oldLot.paymentDecimals;
+    }
+  }
+  
+  newLot.save();
   
   // Create adjustment record
   const adjustmentId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
@@ -390,11 +485,7 @@ export function handleLotAdjusted(event: LotAdjusted): void {
   adjustment.uri = event.params.uri;
   adjustment.data = event.params.data;
   adjustment.reason = event.params.reason;
-  
-  // Map transfer type enum to string
-  const transferTypeMap = ["INTERNAL", "SALE", "GIFT", "INHERITANCE", "INCOME"];
   adjustment.transferType = transferTypeMap[event.params.tType];
-  
   adjustment.adjustedCostBasis = event.params.adjustedCostBasis;
   adjustment.timestamp = event.block.timestamp;
   adjustment.transaction = event.transaction.hash;
@@ -403,17 +494,14 @@ export function handleLotAdjusted(event: LotAdjusted): void {
   adjustment.save();
   
   // Update old lot to mark as adjusted/frozen
-  const oldLot = Lot.load(oldLotId);
-  if (oldLot) {
-    oldLot.frozen = true; // Mark as frozen since it's been adjusted
-    oldLot.save(); // Don't forget to save!
-  }
+  oldLot.frozen = true; // Mark as frozen since it's been adjusted
+  oldLot.save();
   
-  // Update new lot with adjustedFrom reference
-  const newLot = Lot.load(newLotId);
-  if (newLot) {
-    newLot.adjustedFrom = oldLotId;
-    newLot.save();
+  // Update total supply if quantity changed
+  const quantityDelta = event.params.newQuantity.minus(oldLot.quantity);
+  if (!quantityDelta.isZero()) {
+    shareClass.totalSupply = shareClass.totalSupply.plus(quantityDelta);
+    shareClass.save();
   }
 }
 

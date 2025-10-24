@@ -9,6 +9,7 @@ import {
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
 import { Wallet, Owner, Diamond, Document, DocumentSignature } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
+import { createActivity } from "./activity";
 
 export function handleWalletInitialized(event: WalletInitialized): void {
   const walletAddress = event.address.toHexString();
@@ -86,6 +87,18 @@ export function handleDocumentUploaded(event: DocumentUploaded): void {
   document.category = docDetails.value.value6;
   
   document.save();
+  
+  // Create activity for document uploaded
+  const activity = createActivity(
+    "document-uploaded-" + documentId,
+    "DOCUMENT_UPLOADED",
+    walletAddress,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.document = documentId;
+  activity.save();
 }
 
 export function handleDocumentSigned(event: DocumentSigned): void {
@@ -105,6 +118,18 @@ export function handleDocumentSigned(event: DocumentSigned): void {
   signature.logIndex = event.logIndex;
   
   signature.save();
+  
+  // Create activity for document signed
+  const activity = createActivity(
+    "document-signed-" + signatureId,
+    "DOCUMENT_SIGNED",
+    signer,
+    event.params.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.documentSignature = signatureId;
+  activity.save();
 }
 
 export function handleDocumentDeleted(event: DocumentDeleted): void {

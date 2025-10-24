@@ -15,6 +15,7 @@ import {
 } from "../../generated/templates/OfferingDiamond/OfferingCompliance";
 import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
+import { createActivity } from "./activity";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
   const offeringAddress = event.address.toHexString();
@@ -47,6 +48,18 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   offering.status = "ACTIVE";
 
   offering.save();
+  
+  // Create activity for offering creation
+  const offeringActivity = createActivity(
+    "offering-created-" + offeringAddress + "-" + event.logIndex.toString(),
+    "OFFERING_CREATED",
+    offering.issuer,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  offeringActivity.offering = offeringAddress;
+  offeringActivity.save();
   
   // Update diamond type
   const diamond = Diamond.load(offeringAddress);
@@ -91,6 +104,30 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   offering.totalInvested = offering.totalInvested.plus(event.params.amount);
   offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
   offering.save();
+  
+  // Create activity for investment made (investor's perspective)
+  const investorActivity = createActivity(
+    "investment-made-" + investmentId,
+    "INVESTMENT_MADE",
+    event.params.investor,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  investorActivity.investment = investmentId;
+  investorActivity.save();
+  
+  // Create activity for investment received (issuer's perspective)
+  const issuerActivity = createActivity(
+    "investment-received-" + investmentId,
+    "INVESTMENT_RECEIVED",
+    offering.issuer,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  issuerActivity.investment = investmentId;
+  issuerActivity.save();
 }
 
 export function handleInvestmentAccepted(

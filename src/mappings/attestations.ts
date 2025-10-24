@@ -1,6 +1,7 @@
 import { Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { Attested, Revoked, EAS } from "../../generated/EAS/EAS";
 import { Attestation, Wallet } from "../../generated/schema";
+import { createActivity } from "./activity";
 
 // Schema UIDs for separate KYC and Classification attestations
 const KYC_SCHEMA = Bytes.fromHexString("0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37");
@@ -81,6 +82,18 @@ export function handleAttested(event: Attested): void {
   }
   
   attestation.save();
+  
+  // Create activity for attestation received
+  const activity = createActivity(
+    "attestation-received-" + event.params.uid.toHexString(),
+    "ATTESTATION_RECEIVED",
+    event.params.recipient,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.attestation = event.params.uid.toHexString();
+  activity.save();
 }
 
 export function handleRevoked(event: Revoked): void {

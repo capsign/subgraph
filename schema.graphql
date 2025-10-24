@@ -73,6 +73,41 @@ type DocumentSignature @entity {
   logIndex: BigInt!
 }
 
+# Unified Activity Feed
+type Activity @entity {
+  id: ID! # tx-hash-logIndex or unique identifier
+  type: ActivityType!
+  wallet: Bytes! # The wallet this activity relates to (for filtering)
+  timestamp: BigInt! # Universal timestamp for sorting
+  tx: Bytes!
+  blockNumber: BigInt!
+  
+  # Polymorphic references (only one will be set based on type)
+  investment: Investment
+  offering: Offering
+  corporateAction: CorporateAction
+  documentSignature: DocumentSignature
+  document: Document
+  attestation: Attestation
+  lot: Lot
+}
+
+enum ActivityType {
+  INVESTMENT_MADE
+  INVESTMENT_RECEIVED
+  INVESTMENT_COUNTERSIGNED
+  INVESTMENT_REJECTED
+  OFFERING_CREATED
+  OFFERING_COMPLETED
+  OFFERING_CANCELLED
+  CORPORATE_ACTION
+  DOCUMENT_SIGNED
+  DOCUMENT_UPLOADED
+  ATTESTATION_RECEIVED
+  LOT_RECEIVED
+  LOT_TRANSFERRED
+}
+
 type Offering @entity {
   id: ID! # Offering address
   issuer: Bytes!
@@ -443,11 +478,10 @@ type Lot @entity {
   token: IToken! # Can reference any token type via interface
   lotId: BigInt!
   owner: Wallet!
-  balance: BigInt!
-  quantity: BigInt! # Alias for balance
+  quantity: BigInt! # Raw quantity (before corporate actions). To get real quantity: quantity * token.splitNum * token.divNum / (token.splitDen * token.divDen)
+  costBasis: BigInt! # Raw cost basis (before adjustments)
   acquisitionDate: BigInt!
   createdAt: BigInt! # Alias for acquisitionDate
-  costBasis: BigInt!
   acquiredFrom: Bytes!
   parentLotId: BigInt # For lot splits/transfers
   assetId: String # Token identifier
