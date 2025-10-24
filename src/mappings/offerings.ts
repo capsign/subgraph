@@ -5,9 +5,16 @@ import {
   InvestmentRejected,
   OfferingStatusChanged,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
-import { Offering, Investment, Diamond } from "../../generated/schema";
+import {
+  DocumentSigned,
+} from "../../generated/templates/OfferingDiamond/OfferingDocuments";
+import {
+  ComplianceInitialized,
+  AllowsGeneralSolicitationUpdated,
+  AllowsSelfCertificationUpdated,
+} from "../../generated/templates/OfferingDiamond/OfferingCompliance";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
-import { fetchOfferingMetadata, getOfferingTypeEnum } from "../utils/metadata";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
   const offeringAddress = event.address.toHexString();
@@ -22,7 +29,6 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
     offering.admin = event.params.issuer; // Fallback to issuer
     offering.deployer = event.transaction.from;
     offering.complianceModules = []; // Empty array fallback
-    offering.metadataFetched = false;
   }
 
   // Update offering with initialization data from event
@@ -40,32 +46,6 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
 
-  // Fetch and parse metadata if URI is provided
-  // Note: Metadata fetching is currently disabled for non-IPFS URIs
-  // For Vercel Blob and other HTTP URLs, metadata will be fetched client-side
-  if (event.params.uri && event.params.uri.length > 0) {
-    // Store the URI for client-side fetching
-    offering.metadataFetched = false;
-    
-    // TODO: Enable IPFS fetching when supported by Graph provider
-    // const metadata = fetchOfferingMetadata(event.params.uri);
-    // if (metadata !== null) {
-    //   offering.name = metadata.name;
-    //   offering.description = metadata.description;
-    //   offering.image = metadata.image;
-    //   offering.offeringType = getOfferingTypeEnum(metadata.offeringType);
-    //   offering.issuerName = metadata.issuerName;
-    //   offering.issuerJurisdiction = metadata.issuerJurisdiction;
-    //   offering.issuerWebsite = metadata.issuerWebsite;
-    //   offering.issuerLogo = metadata.issuerLogo;
-    //   offering.generalSolicitation = metadata.generalSolicitation;
-    //   offering.investorLimit = metadata.investorLimit;
-    //   offering.metadataFetched = true;
-    // }
-  } else {
-    offering.metadataFetched = false;
-  }
-  
   offering.save();
   
   // Update diamond type
@@ -81,19 +61,31 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
 
-  const investmentId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  // Use tx-hash-logIndex for globally unique ID
+  const investmentId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  
+  // Create composite ID for protocol lookups (offering-investmentId)
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  
   const investment = new Investment(investmentId);
+  investment.compositeId = compositeId;
   investment.offering = offering.id;
   investment.investor = event.params.investor.toHexString();
   investment.investmentId = event.params.investmentId;
   investment.amount = event.params.amount;
-  investment.tokenQuantity = BigInt.fromI32(0); // Will be set after acceptance
+  investment.tokenQuantity = event.params.tokenQuantity; // Now included in event!
   investment.investedAt = event.block.timestamp;
-  investment.isCountersigned = false;
-  investment.isRejected = false;
+  investment.investedTx = event.transaction.hash;
+  investment.investedBlockNumber = event.block.number;
+  investment.status = "PENDING"; // Initial status
   investment.identityUID = event.params.identityUID;
   investment.qualificationUID = event.params.qualificationUID;
   investment.save();
+  
+  // Create lookup entity for composite ID queries
+  const lookup = new InvestmentLookup(compositeId);
+  lookup.investment = investmentId;
+  lookup.save();
 
   // Update offering totals
   offering.totalInvested = offering.totalInvested.plus(event.params.amount);
@@ -104,22 +96,32 @@ export function handleFundsDeposited(event: FundsDeposited): void {
 export function handleInvestmentAccepted(
   event: InvestmentAccepted
 ): void {
-  const investmentId = event.address.toHexString() + "-" + event.params.investmentId.toString();
-  const investment = Investment.load(investmentId);
+  // Look up investment by compositeId (offering-investmentId)
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  const lookup = InvestmentLookup.load(compositeId);
+  if (!lookup) return; // Investment not found
+  
+  const investment = Investment.load(lookup.investment);
   if (!investment) return;
 
-  investment.isCountersigned = true;
+  investment.status = "ACCEPTED";
   investment.countersignedAt = event.block.timestamp;
+  investment.countersignedTx = event.transaction.hash;
   investment.save();
 }
 
 export function handleInvestmentRejected(event: InvestmentRejected): void {
-  const investmentId = event.address.toHexString() + "-" + event.params.investmentId.toString();
-  const investment = Investment.load(investmentId);
+  // Look up investment by compositeId (offering-investmentId)
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  const lookup = InvestmentLookup.load(compositeId);
+  if (!lookup) return; // Investment not found
+  
+  const investment = Investment.load(lookup.investment);
   if (!investment) return;
 
-  investment.isRejected = true;
+  investment.status = "REJECTED";
   investment.rejectedAt = event.block.timestamp;
+  investment.rejectedTx = event.transaction.hash;
   investment.save();
 
   // Update offering totals
@@ -141,5 +143,85 @@ export function handleOfferingStatusChanged(
   // Matches OfferingCoreStorage.OfferingStatus: DRAFT(0), ACTIVE(1), COMPLETED(2), CANCELLED(3)
   const statusMap = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"];
   offering.status = statusMap[event.params.newStatus];
+  offering.save();
+}
+
+/**
+ * Handle document signatures from offering contracts
+ * Documents are stored in the issuer's wallet, but signatures go through the offering
+ * for compliance checks (ONLY_COMPLIANT signer eligibility)
+ */
+export function handleOfferingDocumentSigned(event: DocumentSigned): void {
+  const documentId = event.params.documentId.toHexString();
+  const signer = event.params.signer;
+  
+  // Check if the document exists - it should have been created by handleDocumentUploaded
+  const document = Document.load(documentId);
+  if (!document) {
+    // Document hasn't been indexed yet, skip (signature will be created by wallet handler)
+    return;
+  }
+  
+  // Signature entity ID is: tx-hash-logIndex
+  const signatureId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+
+  // Create document signature entity
+  let signature = new DocumentSignature(signatureId);
+  signature.document = documentId;
+  signature.signer = signer;
+  signature.signedAt = event.params.timestamp;
+  signature.tx = event.transaction.hash;
+  signature.blockNumber = event.block.number;
+  signature.logIndex = event.logIndex;
+  
+  signature.save();
+}
+
+/**
+ * Handle compliance initialization
+ * Captures initial generalSolicitation and allowsSelfCertification settings
+ */
+export function handleComplianceInitialized(event: ComplianceInitialized): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    return; // Skip if offering not found
+  }
+  
+  // Set compliance settings from event parameters (now included in event!)
+  offering.generalSolicitation = event.params.allowsGeneralSolicitation;
+  offering.allowsSelfCertification = event.params.allowsSelfCertification;
+  
+  offering.save();
+}
+
+/**
+ * Handle general solicitation setting updates
+ */
+export function handleAllowsGeneralSolicitationUpdated(event: AllowsGeneralSolicitationUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    return; // Skip if offering not found
+  }
+  
+  offering.generalSolicitation = event.params.allowed;
+  offering.save();
+}
+
+/**
+ * Handle self-certification setting updates
+ */
+export function handleAllowsSelfCertificationUpdated(event: AllowsSelfCertificationUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    return; // Skip if offering not found
+  }
+  
+  offering.allowsSelfCertification = event.params.allowed;
   offering.save();
 }

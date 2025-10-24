@@ -48,7 +48,7 @@ enum OwnerType {
 }
 
 type Document @entity {
-  id: ID! # documentId (bytes32)
+  id: ID! # Raw documentId (bytes32 as hex string)
   wallet: Wallet!
   contentHash: Bytes!
   storageURI: String!
@@ -56,6 +56,7 @@ type Document @entity {
   title: String!
   creator: Bytes!
   createdAt: BigInt!
+  createdTx: Bytes!
   requiredSigners: [Bytes!]!
   
   # Signatures
@@ -63,10 +64,13 @@ type Document @entity {
 }
 
 type DocumentSignature @entity {
-  id: ID! # documentId-signer
+  id: ID! # tx-hash-logIndex
   document: Document!
   signer: Bytes!
   signedAt: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
 }
 
 type Offering @entity {
@@ -89,18 +93,9 @@ type Offering @entity {
   uri: String # Optional metadata URI
   complianceModules: [Bytes!]! # Compliance modules used
   
-  # Parsed metadata (fetched from URI)
-  name: String
-  description: String
-  image: String
-  offeringType: OfferingType # 506b, 506c, reg_a, reg_cf, custom
-  issuerName: String
-  issuerJurisdiction: String
-  issuerWebsite: String
-  issuerLogo: String
+  # Compliance settings
   generalSolicitation: Boolean
-  investorLimit: BigInt # 0 = unlimited
-  metadataFetched: Boolean! # True if metadata was successfully fetched
+  allowsSelfCertification: Boolean
   
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
@@ -113,27 +108,42 @@ enum OfferingStatus {
   CANCELLED
 }
 
-enum OfferingType {
-  TYPE_506B
-  TYPE_506C
-  REG_A
-  REG_CF
-  CUSTOM
-  UNKNOWN
+enum InvestmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+# Lookup table for finding investments by compositeId
+type InvestmentLookup @entity {
+  id: ID! # offering-investmentId (compositeId)
+  investment: Investment! # Points to the actual investment entity
 }
 
 type Investment @entity {
-  id: ID! # offering-investmentId
+  id: ID! # tx-hash-logIndex (unique event identifier)
+  compositeId: String! # offering-investmentId (for protocol lookups)
   offering: Offering!
   investor: Wallet!
-  investmentId: BigInt!
+  investmentId: BigInt! # Protocol's internal investment ID
   amount: BigInt!
   tokenQuantity: BigInt!
   investedAt: BigInt!
-  isCountersigned: Boolean!
+  investedTx: Bytes!
+  investedBlockNumber: BigInt!
+  
+  # Status management
+  status: InvestmentStatus!
+  
+  # Countersign data (when status = ACCEPTED)
   countersignedAt: BigInt
-  isRejected: Boolean!
+  countersignedTx: Bytes
+  
+  # Rejection data (when status = REJECTED)
   rejectedAt: BigInt
+  rejectedTx: Bytes
+  
+  # Attestations
   identityUID: Bytes!
   qualificationUID: Bytes!
 }

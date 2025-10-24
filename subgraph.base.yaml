@@ -166,7 +166,7 @@ templates:
     name: OfferingDiamond
     network: base
     source:
-      abi: OfferingCore
+      abi: OfferingDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -176,14 +176,18 @@ templates:
         - Investment
         - DocumentSignature
       abis:
+        - name: OfferingDiamond
+          file: ./abis/OfferingDiamond.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
         - name: OfferingDocuments
           file: ./abis/OfferingDocumentsFacet.json
+        - name: OfferingCompliance
+          file: ./abis/OfferingComplianceFacet.json
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
-        - event: FundsDeposited(indexed address,indexed uint256,uint256,bytes32,bytes32)
+        - event: FundsDeposited(indexed address,indexed uint256,uint256,uint256,bytes32,bytes32)
           handler: handleFundsDeposited
         - event: InvestmentAccepted(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentAccepted
@@ -191,6 +195,15 @@ templates:
           handler: handleInvestmentRejected
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: DocumentSigned(indexed bytes32,indexed address,uint256)
+          handler: handleOfferingDocumentSigned
+          receipt: true
+        - event: ComplianceInitialized(bool,bool)
+          handler: handleComplianceInitialized
+        - event: AllowsGeneralSolicitationUpdated(bool)
+          handler: handleAllowsGeneralSolicitationUpdated
+        - event: AllowsSelfCertificationUpdated(bool)
+          handler: handleAllowsSelfCertificationUpdated
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template
