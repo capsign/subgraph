@@ -263,6 +263,8 @@ templates:
           handler: handleLotAdjusted
         - event: CustomIdUpdated(indexed bytes32,uint256,uint256)
           handler: handleCustomIdUpdated
+        - event: LotInvalidated(indexed bytes32)
+          handler: handleLotInvalidated
         - event: MaxSupplyUpdated(uint256)
           handler: handleMaxSupplyUpdated
         - event: Paused(address)

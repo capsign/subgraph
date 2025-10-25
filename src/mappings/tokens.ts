@@ -14,6 +14,7 @@ import {
   LotCreated,
   LotAdjusted,
   CustomIdUpdated,
+  LotInvalidated,
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { ShareClass, Diamond, TokenRoleMember, CorporateAction, Lot, LotAdjustment, CustomIdUpdate } from "../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
@@ -108,6 +109,7 @@ export function handleLotCreated(event: LotCreated): void {
   lot.uri = event.params.uri; // URI from event
   lot.data = event.params.data; // Additional data from event
   lot.frozen = false; // New lots are not frozen by default
+  lot.isValid = true; // New lots are valid by default
   
   // Map transfer type enum to string
   const transferTypeMap = ["INTERNAL", "SALE", "GIFT", "INHERITANCE", "INCOME"];
@@ -441,6 +443,7 @@ export function handleLotAdjusted(event: LotAdjusted): void {
   newLot.uri = event.params.uri;
   newLot.data = event.params.data;
   newLot.frozen = false;
+  newLot.isValid = true; // New adjusted lots are valid by default
   newLot.adjustedFrom = oldLotId;
   
   // Map transfer type enum to string
@@ -531,3 +534,33 @@ export function handleCustomIdUpdated(event: CustomIdUpdated): void {
     lot.save();
   }
 }
+
+/**
+ * Handle LotInvalidated event from TokenLotsFacet
+ * Marks lots as invalid (burned/cancelled)
+ */
+export function handleLotInvalidated(event: LotInvalidated): void {
+  const tokenAddress = event.address.toHexString();
+  const lotIdBytes = event.params.lotId;
+  const lotId = tokenAddress + "-" + lotIdBytes.toHexString();
+  
+  const lot = Lot.load(lotId);
+  if (lot) {
+    lot.isValid = false;
+    lot.save();
+    
+    // Create activity for lot invalidation
+    const activity = createActivity(
+      "lot-invalidated-" + tokenAddress + "-" + lotId,
+      "LOT_INVALIDATED",
+      Bytes.fromHexString(lot.owner),
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number,
+    );
+    
+    activity.lot = lotId;
+    activity.save();
+  }
+}
+

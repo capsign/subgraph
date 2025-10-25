@@ -1478,5 +1478,18 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotInvalidated",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
   }
 ]

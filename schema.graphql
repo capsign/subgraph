@@ -489,6 +489,7 @@ type Lot @entity {
   paymentDecimals: Int # Decimals of the payment currency
   customId: BigInt # Custom ID for user-friendly lot identification
   uri: String # URI of the lot
+  isValid: Boolean! # Whether the lot is active (false if burned/invalidated)
   data: Bytes # Additional data associated with the lot
   transferType: String # Transfer type (INTERNAL, SALE, GIFT, INHERITANCE, INCOME)
   metadata: String
