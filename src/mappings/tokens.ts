@@ -421,6 +421,10 @@ export function handleLotAdjusted(event: LotAdjusted): void {
     return;
   }
   
+  // Mark the old lot as invalid (this handles lots adjusted before the protocol fix)
+  oldLot.isValid = false;
+  oldLot.save();
+  
   // Load token to ensure it exists
   const shareClass = ShareClass.load(tokenAddress);
   if (!shareClass) {
