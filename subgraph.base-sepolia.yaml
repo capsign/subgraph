@@ -29,7 +29,7 @@ dataSources:
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
       eventHandlers:
-        - event: DiamondCreated(indexed address,indexed address)
+        - event: DiamondCreated(indexed address,indexed address,indexed bytes32)
           handler: handleDiamondCreated
       file: ./src/mappings/diamond-factory.ts
   
@@ -77,12 +77,10 @@ dataSources:
         - name: FacetRegistry
           file: ./abis/FacetRegistry.json
       eventHandlers:
-        - event: FacetRegistered(indexed address,string,bytes4[],uint256)
+        - event: FacetRegistered(indexed string,indexed string,address,uint256)
           handler: handleFacetRegistered
-        - event: FacetRemoved(indexed address,string)
+        - event: FacetRemoved(indexed string,indexed string)
           handler: handleFacetRemoved
-        - event: FacetDeployed(indexed address,indexed bytes32,string,bytes4[],uint256)
-          handler: handleFacetDeployed
       file: ./src/mappings/facet-registry.ts
 
   # WalletFactory - tracks wallet creation with owner types (Permissionless)
@@ -106,7 +104,7 @@ dataSources:
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
       eventHandlers:
-        - event: WalletCreated(indexed address,indexed address,uint8,bytes32,indexed address)
+        - event: WalletCreated(indexed address,indexed address,uint8,indexed bytes32,address)
           handler: handleWalletCreated
       file: ./src/mappings/wallet-factory.ts
 
@@ -134,7 +132,7 @@ dataSources:
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
       eventHandlers:
-        - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
+        - event: OfferingCreated(indexed address,indexed address,indexed address,address)
           handler: handleOfferingCreated
         - event: PaymentModuleInitialized(indexed address)
           handler: handlePaymentModuleInitialized
@@ -172,7 +170,7 @@ dataSources:
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
       eventHandlers:
-        - event: TokenCreated(indexed address,indexed address,string,string,address[])
+        - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
         - event: PaymentModuleInitialized(indexed address)
           handler: handlePaymentModuleInitialized
@@ -313,6 +311,9 @@ templates:
           handler: handleWalletInitialized
         - event: DocumentUploaded(indexed bytes32,indexed bytes32,indexed address)
           handler: handleDocumentUploaded
+          receipt: true
+        - event: DocumentCreated(indexed bytes32,indexed address,string,address[],string)
+          handler: handleDocumentCreated
           receipt: true
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleDocumentSigned
