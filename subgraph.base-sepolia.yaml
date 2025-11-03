@@ -88,9 +88,9 @@ dataSources:
     name: WalletFactory
     network: base-sepolia
     source:
-      address: "0x2bf7C8A02D90242D28cbd58A1f94D8b271513deD"
+      address: "0x628Fc9fDF34132F41e41ea98a6Cd68DD504f38Bc"
       abi: WalletFactoryCoreFacet
-      startBlock: 33210530
+      startBlock: 33215855
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -113,9 +113,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xce2f53f73C7937049Ffc725698E5aFA87f21Ec9B"
+      address: "0x8E15c447f659Ec5548c28f17F57FE299123bc67e"
       abi: OfferingFactory
-      startBlock: 33210530
+      startBlock: 33215857
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -151,9 +151,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0x434e025eD028F47597E3086832356088EAe758c6"
+      address: "0x37f4115556bB112717515210EC1e248736c4a159"
       abi: TokenFactory
-      startBlock: 33210530
+      startBlock: 33215855
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
