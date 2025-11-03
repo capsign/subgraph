@@ -778,5 +778,259 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "getCorporateActionStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "totalSplits",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalDividends",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCumulativeRatios",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "splitNum",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "splitDen",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "divNum",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "divDen",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "divCostBasisNum",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "divCostBasisDen",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLastActionInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "lastActionDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lastActionReason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "StockDividendApplied",
+    "inputs": [
+      {
+        "name": "divNum",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "divDen",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reducesBasis",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StockSplitApplied",
+    "inputs": [
+      {
+        "name": "splitNum",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "splitDen",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "canCall",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "functionRoles",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasRole",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userRoles",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "FunctionAccessChanged",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "indexed": true,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
   }
 ]
