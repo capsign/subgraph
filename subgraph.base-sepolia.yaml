@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x0149960e9556457524ed2379B42204D8564AB606"
+      address: "0xA583Ab632bFb75BD3B9E9fC4F1E681559eb506d9"
       abi: FactoryCoreFacet
-      startBlock: 33210200
+      startBlock: 33219819
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -63,9 +63,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0xF1f4eAAaDf8CCF742F8005A761A0bd277e313e47"
+      address: "0xcc85AB0f46c698C6828bC50eA009A1a7A4Bc4aaD"
       abi: RegistryCoreFacet
-      startBlock: 33210200
+      startBlock: 33219819
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -77,9 +77,9 @@ dataSources:
         - name: RegistryCoreFacet
           file: ./abis/RegistryCoreFacet.json
       eventHandlers:
-        - event: FacetRegistered(indexed string,indexed string,address,uint256)
+        - event: FacetRegistered(indexed string,indexed string,string,string,address,uint256)
           handler: handleFacetRegistered
-        - event: FacetRemoved(indexed string,indexed string)
+        - event: FacetRemoved(indexed string,indexed string,string,string)
           handler: handleFacetRemoved
       file: ./src/mappings/facet-registry.ts
 
