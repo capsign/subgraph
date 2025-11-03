@@ -1,27 +1,23 @@
 import {
   FacetRegistered,
-  FacetRemoved,
-  FacetDeployed
-} from "../../generated/FacetRegistry/FacetRegistry";
+  FacetRemoved
+} from "../../generated/FacetRegistry/RegistryCoreFacet";
 import { Facet, FacetRegistryEvent } from "../../generated/schema";
 
 export function handleFacetRegistered(event: FacetRegistered): void {
-  const facetAddress = event.params.facet.toHexString();
+  const facetAddress = event.params.facetAddress.toHexString();
+  const facetName = event.params.name.toHexString() + "@" + event.params.version.toHexString();
   
   // Create or update Facet entity
   let facet = Facet.load(facetAddress);
   if (!facet) {
     facet = new Facet(facetAddress);
-    facet.createdAt = event.params.timestamp;
+    facet.createdAt = event.block.timestamp;
     facet.createdTx = event.transaction.hash;
+    facet.selectors = []; // Will be populated later or via separate query
   }
   
-  facet.name = event.params.name;
-  const selectors: string[] = [];
-  for (let i = 0; i < event.params.selectors.length; i++) {
-    selectors.push(event.params.selectors[i].toHexString());
-  }
-  facet.selectors = selectors;
+  facet.name = facetName;
   facet.removed = false;
   facet.save();
   
@@ -29,75 +25,31 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   const eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const registryEvent = new FacetRegistryEvent(eventId);
   registryEvent.eventType = "REGISTERED";
-  registryEvent.facet = event.params.facet;
-  registryEvent.facetName = event.params.name;
-  registryEvent.timestamp = event.params.timestamp;
+  registryEvent.facet = event.params.facetAddress;
+  registryEvent.facetName = facetName;
+  registryEvent.timestamp = event.block.timestamp;
   registryEvent.tx = event.transaction.hash;
   registryEvent.blockNumber = event.block.number;
-  const eventSelectors: string[] = [];
-  for (let i = 0; i < event.params.selectors.length; i++) {
-    eventSelectors.push(event.params.selectors[i].toHexString());
-  }
-  registryEvent.selectors = eventSelectors;
+  registryEvent.selectors = []; // Event doesn't include selectors
   registryEvent.save();
 }
 
 export function handleFacetRemoved(event: FacetRemoved): void {
-  const facetAddress = event.params.facet.toHexString();
+  const facetName = event.params.name.toHexString() + "@" + event.params.version.toHexString();
   
-  // Update Facet entity
-  const facet = Facet.load(facetAddress);
-  if (facet) {
-    facet.removed = true;
-    facet.removedAt = event.block.timestamp;
-    facet.removedTx = event.transaction.hash;
-    facet.save();
-  }
+  // Note: We can't update a specific Facet entity here because the event
+  // doesn't include the facet address. We would need to track name->address
+  // mapping or query the registry contract.
   
   // Create event entity for history tracking
   const eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const registryEvent = new FacetRegistryEvent(eventId);
   registryEvent.eventType = "REMOVED";
-  registryEvent.facet = event.params.facet;
-  registryEvent.facetName = event.params.name;
+  registryEvent.facet = event.address; // Registry address as placeholder
+  registryEvent.facetName = facetName;
   registryEvent.timestamp = event.block.timestamp;
   registryEvent.tx = event.transaction.hash;
   registryEvent.blockNumber = event.block.number;
-  registryEvent.save();
-}
-
-export function handleFacetDeployed(event: FacetDeployed): void {
-  const facetAddress = event.params.facet.toHexString();
-  
-  // Create Facet entity (FacetDeployed is always for new facets)
-  const facet = new Facet(facetAddress);
-  facet.name = event.params.name;
-  const selectors: string[] = [];
-  for (let i = 0; i < event.params.selectors.length; i++) {
-    selectors.push(event.params.selectors[i].toHexString());
-  }
-  facet.selectors = selectors;
-  facet.createdAt = event.params.timestamp;
-  facet.createdTx = event.transaction.hash;
-  facet.deploymentSalt = event.params.salt;
-  facet.removed = false;
-  facet.save();
-  
-  // Create event entity for history tracking
-  const eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  const registryEvent = new FacetRegistryEvent(eventId);
-  registryEvent.eventType = "DEPLOYED";
-  registryEvent.facet = event.params.facet;
-  registryEvent.facetName = event.params.name;
-  registryEvent.timestamp = event.params.timestamp;
-  registryEvent.tx = event.transaction.hash;
-  registryEvent.blockNumber = event.block.number;
-  registryEvent.deploymentSalt = event.params.salt;
-  const eventSelectors: string[] = [];
-  for (let i = 0; i < event.params.selectors.length; i++) {
-    eventSelectors.push(event.params.selectors[i].toHexString());
-  }
-  registryEvent.selectors = eventSelectors;
   registryEvent.save();
 }
 

@@ -81,7 +81,7 @@ if ! command -v goldsky &> /dev/null; then
     exit 1
 fi
 
-print_status "Step 1/6: Running codegen..."
+print_status "Step 1/4: Running codegen..."
 if pnpm run codegen:$YARN_SUFFIX; then
     print_success "Codegen completed"
 else
@@ -89,7 +89,7 @@ else
     exit 1
 fi
 
-print_status "Step 2/6: Building subgraph..."
+print_status "Step 2/4: Building subgraph..."
 if pnpm run build:$YARN_SUFFIX; then
     print_success "Build completed"
 else
@@ -97,22 +97,7 @@ else
     exit 1
 fi
 
-print_status "Step 3/6: Deleting existing prod tag..."
-print_warning "You will be prompted to confirm deletion of the 'prod' tag"
-if goldsky subgraph tag delete $SUBGRAPH_FULL_NAME --tag prod; then
-    print_success "Prod tag deleted"
-else
-    print_warning "Prod tag deletion failed (might not exist yet)"
-fi
-
-print_status "Step 4/6: Deleting existing subgraph version..."
-if goldsky subgraph delete $SUBGRAPH_FULL_NAME; then
-    print_success "Subgraph version deleted"
-else
-    print_warning "Subgraph deletion failed (might not exist yet)"
-fi
-
-print_status "Step 5/6: Deploying new subgraph version..."
+print_status "Step 3/4: Deploying new subgraph version..."
 if goldsky subgraph deploy $SUBGRAPH_FULL_NAME --path .; then
     print_success "Subgraph deployed successfully"
 else
@@ -120,11 +105,11 @@ else
     exit 1
 fi
 
-print_status "Step 6/6: Creating prod tag..."
+print_status "Step 4/4: Creating/updating prod tag..."
 if goldsky subgraph tag create $SUBGRAPH_FULL_NAME --tag prod; then
-    print_success "Prod tag created"
+    print_success "Prod tag created/updated"
 else
-    print_error "Failed to create prod tag"
+    print_error "Failed to create/update prod tag"
     exit 1
 fi
 
