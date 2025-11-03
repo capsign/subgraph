@@ -41,13 +41,6 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   offering.createdAt = event.block.timestamp;
   offering.createdTx = event.transaction.hash;
 
-  // Store compliance modules
-  const modules: Bytes[] = [];
-  for (let i = 0; i < event.params.complianceModules.length; i++) {
-    modules.push(event.params.complianceModules[i]);
-  }
-  offering.complianceModules = modules;
-
   // Initialize with default values (will be updated by OfferingInitialized event)
   offering.token = "0x0000000000000000000000000000000000000000"; // Placeholder
   offering.paymentToken = Bytes.fromHexString("0x0000000000000000000000000000000000000000");

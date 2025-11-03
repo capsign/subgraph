@@ -45,13 +45,6 @@ export function handleTokenCreated(event: TokenCreated): void {
   shareClass.createdAt = event.block.timestamp;
   shareClass.createdTx = event.transaction.hash;
 
-  // Store compliance conditions
-  const conditions: Bytes[] = [];
-  for (let i = 0; i < event.params.complianceConditions.length; i++) {
-    conditions.push(event.params.complianceConditions[i]);
-  }
-  shareClass.complianceConditions = conditions;
-
   // Initialize with default values (will be updated by TokenInitialized event)
   shareClass.decimals = 18;
   shareClass.totalSupply = BigInt.fromI32(0);

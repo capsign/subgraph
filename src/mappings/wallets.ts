@@ -4,10 +4,14 @@ import {
 import {
   DocumentUploaded,
   DocumentSigned,
-  DocumentDeleted,
+  DocumentCreated,
 } from "../../generated/templates/WalletDiamond/WalletDocuments";
+import {
+  AttestationAdded,
+  AttestationRevoked,
+} from "../../generated/templates/WalletDiamond/WalletDiamond";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
-import { Wallet, Owner, Diamond, Document, DocumentSignature } from "../../generated/schema";
+import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -132,18 +136,61 @@ export function handleDocumentSigned(event: DocumentSigned): void {
   activity.save();
 }
 
-export function handleDocumentDeleted(event: DocumentDeleted): void {
+export function handleDocumentCreated(event: DocumentCreated): void {
+  const walletAddress = event.address;
   const documentId = event.params.documentId.toHexString();
 
-  // Remove document entity
-  // Note: DocumentSignature entities will remain (for audit trail)
-  // but the document itself is marked as deleted by removing it
-  const document = Document.load(documentId);
-  if (document) {
-    // In subgraph, we don't actually delete, we just mark it
-    // But since schema doesn't have a 'deleted' flag, we remove it
-    // Alternatively, you could add a 'deleted: Boolean!' field to schema
-    // For now, we'll just leave it (signatures still reference it)
+  // Create document entity
+  let document = new Document(documentId);
+  document.wallet = walletAddress.toHexString();
+  document.creator = event.params.creator;
+  document.createdAt = event.block.timestamp;
+  document.createdTx = event.transaction.hash;
+  document.title = event.params.title;
+  document.requiredSigners = event.params.requiredSigners.map<Bytes>((addr) => addr as Bytes);
+  document.category = event.params.category;
+  document.contentHash = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
+  document.storageURI = "";
+  
+  document.save();
+  
+  // Create activity
+  createActivity(
+    "document-created-" + documentId,
+    "DOCUMENT_CREATED",
+    event.params.creator,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+}
+
+export function handleAttestationAdded(event: AttestationAdded): void {
+  const walletAddress = event.address.toHexString();
+  const attestationId = event.params.attestationUID.toHexString();
+  
+  // Create attestation entity
+  const attestation = new Attestation(attestationId);
+  attestation.wallet = walletAddress;
+  attestation.schema = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000"); // Default, would need to fetch from EAS
+  attestation.attester = Bytes.fromHexString("0x0000000000000000000000000000000000000000"); // Default, would need to fetch from EAS
+  attestation.data = Bytes.fromHexString("0x"); // Default
+  attestation.createdAt = event.params.timestamp;
+  attestation.expiresAt = null;
+  attestation.revoked = false;
+  attestation.revokedAt = null;
+  attestation.save();
+}
+
+export function handleAttestationRevoked(event: AttestationRevoked): void {
+  const attestationId = event.params.attestationUID.toHexString();
+  
+  // Update attestation entity
+  const attestation = Attestation.load(attestationId);
+  if (attestation) {
+    attestation.revoked = true;
+    attestation.revokedAt = event.params.timestamp;
+    attestation.save();
   }
 }
 

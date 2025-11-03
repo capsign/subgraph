@@ -12,6 +12,8 @@ import {
   ComplianceInitialized,
   AllowsGeneralSolicitationUpdated,
   AllowsSelfCertificationUpdated,
+  ComplianceModuleRegistered,
+  ComplianceModuleEnabled,
 } from "../../generated/templates/OfferingDiamond/OfferingCompliance";
 import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
@@ -261,4 +263,20 @@ export function handleAllowsSelfCertificationUpdated(event: AllowsSelfCertificat
   
   offering.allowsSelfCertification = event.params.allowed;
   offering.save();
+}
+
+/**
+ * Handle compliance module registration
+ */
+export function handleComplianceModuleRegistered(event: ComplianceModuleRegistered): void {
+  // TODO: Store compliance module details if needed
+  // For now, just log the event
+}
+
+/**
+ * Handle compliance module enabled/disabled
+ */
+export function handleComplianceModuleEnabled(event: ComplianceModuleEnabled): void {
+  // TODO: Store compliance module status if needed
+  // For now, just log the event
 }
