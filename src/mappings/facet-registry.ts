@@ -7,54 +7,8 @@ import { RegistryCoreFacet } from "../../generated/FacetRegistry/RegistryCoreFac
 
 export function handleFacetRegistered(event: FacetRegistered): void {
   const facetAddress = event.params.facetAddress.toHexString();
+  const facetName = event.params.name + "@" + event.params.version;
   const registry = RegistryCoreFacet.bind(event.address);
-  
-  // Get all facet names to find the one that matches this address
-  const allNamesResult = registry.try_getAllFacetNames();
-  if (allNamesResult.reverted) {
-    // Fallback: use hashes as IDs
-    const facetName = event.params.name.toHexString() + "@" + event.params.version.toHexString();
-    let facet = Facet.load(facetAddress);
-    if (!facet) {
-      facet = new Facet(facetAddress);
-      facet.createdAt = event.block.timestamp;
-      facet.createdTx = event.transaction.hash;
-    }
-    facet.name = facetName;
-    facet.removed = false;
-    facet.selectors = [];
-    facet.save();
-    return;
-  }
-  
-  // Iterate through all facet names to find the one with this address
-  let matchedName: string | null = null;
-  let matchedVersion: string | null = null;
-  
-  for (let i = 0; i < allNamesResult.value.length; i++) {
-    const name = allNamesResult.value[i];
-    const versionsResult = registry.try_getFacetVersions(name);
-    
-    if (!versionsResult.reverted) {
-      for (let j = 0; j < versionsResult.value.length; j++) {
-        const version = versionsResult.value[j];
-        const addressResult = registry.try_getFacetAddress(name, version);
-        
-        if (!addressResult.reverted && addressResult.value.toHexString() === facetAddress) {
-          matchedName = name;
-          matchedVersion = version;
-          break;
-        }
-      }
-    }
-    
-    if (matchedName !== null) break;
-  }
-  
-  // If we found a match, use the real name and version
-  const facetName = matchedName !== null && matchedVersion !== null
-    ? (matchedName as string) + "@" + (matchedVersion as string)
-    : event.params.name.toHexString() + "@" + event.params.version.toHexString();
   
   // Create or update Facet entity
   let facet = Facet.load(facetAddress);
@@ -67,15 +21,14 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   facet.name = facetName;
   facet.removed = false;
   
-  // Query the selectors from the contract using the matched name/version
-  if (matchedName !== null && matchedVersion !== null) {
-    const selectorsResult = registry.try_getFacetSelectors(matchedName, matchedVersion);
-    
-    if (!selectorsResult.reverted) {
-      facet.selectors = selectorsResult.value.map<string>((selector) => selector.toHexString());
-    } else {
-      facet.selectors = [];
-    }
+  // Query the selectors from the contract
+  const selectorsResult = registry.try_getFacetSelectors(
+    event.params.name,
+    event.params.version
+  );
+  
+  if (!selectorsResult.reverted) {
+    facet.selectors = selectorsResult.value.map<string>((selector) => selector.toHexString());
   } else {
     facet.selectors = [];
   }
@@ -96,11 +49,11 @@ export function handleFacetRegistered(event: FacetRegistered): void {
 }
 
 export function handleFacetRemoved(event: FacetRemoved): void {
-  const facetName = event.params.name.toHexString() + "@" + event.params.version.toHexString();
+  const facetName = event.params.name + "@" + event.params.version;
   
-  // Note: We can't update a specific Facet entity here because the event
+  // Note: We can't easily update a specific Facet entity here because the event
   // doesn't include the facet address. We would need to track name->address
-  // mapping or query the registry contract.
+  // mapping or query the registry contract. For now, just log the event.
   
   // Create event entity for history tracking
   const eventId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
