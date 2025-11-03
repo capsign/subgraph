@@ -1,1 +1,1018 @@
-{"abi":[{"type":"constructor","inputs":[{"name":"_diamondCut","type":"tuple[]","internalType":"struct IDiamondCut.FacetCut[]","components":[{"name":"facetAddress","type":"address","internalType":"address"},{"name":"action","type":"uint8","internalType":"enum IDiamondCut.FacetCutAction"},{"name":"functionSelectors","type":"bytes4[]","internalType":"bytes4[]"}]},{"name":"_init","type":"address","internalType":"address"},{"name":"_calldata","type":"bytes","internalType":"bytes"}],"stateMutability":"payable"},{"type":"fallback","stateMutability":"payable"},{"type":"receive","stateMutability":"payable"},{"type":"event","name":"DiamondCut","inputs":[{"name":"diamondCut","type":"tuple[]","indexed":false,"internalType":"struct IDiamondCut.FacetCut[]","components":[{"name":"facetAddress","type":"address","internalType":"address"},{"name":"action","type":"uint8","internalType":"enum IDiamondCut.FacetCutAction"},{"name":"functionSelectors","type":"bytes4[]","internalType":"bytes4[]"}]},{"name":"init","type":"address","indexed":false,"internalType":"address"},{"name":"data","type":"bytes","indexed":false,"internalType":"bytes"}],"anonymous":false},{"type":"error","name":"Diamond_FunctionDoesNotExist","inputs":[{"name":"selector","type":"bytes4","internalType":"bytes4"}]},{"type":"error","name":"Diamond_InitializationFailed","inputs":[{"name":"error","type":"bytes","internalType":"bytes"}]}],"bytecode":{"object":"0x608060405261092e80380380610014816101f5565b9283398101906060818303126100c45780516001600160401b0381116100c45781019082601f830112156100c4578151916100566100518461021a565b6101f5565b9260208085838152019160051b830101918583116100c45760208101915b8383106100c8575050505061008b60208201610231565b6040820151939091906001600160401b0385116100c4576100b6946100b09201610260565b91610501565b60405160b890816108568239f35b5f80fd5b82516001600160401b0381116100c45782016060818903601f1901126100c4576100f06101b2565b906100fd60208201610231565b8252604081015160038110156100c457602083015260608101516001600160401b0381116100c457602091010188601f820112156100c45780516101436100518261021a565b9160208084848152019260051b820101908b82116100c457602001915b81831061017d575050506040820152815260209283019201610074565b82516001600160e01b0319811681036100c457815260209283019201610160565b634e487b7160e01b5f52604160045260245ffd5b60405190606082016001600160401b038111838210176101d157604052565b61019e565b60408051919082016001600160401b038111838210176101d157604052565b6040519190601f01601f191682016001600160401b038111838210176101d157604052565b6001600160401b0381116101d15760051b60200190565b51906001600160a01b03821682036100c457565b6001600160401b0381116101d157601f01601f191660200190565b81601f820112156100c45780519061027a61005183610245565b92828452602083830101116100c457815f9260208093018386015e8301015290565b600311156102a657565b634e487b7160e01b5f52602160045260245ffd5b805180835260209291819084018484015e5f828201840152601f01601f1916010190565b9392909193606081016060825283518091526080820190602060808260051b8501019501915f905b828210610337575050506001600160a01b0390951660208201529293506103349260408184039101526102ba565b90565b848703607f19018152835180516001600160a01b0316885260208101519497939492939192606083019160038210156102a657604060809160209384870152015193606060408201528451809452019201905f905b8082106103aa57505050602080600192980192019201909291610306565b82516001600160e01b03191684526020938401939092019160019091019061038c565b3d156103ed573d906103e161005183610245565b9182523d5f602084013e565b606090565b9060206103349281815201906102ba565b6020818303126100c4578051906001600160401b0382116100c457019080601f830112156100c45781519161043a6100518461021a565b9260208085838152019160051b830101918383116100c45760208101915b83831061046757505050505090565b82516001600160401b0381116100c4578201906040828703601f1901126100c4576104906101d6565b9061049d60208401610231565b82526040830151916001600160401b0383116100c4576104c588602080969581960101610260565b83820152815201920191610458565b634e487b7160e01b5f52603260045260245ffd5b80518210156104fc5760209160051b010190565b6104d4565b817f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb6739161052d81610704565b61053d85604051938493846102de565b0390a16001600160a01b0381168061055457505050565b73d1a302d1a302d1a302d1a302d1a302d1a302d1a30361063757508060208061058293518301019101610403565b8051905f5b82811061059357505050565b6105ae6105a082846104e8565b51516001600160a01b031690565b803b15610618575f809160206105c485876104e8565b51015190602082519201905af46105d96103cd565b90156105e85750600101610587565b8051156105f757805190602001fd5b604051636e6e000d60e01b815290819061061490600483016103f2565b0390fd5b604051636e6e000d60e01b8152602060048201525f6024820152604490fd5b803b1561061857815f929160208493519201905af46106546103cd565b90156105e85750565b5160038110156102a65790565b5f51602061090e5f395f51905f525490680100000000000000008210156101d15760018201805f51602061090e5f395f51905f52558210156104fc575f51602061090e5f395f51905f525f5260205f208260031c019163ffffffff60e084549260051b169260e01c831b921b1916179055565b61ffff1661ffff81146106f05760010190565b634e487b7160e01b5f52601160045260245ffd5b8051905f5b82811061071557505050565b61072b602061072483856104e8565b510161065d565b604061073783856104e8565b5101516107476105a084866104e8565b916107518161029c565b15610761575b5050600101610709565b9091939461077e5f51602061090e5f395f51905f525461ffff1690565b955f965b83518810156108445761083c6001916108376107af6107a18c896104e8565b516001600160e01b03191690565b6108326107ba6101d6565b6001600160a01b038b8116825261ffff861660208084019182526001600160e01b031986165f9081527f8e1a93f2f638a12c40bcad461338b7dea6f167bb43768f444b7871ce94e27a1a9091526040902092518354915161ffff60a01b60a09190911b1692166001600160b01b031990911617179055565b61066a565b6106dd565b970196610782565b50949150945060019150905f61075756fe608060405236156080575f80356001600160e01b0319168082527f8e1a93f2f638a12c40bcad461338b7dea6f167bb43768f444b7871ce94e27a1a6020526040909120546001600160a01b0316908115606e575f8083368280378136915af43d5f803e15606a573d5ff35b3d5ffd5b632cf008a360e21b5f5260045260245ffd5b00fea264697066735822122064410db18255ad2b6553466613df70519c069154921e8208fc4efadbf84416ac64736f6c634300081e00338e1a93f2f638a12c40bcad461338b7dea6f167bb43768f444b7871ce94e27a1b","sourceMap":"570:5524:38:-:0;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;:::i;:::-;;;:::i;:::-;;;;;;;;;;;-1:-1:-1;570:5524:38;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;-1:-1:-1;;570:5524:38;;;;;;:::i;:::-;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;570:5524:38;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;570:5524:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;:::o;:::-;;:::i;:::-;704:42:37;570:5524:38;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;704:42:37;570:5524:38;:::o;:::-;;;;;;;-1:-1:-1;;570:5524:38;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;:::o;:::-;-1:-1:-1;;;;;570:5524:38;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;570:5524:38;;;;;;:::o;:::-;-1:-1:-1;;;;;570:5524:38;;;;;;-1:-1:-1;;570:5524:38;;;;:::o;:::-;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;-1:-1:-1;570:5524:38;;;;;;;;;;;;;;:::o;:::-;;-1:-1:-1;570:5524:38;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;570:5524:38;;;;;;;;-1:-1:-1;;570:5524:38;;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;;;570:5524:38;;;;;;;;;-1:-1:-1;570:5524:38;;;;;;;;;;:::i;:::-;;:::o;:::-;;;;-1:-1:-1;;570:5524:38;;;;;;;-1:-1:-1;;;;;570:5524:38;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;570:5524:38;;;;;;;;;;;;;;;;;;;704:42:37;;;;;;;;;;;:::i;:::-;;;;;-1:-1:-1;704:42:37;;;;:::o;:::-;;;:::o;:::-;;;;;;;;;;;:::i;:::-;;;;;;;;;;;-1:-1:-1;;;;;704:42:37;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;-1:-1:-1;;;;;704:42:37;;;;;;;;;;;-1:-1:-1;;704:42:37;;;;;;:::i;:::-;;570:5524:38;704:42:37;;;570:5524:38;:::i;:::-;704:42:37;;;;;;;-1:-1:-1;;;;;704:42:37;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;570:5524:38;;;704:42:37;;;;;;;;;570:5524:38;;704:42:37;;;;;;;;;;;;:::o;:::-;;:::i;907:2559:38:-;;1168:53;907:2559;1091:11;;;:::i;:::-;1168:53;570:5524;;;1168:53;;;;;:::i;:::-;;;;-1:-1:-1;;;;;570:5524:38;;;1275:2185;;907:2559;;;:::o;1275:2185::-;704:42:37;1359:37:38;704:42:37;;570:5524:38;;1463:48;570:5524;1463:48;570:5524;;1463:48;;;;;;:::i;:::-;570:5524;;1589:13;1296:1;1604:10;;;;;;1355:2095;;;907:2559::o;1616:3::-;1665:21;:16;;;;:::i;:::-;;704:42:37;-1:-1:-1;;;;;570:5524:38;;704:42:37;1665:21:38;1769:23;;:28;1765:134;;1296:1;1993:16;;1463:48;1993:16;;;;:::i;:::-;;:25;;1968:51;1463:48;1968:51;;;;;;;;;:::i;:::-;2045:13;;2041:546;;1616:3;704:42:37;;1589:13:38;;2041:546;570:5524;;2090:21;:17;;2227:190;;;1463:48;2227:190;;2086:479;570:5524;;-1:-1:-1;;;2486:52:38;;570:5524;;;2486:52;;;;;;:::i;:::-;;;;1765:134;570:5524;;-1:-1:-1;;;1832:44:38;;704:42:37;1832:44:38;;;704:42:37;-1:-1:-1;704:42:37;;;570:5524:38;;;2486:52;1355:2095;2737:17;;:22;2733:120;;2908:29;1296:1;2908:29;;;;;;;;;;;;;:::i;:::-;2959:8;;2955:481;;1355:2095;907:2559::o;570:5524::-;;;;;;;;;:::o;:::-;-1:-1:-1;;;;;;;;;;;570:5524:38;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;570:5524:38;;;;;;-1:-1:-1;;;;;;;;;;;;570:5524:38;;-1:-1:-1;570:5524:38;;;;;;;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;;;;;:::o;:::-;;;;;;;;;;;;4993:1099;570:5524;;5203:18;-1:-1:-1;5223:19:38;;;;;;4993:1099;;;:::o;5244:12::-;5308:30;;:23;;;;:::i;:::-;;:30;;:::i;:::-;5388:41;:23;;;;:::i;:::-;;:41;;5466:36;:23;;;;:::i;:36::-;570:5524;;;;:::i;:::-;5521:40;5517:559;;5244:12;;;704:42:37;;5203:18:38;;5517:559;570:5524;;;;5604:27;-1:-1:-1;;;;;;;;;;;570:5524:38;;;;;5604:27;5654:21;-1:-1:-1;5649:413:38;5719:15;570:5524;;5677:40;;;;;6028:15;704:42:37;5776:32:38;5979:27;5776:32;;;;;:::i;:::-;570:5524;-1:-1:-1;;;;;;570:5524:38;;;5776:32;570:5524;;;:::i;:::-;-1:-1:-1;;;;;570:5524:38;;;;;;;;5308:30;5882:75;;;570:5524;;;-1:-1:-1;;;;;;570:5524:38;;-1:-1:-1;570:5524:38;;;705:36:39;570:5524:38;;;;;;704:42:37;;570:5524:38;;;;-1:-1:-1;;;570:5524:38;;;;;;;;-1:-1:-1;;;;;;570:5524:38;;;;;;;;;5979:27;:::i;:::-;6028:15;:::i;:::-;5719;704:42:37;5654:21:38;;;5677:40;;;;;;;704:42:37;5677:40:38;;5517:559;;;","linkReferences":{}},"deployedBytecode":{"object":"0x608060405236156080575f80356001600160e01b0319168082527f8e1a93f2f638a12c40bcad461338b7dea6f167bb43768f444b7871ce94e27a1a6020526040909120546001600160a01b0316908115606e575f8083368280378136915af43d5f803e15606a573d5ff35b3d5ffd5b632cf008a360e21b5f5260045260245ffd5b00fea264697066735822122064410db18255ad2b6553466613df70519c069154921e8208fc4efadbf84416ac64736f6c634300081e0033","sourceMap":"570:5524:38:-:0;;;;;;;-1:-1:-1;3964:7:38;;-1:-1:-1;;;;;;3964:7:38;570:5524;;;705:36:39;570:5524:38;;;;;;;-1:-1:-1;;;;;570:5524:38;;4000:19;;3996:106;;-1:-1:-1;570:5524:38;;;4112:325;;;570:5524;;4112:325;;;;-1:-1:-1;4112:325:38;;;;;;-1:-1:-1;4112:325:38;;;-1:-1:-1;4112:325:38;3996:106;4042:49;;;-1:-1:-1;4042:49:38;;570:5524;;-1:-1:-1;4042:49:38;570:5524;","linkReferences":{}},"methodIdentifiers":{},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"internalType\":\"address\",\"name\":\"_init\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_calldata\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"selector\",\"type\":\"bytes4\"}],\"name\":\"Diamond_FunctionDoesNotExist\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"error\",\"type\":\"bytes\"}],\"name\":\"Diamond_InitializationFailed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"indexed\":false,\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"diamondCut\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"init\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"DiamondCut\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"CapSign Protocol Team\",\"details\":\"This is the only contract in the system that uses a constructor      Storage is shared via DiamondStorage abstract contract      The diamond delegates all function calls to registered facets\",\"errors\":{\"Diamond_FunctionDoesNotExist(bytes4)\":[{\"params\":{\"selector\":\"The function selector that was called\"}}],\"Diamond_InitializationFailed(bytes)\":[{\"params\":{\"error\":\"The error data from the failed initialization\"}}]},\"events\":{\"DiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"details\":\"This event enables off-chain tracking of all diamond modifications\",\"params\":{\"data\":\"Initialization call data used (or empty bytes)\",\"diamondCut\":\"Array of facet cuts that were performed\",\"init\":\"Address of initialization contract used (or address(0))\"}}},\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_calldata\":\"Initialization call data (optional)\",\"_diamondCut\":\"Initial facet cuts to add\",\"_init\":\"Address of initialization contract (optional)\"}}},\"title\":\"Diamond\",\"version\":1},\"userdoc\":{\"errors\":{\"Diamond_FunctionDoesNotExist(bytes4)\":[{\"notice\":\"Thrown when a function selector doesn't exist in the diamond\"}],\"Diamond_InitializationFailed(bytes)\":[{\"notice\":\"Thrown when diamond initialization fails\"}]},\"events\":{\"DiamondCut((address,uint8,bytes4[])[],address,bytes)\":{\"notice\":\"Emitted when facets are added, replaced, or removed\"}},\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Deploy a new diamond with initial facets\"}},\"notice\":\"Core diamond proxy contract following EIP-2535\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"packages/diamonds/src/Diamond.sol\":\"Diamond\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@diamonds/=packages/diamonds/\",\":@offerings/=packages/offerings/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@tokens/=packages/tokens/\",\":@vehicles/=packages/vehicles/\",\":@wallets/=packages/wallets/\",\":FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/\",\":diamonds-src/=packages/diamonds/src/\",\":diamonds/=packages/diamonds/interfaces/\",\":ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":offerings-src/=packages/offerings/src/\",\":offerings/=packages/offerings/interfaces/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/solady/src/\",\":tokens-src/=packages/tokens/src/\",\":tokens/=packages/tokens/interfaces/\",\":vehicles-src/=packages/vehicles/src/\",\":vehicles/=packages/vehicles/interfaces/\",\":wallets-src/=packages/wallets/src/\",\":wallets/=packages/wallets/interfaces/\",\":webauthn-sol/=lib/webauthn-sol/src/\"],\"viaIR\":true},\"sources\":{\"packages/diamonds/interfaces/IDiamondCut.sol\":{\"keccak256\":\"0x0776015b412539b6d7ff35b20d3b3b30d9846613c09c6d8ba556adf131f76c75\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://68c95e3181cd55cbdc1fe05528c8592ca765759fc443feb81c7b618c70b82b05\",\"dweb:/ipfs/QmWrZa5JsEKvSVVLBTjc9HZdGntYQWyqLHSmWyaMUz8Zy4\"]},\"packages/diamonds/src/Constants.sol\":{\"keccak256\":\"0xa413dbda918a92713379d13bef26661a6ead4c60a376ab339e3a77c7a7f8f544\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c49e712af82b21e01385f8bfdd909de027a318236b974cba77b38107906650a7\",\"dweb:/ipfs/QmaGKETE4gRxy5uzEWQBN32CvtArKzX5RnxKPBtZqS4txM\"]},\"packages/diamonds/src/Diamond.sol\":{\"keccak256\":\"0xd133858edc5649036dee13270c70eeb03a1ebab7b26e3cf79affc04a03cebcef\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://3ca64007cac39921669dc974eaa8416a9afd79637dab39e307a741dc695df6d0\",\"dweb:/ipfs/QmRd4XUf7gzPHVrS1E5vnq8dphyDniFq34b7nqiuzbgSF9\"]},\"packages/diamonds/src/DiamondStorage.sol\":{\"keccak256\":\"0xf3719a84e2c39b4cc653222b476739b656dde1369e5de01278349e185bf68e92\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://ba95dda29296039b6a9b6f1bf0b635493ce129aaa8805ea2eb1b328fdb5bf8c4\",\"dweb:/ipfs/QmZxjYiRMCef8y9oowU8gtiM1ewQAzS2QmvpUzueSLJzc2\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.30+commit.73712a01"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"struct IDiamondCut.FacetCut[]","name":"_diamondCut","type":"tuple[]","components":[{"internalType":"address","name":"facetAddress","type":"address"},{"internalType":"enum IDiamondCut.FacetCutAction","name":"action","type":"uint8"},{"internalType":"bytes4[]","name":"functionSelectors","type":"bytes4[]"}]},{"internalType":"address","name":"_init","type":"address"},{"internalType":"bytes","name":"_calldata","type":"bytes"}],"stateMutability":"payable","type":"constructor"},{"inputs":[{"internalType":"bytes4","name":"selector","type":"bytes4"}],"type":"error","name":"Diamond_FunctionDoesNotExist"},{"inputs":[{"internalType":"bytes","name":"error","type":"bytes"}],"type":"error","name":"Diamond_InitializationFailed"},{"inputs":[{"internalType":"struct IDiamondCut.FacetCut[]","name":"diamondCut","type":"tuple[]","components":[{"internalType":"address","name":"facetAddress","type":"address"},{"internalType":"enum IDiamondCut.FacetCutAction","name":"action","type":"uint8"},{"internalType":"bytes4[]","name":"functionSelectors","type":"bytes4[]"}],"indexed":false},{"internalType":"address","name":"init","type":"address","indexed":false},{"internalType":"bytes","name":"data","type":"bytes","indexed":false}],"type":"event","name":"DiamondCut","anonymous":false},{"inputs":[],"stateMutability":"payable","type":"fallback"},{"inputs":[],"stateMutability":"payable","type":"receive"}],"devdoc":{"kind":"dev","methods":{"constructor":{"params":{"_calldata":"Initialization call data (optional)","_diamondCut":"Initial facet cuts to add","_init":"Address of initialization contract (optional)"}}},"version":1},"userdoc":{"kind":"user","methods":{"constructor":{"notice":"Deploy a new diamond with initial facets"}},"version":1}},"settings":{"remappings":["@diamonds/=packages/diamonds/","@offerings/=packages/offerings/","@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/","@tokens/=packages/tokens/","@vehicles/=packages/vehicles/","@wallets/=packages/wallets/","FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/","diamonds-src/=packages/diamonds/src/","diamonds/=packages/diamonds/interfaces/","ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/","erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/","forge-std/=lib/forge-std/src/","halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/","offerings-src/=packages/offerings/src/","offerings/=packages/offerings/interfaces/","openzeppelin-contracts/=lib/openzeppelin-contracts/","solady/=lib/solady/src/","tokens-src/=packages/tokens/src/","tokens/=packages/tokens/interfaces/","vehicles-src/=packages/vehicles/src/","vehicles/=packages/vehicles/interfaces/","wallets-src/=packages/wallets/src/","wallets/=packages/wallets/interfaces/","webauthn-sol/=lib/webauthn-sol/src/"],"optimizer":{"enabled":true,"runs":200},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"packages/diamonds/src/Diamond.sol":"Diamond"},"evmVersion":"prague","libraries":{},"viaIR":true},"sources":{"packages/diamonds/interfaces/IDiamondCut.sol":{"keccak256":"0x0776015b412539b6d7ff35b20d3b3b30d9846613c09c6d8ba556adf131f76c75","urls":["bzz-raw://68c95e3181cd55cbdc1fe05528c8592ca765759fc443feb81c7b618c70b82b05","dweb:/ipfs/QmWrZa5JsEKvSVVLBTjc9HZdGntYQWyqLHSmWyaMUz8Zy4"],"license":"BUSL-1.1"},"packages/diamonds/src/Constants.sol":{"keccak256":"0xa413dbda918a92713379d13bef26661a6ead4c60a376ab339e3a77c7a7f8f544","urls":["bzz-raw://c49e712af82b21e01385f8bfdd909de027a318236b974cba77b38107906650a7","dweb:/ipfs/QmaGKETE4gRxy5uzEWQBN32CvtArKzX5RnxKPBtZqS4txM"],"license":"BUSL-1.1"},"packages/diamonds/src/Diamond.sol":{"keccak256":"0xd133858edc5649036dee13270c70eeb03a1ebab7b26e3cf79affc04a03cebcef","urls":["bzz-raw://3ca64007cac39921669dc974eaa8416a9afd79637dab39e307a741dc695df6d0","dweb:/ipfs/QmRd4XUf7gzPHVrS1E5vnq8dphyDniFq34b7nqiuzbgSF9"],"license":"BUSL-1.1"},"packages/diamonds/src/DiamondStorage.sol":{"keccak256":"0xf3719a84e2c39b4cc653222b476739b656dde1369e5de01278349e185bf68e92","urls":["bzz-raw://ba95dda29296039b6a9b6f1bf0b635493ce129aaa8805ea2eb1b328fdb5bf8c4","dweb:/ipfs/QmZxjYiRMCef8y9oowU8gtiM1ewQAzS2QmvpUzueSLJzc2"],"license":"BUSL-1.1"}},"version":1},"id":38}
+[
+  {
+    "type": "function",
+    "name": "getAllInvestors",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "investors",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investment",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.Investment",
+        "components": [
+          {
+            "name": "investor",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tokenQuantity",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pricePerToken",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum OfferingStorage.InvestmentStatus"
+          },
+          {
+            "name": "paymentEscrowed",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "subscriptionAgreementRef",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "issuedLotId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorInvestments",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorPaymentTotal",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalPayments",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorTotalInvestment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOfferingInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "info",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.OfferingInfo",
+        "components": [
+          {
+            "name": "issuer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "tokenAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "paymentRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "pricePerToken",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minInvestment",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalInvested",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "investorCount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum OfferingStorage.OfferingStatus"
+          },
+          {
+            "name": "uri",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPaymentInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "totalPaymentsReceived",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "FundsDeposited",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "identityUID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "qualificationUID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAccepted",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAgreementAttached",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "documentUID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAgreementExecuted",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "subscriptionAgreementRef",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentRefunded",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentRejected",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OfferingInitialized",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "paymentRecipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "minInvestment",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OfferingStatusChanged",
+    "inputs": [
+      {
+        "name": "oldStatus",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      },
+      {
+        "name": "newStatus",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokensIssued",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "allowsGeneralSolicitation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "allowsSelfCertification",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "checkComplianceWithAttestations",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "canInvest",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "failureReason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeBeforeInvestmentComplianceWithAttestations",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationCount",
+    "inputs": [
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "count",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEnabledModules",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "names",
+        "type": "string[]",
+        "internalType": "string[]"
+      },
+      {
+        "name": "addresses",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getModuleInfo",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRegisteredModules",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "names",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isComplianceInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isInvestorClassified",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "classified",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "AllowsGeneralSolicitationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AllowsSelfCertificationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceInitialized",
+    "inputs": [
+      {
+        "name": "allowsSelfCertification",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "allowsGeneralSolicitation",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleEnabled",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleRegistered",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleUnregistered",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestorClassificationUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "newCount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "canSignRequiredDocument",
+    "inputs": [
+      {
+        "name": "signer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "eligible",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRequiredDocumentInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "documentWallet",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "signedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedRequiredDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "DocumentSigned",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "signer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RequiredDocumentSet",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "documentWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      }
+    ],
+    "anonymous": false
+  }
+]

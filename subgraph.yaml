@@ -123,9 +123,6 @@ dataSources:
       entities:
         - Offering
         - Diamond
-        - FactoryPaymentConfig
-        - FactoryPaymentToken
-        - FactoryPayment
       abis:
         - name: OfferingFactoryCoreFacet
           file: ./abis/OfferingFactoryCoreFacet.json
@@ -134,16 +131,6 @@ dataSources:
       eventHandlers:
         - event: OfferingCreated(indexed address,indexed address,indexed address,address)
           handler: handleOfferingCreated
-        - event: PaymentModuleInitialized(indexed address)
-          handler: handlePaymentModuleInitialized
-        - event: PaymentTokenConfigured(indexed address,uint256,bool)
-          handler: handlePaymentTokenConfigured
-        - event: PaymentCollected(indexed address,indexed address,uint256,string)
-          handler: handlePaymentCollected
-        - event: FeeRecipientUpdated(indexed address)
-          handler: handleFeeRecipientUpdated
-        - event: PaymentsStatusChanged(bool)
-          handler: handlePaymentsStatusChanged
       file: ./src/mappings/offering-factory.ts
 
   # TokenFactory - tracks token creation (Permissionless)
@@ -161,9 +148,6 @@ dataSources:
       entities:
         - ShareClass
         - Diamond
-        - FactoryPaymentConfig
-        - FactoryPaymentToken
-        - FactoryPayment
       abis:
         - name: TokenFactoryCoreFacet
           file: ./abis/TokenFactoryCoreFacet.json
@@ -172,16 +156,6 @@ dataSources:
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
-        - event: PaymentModuleInitialized(indexed address)
-          handler: handlePaymentModuleInitialized
-        - event: PaymentTokenConfigured(indexed address,uint256,bool)
-          handler: handlePaymentTokenConfigured
-        - event: PaymentCollected(indexed address,indexed address,uint256,string)
-          handler: handlePaymentCollected
-        - event: FeeRecipientUpdated(indexed address)
-          handler: handleFeeRecipientUpdated
-        - event: PaymentsStatusChanged(bool)
-          handler: handlePaymentsStatusChanged
       file: ./src/mappings/token-factory.ts
 
 templates:
@@ -190,7 +164,7 @@ templates:
     name: OfferingDiamond
     network: base-sepolia
     source:
-      abi: OfferingCore
+      abi: OfferingDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -200,6 +174,8 @@ templates:
         - Investment
         - DocumentSignature
       abis:
+        - name: OfferingDiamond
+          file: ./abis/OfferingDiamond.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
         - name: OfferingDocuments
@@ -222,10 +198,6 @@ templates:
           receipt: true
         - event: ComplianceInitialized(bool,bool)
           handler: handleComplianceInitialized
-        - event: AllowsGeneralSolicitationUpdated(bool)
-          handler: handleAllowsGeneralSolicitationUpdated
-        - event: AllowsSelfCertificationUpdated(bool)
-          handler: handleAllowsSelfCertificationUpdated
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template
@@ -233,7 +205,7 @@ templates:
     name: TokenDiamond
     network: base-sepolia
     source:
-      abi: TokenBalances
+      abi: TokenDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -242,37 +214,23 @@ templates:
         - ShareClass
         - Lot
       abis:
+        - name: TokenDiamond
+          file: ./abis/TokenDiamond.json
         - name: TokenBalances
           file: ./abis/TokenBalancesFacet.json
         - name: TokenLots
           file: ./abis/TokenLotsFacet.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
-        - name: TokenAdmin
-          file: ./abis/TokenAdminFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        - event: TokenInitialized(string,string,uint8)
-          handler: handleTokenInitialized
         - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
           handler: handleLotCreated
-        - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256)
+        - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256,string,bytes,uint8,uint256)
           handler: handleLotTransferred
         - event: LotInvalidated(indexed bytes32)
           handler: handleLotInvalidated
-        - event: Paused(indexed address)
-          handler: handlePaused
-        - event: Unpaused(indexed address)
-          handler: handleUnpaused
-        - event: AccountFrozen(indexed address)
-          handler: handleAccountFrozen
-        - event: AccountUnfrozen(indexed address)
-          handler: handleAccountUnfrozen
-        - event: LotFrozen(indexed bytes32)
-          handler: handleLotFrozen
-        - event: LotUnfrozen(indexed bytes32)
-          handler: handleLotUnfrozen
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
@@ -280,7 +238,7 @@ templates:
     name: WalletDiamond
     network: base-sepolia
     source:
-      abi: WalletDocuments
+      abi: WalletDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -290,6 +248,8 @@ templates:
         - Document
         - DocumentSignature
       abis:
+        - name: WalletDiamond
+          file: ./abis/WalletDiamond.json
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
         - name: WalletDocuments
