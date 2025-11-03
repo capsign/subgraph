@@ -52,8 +52,8 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   }
   
   // If we found a match, use the real name and version
-  const facetName = matchedName !== null 
-    ? matchedName + "@" + matchedVersion
+  const facetName = matchedName !== null && matchedVersion !== null
+    ? (matchedName as string) + "@" + (matchedVersion as string)
     : event.params.name.toHexString() + "@" + event.params.version.toHexString();
   
   // Create or update Facet entity
