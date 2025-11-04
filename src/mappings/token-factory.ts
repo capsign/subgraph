@@ -50,6 +50,9 @@ export function handleTokenCreated(event: TokenCreated): void {
   shareClass.totalSupply = BigInt.fromI32(0);
   shareClass.assetType = "ShareClass";
   
+  // Initialize compliance
+  shareClass.complianceConditions = [];
+  
   // Initialize admin state
   shareClass.paused = false;
   shareClass.frozenAccounts = [];

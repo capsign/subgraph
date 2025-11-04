@@ -7,7 +7,6 @@ import { RegistryCoreFacet } from "../../generated/FacetRegistry/RegistryCoreFac
 
 export function handleFacetRegistered(event: FacetRegistered): void {
   const facetAddress = event.params.facetAddress.toHexString();
-  const facetName = event.params.name + "@" + event.params.version;
   const registry = RegistryCoreFacet.bind(event.address);
   
   // Create or update Facet entity
@@ -18,7 +17,8 @@ export function handleFacetRegistered(event: FacetRegistered): void {
     facet.createdTx = event.transaction.hash;
   }
   
-  facet.name = facetName;
+  facet.name = event.params.name;
+  facet.version = event.params.version;
   facet.removed = false;
   
   // Query the selectors from the contract
@@ -40,7 +40,7 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   const registryEvent = new FacetRegistryEvent(eventId);
   registryEvent.eventType = "REGISTERED";
   registryEvent.facet = event.params.facetAddress;
-  registryEvent.facetName = facetName;
+  registryEvent.facetName = event.params.name + "@" + event.params.version;
   registryEvent.timestamp = event.block.timestamp;
   registryEvent.tx = event.transaction.hash;
   registryEvent.blockNumber = event.block.number;
