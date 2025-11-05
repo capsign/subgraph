@@ -13,7 +13,7 @@ import {
   LotTransferred,
   LotInvalidated,
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
-import { ShareClass, Lot, CorporateAction } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -23,13 +23,25 @@ import { createActivity } from "./activity";
 export function handleLotCreated(event: LotCreated): void {
   const tokenAddress = event.address.toHexString();
   const lotId = event.params.lotId.toHexString();
+  const ownerAddress = event.params.owner.toHexString();
+  
+  // Ensure Wallet entity exists (create stub if needed)
+  let wallet = Wallet.load(ownerAddress);
+  if (!wallet) {
+    wallet = new Wallet(ownerAddress);
+    wallet.deployer = event.transaction.from;
+    wallet.createdAt = event.block.timestamp;
+    wallet.createdTx = event.transaction.hash;
+    wallet.type = "EOA"; // Default to EOA for non-factory created wallets
+    wallet.save();
+  }
   
   // Create Lot entity
   const lot = new Lot(lotId);
   lot.lotId = BigInt.fromByteArray(event.params.lotId);
   lot.token = tokenAddress;
   lot.assetId = tokenAddress;
-  lot.owner = event.params.owner.toHexString();
+  lot.owner = ownerAddress;
   lot.quantity = event.params.quantity;
   lot.customId = event.params.customId;
   lot.createdAt = event.block.timestamp;
@@ -72,11 +84,23 @@ export function handleLotCreated(event: LotCreated): void {
  */
 export function handleLotTransferred(event: LotTransferred): void {
   const lotId = event.params.newLotId.toHexString();
+  const newOwnerAddress = event.params.to.toHexString();
+  
+  // Ensure Wallet entity exists (create stub if needed)
+  let wallet = Wallet.load(newOwnerAddress);
+  if (!wallet) {
+    wallet = new Wallet(newOwnerAddress);
+    wallet.deployer = event.transaction.from;
+    wallet.createdAt = event.block.timestamp;
+    wallet.createdTx = event.transaction.hash;
+    wallet.type = "EOA"; // Default to EOA for non-factory created wallets
+    wallet.save();
+  }
   
   // Update lot owner
   const lot = Lot.load(lotId);
   if (lot) {
-    lot.owner = event.params.to.toHexString();
+    lot.owner = newOwnerAddress;
     lot.save();
   }
   
