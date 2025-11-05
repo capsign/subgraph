@@ -1,6 +1,103 @@
 [
   {
     "type": "function",
+    "name": "OfferingCore_init",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minInvestment",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "attachInvestmentAgreement",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "documentUID",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimRefund",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "countersignInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "getAllInvestors",
     "inputs": [],
     "outputs": [
@@ -232,6 +329,56 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "invest",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "rejectInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateOfferingStatus",
+    "inputs": [
+      {
+        "name": "newStatus",
+        "type": "uint8",
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "event",
@@ -550,6 +697,134 @@
     "anonymous": false
   },
   {
+    "type": "error",
+    "name": "OfferingCore_AlreadyCountersigned",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_AlreadyProcessed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_BelowMinimumInvestment",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_DeadlinePassed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_DocumentSignatureRequired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_ETHTransferFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_EscrowAmountMismatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_ExceedsMaximumAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_GracePeriodNotExpired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_IncorrectETHAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_InvalidAttestation",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_InvestmentNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_InvestmentTooSmall",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_NoETHExpected",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_NotInvestor",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_OfferingNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_PaymentNotInEscrow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_TokenIssuanceFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_UnsupportedOfferingType",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ReentrancyGuard_ReentrantCall",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "name": "Compliance_init",
+    "inputs": [
+      {
+        "name": "_allowsSelfCertification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_allowsGeneralSolicitation",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "function",
     "name": "allowsGeneralSolicitation",
     "inputs": [],
@@ -608,6 +883,29 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeAfterInvestmentCompliance",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -749,6 +1047,104 @@
     "stateMutability": "view"
   },
   {
+    "type": "function",
+    "name": "registerComplianceModule",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsGeneralSolicitation",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsSelfCertification",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setModuleEnabled",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unregisterComplianceModule",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateInvestorClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "event",
     "name": "AllowsGeneralSolicitationUpdated",
     "inputs": [
@@ -876,6 +1272,75 @@
     "anonymous": false
   },
   {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Compliance_CheckFailed",
+    "inputs": [
+      {
+        "name": "moduleName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_InvalidModuleAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Compliance_ModuleAlreadyRegistered",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_ModuleNotFound",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_NotInitialized",
+    "inputs": []
+  },
+  {
     "type": "function",
     "name": "canSignRequiredDocument",
     "inputs": [
@@ -966,6 +1431,42 @@
     "stateMutability": "view"
   },
   {
+    "type": "function",
+    "name": "setRequiredDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      },
+      {
+        "name": "customModule",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "signDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "event",
     "name": "DocumentSigned",
     "inputs": [
@@ -1016,8 +1517,62 @@
     "anonymous": false
   },
   {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_DocumentNotFoundInWallet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_InvalidWalletAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NoRequiredDocument",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NotAuthorizedSigner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_NotRequiredDocument",
+    "inputs": []
+  },
+  {
     "type": "function",
-    "name": "getInvestorOffchainInvestments",
+    "name": "addTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationStatus",
     "inputs": [
       {
         "name": "investor",
@@ -1028,90 +1583,38 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getNextOffchainInvestmentId",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getOffchainInvestment",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
         "type": "tuple",
-        "internalType": "struct OfferingStorage.OffchainInvestment",
+        "internalType": "struct ComplianceStorage.ClassificationStatus",
         "components": [
           {
-            "name": "investor",
+            "name": "classifications",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "verifiedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "verifiedBy",
             "type": "address",
             "internalType": "address"
           },
           {
-            "name": "amount",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
-            "name": "tokenQuantity",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "timestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "status",
-            "type": "uint8",
-            "internalType": "enum OfferingStorage.OffchainInvestmentStatus"
-          },
-          {
-            "name": "paymentMethod",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "referenceId",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "attestationUID",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "subscriptionAgreementRef",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "confirmedAt",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "revokedAt",
+            "type": "uint64",
+            "internalType": "uint64"
           }
         ]
       }
@@ -1120,34 +1623,83 @@
   },
   {
     "type": "function",
-    "name": "getTotalOffchainConfirmed",
-    "inputs": [],
+    "name": "getKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "tuple",
+        "internalType": "struct ComplianceStorage.KYCStatus",
+        "components": [
+          {
+            "name": "isVerified",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifiedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "verifiedBy",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revokedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getTotalOffchainPending",
+    "name": "getTrustedKYCProviders",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "address[]",
+        "internalType": "address[]"
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "isOffchainInvestmentInitialized",
-    "inputs": [],
+    "name": "hasClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
     "outputs": [
       {
         "name": "",
@@ -1158,59 +1710,175 @@
     "stateMutability": "view"
   },
   {
-    "type": "event",
-    "name": "OffchainInvestmentCancelled",
+    "type": "function",
+    "name": "isClassificationValid",
     "inputs": [
       {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "cancelledBy",
+        "name": "investor",
         "type": "address",
-        "indexed": true,
         "internalType": "address"
       }
     ],
-    "anonymous": false
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    "type": "event",
-    "name": "OffchainInvestmentConfirmed",
+    "type": "function",
+    "name": "isClassificationValid",
     "inputs": [
       {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
       },
       {
-        "name": "confirmedBy",
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isKYCValid",
+    "inputs": [
+      {
+        "name": "investor",
         "type": "address",
-        "indexed": true,
         "internalType": "address"
       }
     ],
-    "anonymous": false
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    "type": "event",
-    "name": "OffchainInvestmentInitialized",
-    "inputs": [],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OffchainInvestmentRecorded",
+    "type": "function",
+    "name": "isTrustedKYCProvider",
     "inputs": [
       {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeKYC",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
       },
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "ClassificationRevoked",
+    "inputs": [
       {
         "name": "investor",
         "type": "address",
@@ -1218,135 +1886,155 @@
         "internalType": "address"
       },
       {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "paymentMethod",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
-  },
-  {
-    "type": "function",
-    "name": "canCall",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "functionRoles",
-    "inputs": [
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasRole",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "role",
-        "type": "uint8",
-        "internalType": "uint8"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "userRoles",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
   },
   {
     "type": "event",
-    "name": "FunctionAccessChanged",
+    "name": "ClassificationUpdated",
     "inputs": [
       {
-        "name": "functionSig",
-        "type": "bytes4",
+        "name": "investor",
+        "type": "address",
         "indexed": true,
-        "internalType": "bytes4"
+        "internalType": "address"
       },
       {
-        "name": "role",
-        "type": "uint8",
-        "indexed": true,
-        "internalType": "uint8"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
+        "name": "classifications",
+        "type": "bytes32[]",
         "indexed": false,
-        "internalType": "bool"
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCStatusUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedKYCProviderAdded",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedKYCProviderRemoved",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_InvalidExpiration",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderAlreadyTrusted",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderNotTrusted",
+    "inputs": []
   }
 ]

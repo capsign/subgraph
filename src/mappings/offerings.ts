@@ -15,9 +15,23 @@ import {
   ComplianceModuleRegistered,
   ComplianceModuleEnabled,
 } from "../../generated/templates/OfferingDiamond/OfferingCompliance";
+import {
+  KYCStatusUpdated,
+  KYCRevoked,
+  ClassificationUpdated,
+  ClassificationRevoked,
+} from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
 import { BigInt } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
+
+// Re-export compliance handlers
+export {
+  handleKYCStatusUpdated,
+  handleKYCRevoked,
+  handleClassificationUpdated,
+  handleClassificationRevoked,
+} from "./compliance";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
   const offeringAddress = event.address.toHexString();

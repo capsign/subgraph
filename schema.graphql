@@ -27,7 +27,8 @@ type Wallet @entity {
   # Relationships
   tokens: [Lot!]! @derivedFrom(field: "owner")
   investments: [Investment!]! @derivedFrom(field: "investor")
-  attestations: [Attestation!]! @derivedFrom(field: "wallet")
+  kycStatus: KYCStatus
+  classifications: [InvestorClassification!]! @derivedFrom(field: "wallet")
 }
 
 type Owner @entity {
@@ -88,8 +89,10 @@ type Activity @entity {
   corporateAction: CorporateAction
   documentSignature: DocumentSignature
   document: Document
-  attestation: Attestation
+  kycStatus: KYCStatus
+  classification: InvestorClassification
   lot: Lot
+  attestation: Attestation # Hybrid EAS support - kept for backward compatibility
 }
 
 enum ActivityType {
@@ -103,7 +106,11 @@ enum ActivityType {
   CORPORATE_ACTION
   DOCUMENT_SIGNED
   DOCUMENT_UPLOADED
-  ATTESTATION_RECEIVED
+  KYC_STATUS_UPDATED
+  KYC_REVOKED
+  CLASSIFICATION_UPDATED
+  CLASSIFICATION_REVOKED
+  ATTESTATION_RECEIVED # Deprecated - kept for backward compatibility
   LOT_RECEIVED
   LOT_TRANSFERRED
 }
@@ -537,6 +544,38 @@ type CustomIdUpdate @entity {
   transaction: Bytes!
 }
 
+# ============ COMPLIANCE (ComplianceStorage-based) ============
+
+type KYCStatus @entity {
+  id: ID! # offering-address-wallet-address (e.g., "0x123...abc-0x456...def")
+  offering: Offering!
+  wallet: Wallet!
+  verified: Boolean!
+  expirationTime: BigInt!
+  verifiedBy: Bytes!
+  updatedAt: BigInt!
+  updatedTx: Bytes!
+  revoked: Boolean!
+  revokedAt: BigInt
+  revokedTx: Bytes
+  revokedBy: Bytes
+}
+
+type InvestorClassification @entity {
+  id: ID! # offering-address-wallet-address-classification (e.g., "0x123...abc-0x456...def-0x789...ghi")
+  offering: Offering!
+  wallet: Wallet!
+  classification: Bytes! # bytes32 classification ID (e.g., ACCREDITED, NON_ACCREDITED)
+  addedAt: BigInt!
+  addedTx: Bytes!
+  addedBy: Bytes!
+  revoked: Boolean!
+  revokedAt: BigInt
+  revokedTx: Bytes
+  revokedBy: Bytes
+}
+
+# Deprecated: Old EAS-based attestations (kept for backward compatibility)
 type Attestation @entity {
   id: ID! # attestation UID
   schema: Bytes! # Schema UID
