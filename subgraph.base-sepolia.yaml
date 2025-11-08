@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0xAB9914C69af845648E1a7e0c954480Db0390aA69"
+      address: "0x7FDfA407eE66Ec94c58E1f614AbEf917dc9Caae9"
       abi: FactoryCoreFacet
-      startBlock: 33308063
+      startBlock: 33434900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -152,9 +152,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xBFa89A83537D2E28D853A71c5418965dF116E861"
+      address: "0x99efD736b6ce871825aaef7BB25B683C4b68924C"
       abi: TokenFactory
-      startBlock: 33308170
+      startBlock: 33434900
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
