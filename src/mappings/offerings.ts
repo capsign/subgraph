@@ -22,7 +22,7 @@ import {
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export compliance handlers
@@ -236,13 +236,33 @@ export function handleOfferingDocumentSigned(event: DocumentSigned): void {
  */
 export function handleComplianceInitialized(event: ComplianceInitialized): void {
   const offeringAddress = event.address.toHexString();
-  const offering = Offering.load(offeringAddress);
+  let offering = Offering.load(offeringAddress);
   
   if (!offering) {
-    return; // Skip if offering not found
+    // Offering not yet created by factory - create it now to capture compliance settings
+    // This handles the race condition where ComplianceInitialized fires before OfferingCreated
+    offering = new Offering(offeringAddress);
+    offering.issuer = event.transaction.from; // Temporary - will be updated by OfferingCreated
+    offering.admin = event.transaction.from; // Temporary - will be updated by OfferingCreated
+    offering.deployer = event.transaction.from;
+    offering.createdAt = event.block.timestamp;
+    offering.createdTx = event.transaction.hash;
+    
+    // Initialize with defaults
+    offering.token = "0x0000000000000000000000000000000000000000";
+    offering.paymentToken = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    offering.paymentRecipient = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    offering.pricePerToken = BigInt.fromI32(0);
+    offering.minInvestment = BigInt.fromI32(0);
+    offering.maxAmount = BigInt.fromI32(0);
+    offering.deadline = BigInt.fromI32(0);
+    offering.totalInvested = BigInt.fromI32(0);
+    offering.investorCount = BigInt.fromI32(0);
+    offering.status = "ACTIVE";
+    offering.uri = null;
   }
   
-  // Set compliance settings from event parameters (now included in event!)
+  // Set compliance settings from event parameters
   offering.generalSolicitation = event.params.allowsGeneralSolicitation;
   offering.allowsSelfCertification = event.params.allowsSelfCertification;
   

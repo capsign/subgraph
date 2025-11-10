@@ -53,6 +53,9 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
   offering.uri = null;
+  
+  // Don't initialize compliance fields here - let ComplianceInitialized event set them
+  // offering.generalSolicitation and offering.allowsSelfCertification will be null by default
 
   offering.save();
 

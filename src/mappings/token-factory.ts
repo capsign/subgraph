@@ -8,6 +8,7 @@ import {
 } from "../../generated/TokenFactory/TokenFactory";
 import { Diamond, ShareClass } from "../../generated/schema";
 import { TokenDiamond } from "../../generated/templates";
+import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
 import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
 import {
   FactoryPaymentConfig,
@@ -45,8 +46,11 @@ export function handleTokenCreated(event: TokenCreated): void {
   shareClass.createdAt = event.block.timestamp;
   shareClass.createdTx = event.transaction.hash;
 
-  // Initialize with default values (will be updated by TokenInitialized event)
-  shareClass.decimals = 18;
+  // Read decimals from the token contract using TokenMetadata ABI
+  let tokenContract = TokenMetadata.bind(event.params.tokenDiamond);
+  let decimalsResult = tokenContract.try_decimals();
+  shareClass.decimals = decimalsResult.reverted ? 18 : decimalsResult.value; // Default to 18 if call fails
+  
   shareClass.totalSupply = BigInt.fromI32(0);
   shareClass.assetType = "ShareClass";
   
