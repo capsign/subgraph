@@ -260,6 +260,7 @@ export function handleComplianceInitialized(event: ComplianceInitialized): void 
     offering.investorCount = BigInt.fromI32(0);
     offering.status = "ACTIVE";
     offering.uri = null;
+    offering.complianceModules = []; // Initialize empty array for non-nullable field
   }
   
   // Set compliance settings from event parameters
