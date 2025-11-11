@@ -149,8 +149,8 @@ function detectTokenType(tokenAddress: Address): string {
   
   // Check each facet for SAFE-specific function selectors
   // TokenSAFEFacet implements: defaultTerms(), lotTerms(bytes32), etc.
-  // Selector for defaultTerms(): 0x7c5b4f59
-  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x7c5b4f59");
+  // Selector for defaultTerms(): 0x43e30c7f
+  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
   
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
