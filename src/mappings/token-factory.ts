@@ -50,6 +50,7 @@ export function handleTokenCreated(event: TokenCreated): void {
     safe.symbol = event.params.symbol;
     safe.decimals = decimals;
     safe.totalSupply = BigInt.fromI32(0);
+    safe.creator = event.params.admin; // Kept for backwards compatibility
     safe.admin = event.params.admin;
     safe.deployer = event.params.admin;
     safe.createdAt = event.block.timestamp;
