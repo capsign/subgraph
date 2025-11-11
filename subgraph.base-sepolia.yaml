@@ -317,6 +317,12 @@ templates:
         - Document
         - DocumentSignature
         - Attestation
+        - Vehicle
+        - VehicleMember
+        - CapitalContribution
+        - Distribution
+        - DistributionClaim
+        - VehicleInvestment
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -324,6 +330,10 @@ templates:
           file: ./abis/WalletCoreFacet.json
         - name: WalletDocuments
           file: ./abis/WalletDocumentsFacet.json
+        - name: VehicleMembers
+          file: ./abis/VehicleMembersFacet.json
+        - name: SPVDistribution
+          file: ./abis/SPVDistributionFacet.json
       eventHandlers:
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
@@ -340,5 +350,30 @@ templates:
           handler: handleAttestationAdded
         - event: AttestationRevoked(indexed bytes32,uint256)
           handler: handleAttestationRevoked
+        # Vehicle events (from VehicleMembers ABI)
+        - event: CapitalContributed(indexed address,uint256,uint256)
+          handler: handleCapitalContributed
+          receipt: false
+        - event: DistributionExecuted(indexed uint256,uint256,uint256)
+          handler: handleDistributionExecuted
+          receipt: false
+        - event: DistributionClaimed(indexed uint256,indexed address,uint256,uint256)
+          handler: handleDistributionClaimed
+          receipt: false
+        - event: MemberAdded(indexed address,uint256)
+          handler: handleMemberAdded
+          receipt: false
+        - event: MemberRemoved(indexed address)
+          handler: handleMemberRemoved
+          receipt: false
+        - event: InvestmentMade(indexed uint256,indexed address,uint8,uint256,uint256)
+          handler: handleInvestmentMade
+          receipt: false
+        - event: ValuationUpdated(indexed uint256,uint256,uint256,uint256)
+          handler: handleValuationUpdated
+          receipt: false
+        - event: InvestmentExited(indexed uint256,uint256,uint256)
+          handler: handleInvestmentExited
+          receipt: false
       file: ./src/mappings/wallets.ts
 

@@ -15,6 +15,18 @@ import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation } from
 import { Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
+// Re-export vehicle handlers
+export {
+  handleCapitalContributed,
+  handleDistributionExecuted,
+  handleDistributionClaimed,
+  handleMemberAdded,
+  handleMemberRemoved,
+  handleInvestmentMade,
+  handleValuationUpdated,
+  handleInvestmentExited,
+} from "./vehicles";
+
 export function handleWalletInitialized(event: WalletInitialized): void {
   const walletAddress = event.address.toHexString();
 
