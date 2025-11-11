@@ -74,6 +74,174 @@ type DocumentSignature @entity {
   logIndex: BigInt!
 }
 
+# ============ VEHICLE (SPV/Fund) ENTITIES ============
+
+type Vehicle @entity {
+  id: ID! # Vehicle wallet address
+  wallet: Wallet! # The wallet that has vehicle facets
+  vehicleType: VehicleType! # SPV, FUND, DAO
+  
+  # Capital accounting totals
+  totalCapitalContributed: BigInt!
+  totalDistributionsExecuted: BigInt!
+  totalDistributionsClaimed: BigInt!
+  
+  # Token reference (for unit interest tokens)
+  token: Token # The UNIT_INTEREST token representing ownership
+  
+  # Member tracking
+  memberCount: Int!
+  members: [VehicleMember!]! @derivedFrom(field: "vehicle")
+  
+  # Capital contributions
+  contributions: [CapitalContribution!]! @derivedFrom(field: "vehicle")
+  
+  # Distributions
+  distributions: [Distribution!]! @derivedFrom(field: "vehicle")
+  
+  # Investments (if SPV)
+  investments: [VehicleInvestment!]! @derivedFrom(field: "vehicle")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+enum VehicleType {
+  SPV        # Special Purpose Vehicle (single investment)
+  FUND       # Multi-investment fund
+  DAO        # DAO LLC
+}
+
+type VehicleMember @entity {
+  id: ID! # vehicle-member-address
+  vehicle: Vehicle!
+  memberAddress: Bytes!
+  
+  # Capital accounting for this member
+  capitalContributed: BigInt!
+  distributionsReceived: BigInt!
+  
+  # Token ownership (derived from lots)
+  tokenBalance: BigInt! # Current token balance
+  
+  addedAt: BigInt!
+  addedTx: Bytes!
+  
+  # Track if member has been removed
+  removed: Boolean!
+  removedAt: BigInt
+  removedTx: Bytes
+  
+  # Contributions by this member
+  contributions: [CapitalContribution!]! @derivedFrom(field: "member")
+}
+
+type CapitalContribution @entity {
+  id: ID! # tx-hash-logIndex
+  vehicle: Vehicle!
+  member: VehicleMember!
+  memberAddress: Bytes! # Denormalized for filtering
+  amount: BigInt!
+  
+  # Context: where did this capital come from?
+  source: CapitalSource! # OFFERING, DIRECT, TRANSFER
+  offering: Offering # If source = OFFERING, reference the offering
+  
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
+}
+
+enum CapitalSource {
+  OFFERING   # From countersigned investment in an offering
+  DIRECT     # Manually recorded contribution
+  TRANSFER   # From token transfer (secondary market)
+}
+
+type Distribution @entity {
+  id: ID! # vehicle-distributionId
+  vehicle: Vehicle!
+  distributionId: BigInt! # Protocol's internal distribution ID
+  totalAmount: BigInt!
+  lpAmount: BigInt! # Amount for limited partners (token holders)
+  carryAmount: BigInt! # Amount for carry recipients (GP, etc.)
+  
+  # State
+  finalized: Boolean!
+  finalizedAt: BigInt
+  finalizedTx: Bytes
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+  blockNumber: BigInt!
+  
+  # Individual distributions to members
+  claims: [DistributionClaim!]! @derivedFrom(field: "distribution")
+}
+
+type DistributionClaim @entity {
+  id: ID! # distribution-member-address
+  distribution: Distribution!
+  member: VehicleMember!
+  memberAddress: Bytes! # Denormalized for filtering
+  amount: BigInt!
+  
+  # State
+  claimed: Boolean!
+  claimedAt: BigInt
+  claimedTx: Bytes
+}
+
+type VehicleInvestment @entity {
+  id: ID! # vehicle-investmentId
+  vehicle: Vehicle!
+  investmentId: BigInt! # Protocol's internal investment ID
+  assetType: VehicleAssetType!
+  
+  # Investment details
+  target: Bytes! # Address of the investment target (company, protocol, etc.)
+  amount: BigInt!
+  entryDate: BigInt!
+  entryTx: Bytes!
+  
+  # Exit details (if exited)
+  exited: Boolean!
+  exitAmount: BigInt
+  exitDate: BigInt
+  exitTx: Bytes
+  
+  # Current valuation (updated by vehicle admin)
+  currentValuation: BigInt!
+  lastValuationUpdate: BigInt!
+}
+
+enum VehicleAssetType {
+  EQUITY        # Equity investment in a company
+  DEBT          # Debt instrument
+  CRYPTO        # Cryptocurrency holding
+  DEFI          # DeFi protocol position (e.g., Morpho)
+  REAL_ESTATE   # Real estate holding
+  OTHER         # Other asset types
+}
+
+# Track NAV updates for the vehicle
+type VehicleValuation @entity {
+  id: ID! # tx-hash-logIndex
+  vehicle: Vehicle!
+  totalNAV: BigInt! # Net Asset Value
+  navPerToken: BigInt! # NAV divided by total token supply
+  
+  # Breakdown
+  totalAssets: BigInt!
+  totalLiabilities: BigInt!
+  
+  updatedBy: Bytes!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
 # Unified Activity Feed
 type Activity @entity {
   id: ID! # tx-hash-logIndex or unique identifier
@@ -113,6 +281,12 @@ enum ActivityType {
   ATTESTATION_RECEIVED # Deprecated - kept for backward compatibility
   LOT_RECEIVED
   LOT_TRANSFERRED
+  # Vehicle activities
+  CAPITAL_CONTRIBUTED
+  DISTRIBUTION_CREATED
+  DISTRIBUTION_CLAIMED
+  MEMBER_ADDED
+  MEMBER_REMOVED
 }
 
 type Offering @entity {
@@ -396,8 +570,8 @@ enum CorporateActionType {
 
 enum TokenAssetType {
   ShareClass
+  UnitInterest # LLC/LP unit interests (for investment vehicles)
   # Future token types (commented out until implemented):
-  # UnitInterest
   # Safe
   # EmployeeStockOption
   # Warrant
