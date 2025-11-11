@@ -150,12 +150,13 @@ function detectTokenType(tokenAddress: Address): string {
   // Check each facet for SAFE-specific function selectors
   // TokenSAFEFacet implements: defaultTerms(), lotTerms(bytes32), etc.
   // Selector for defaultTerms(): 0x7c5b4f59
-  const SAFE_FACET_SELECTOR = "0x7c5b4f59";
+  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x7c5b4f59");
   
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
     for (let j = 0; j < facetSelectors.length; j++) {
-      if (facetSelectors[j].toHexString() == SAFE_FACET_SELECTOR) {
+      // Use equals() method for Bytes comparison in AssemblyScript
+      if (facetSelectors[j].equals(SAFE_FACET_SELECTOR)) {
         return "Safe";
       }
     }
