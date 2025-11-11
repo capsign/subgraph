@@ -383,6 +383,8 @@ interface Token {
   paused: Boolean!
   frozenAccounts: [Bytes!]!
   frozenLots: [Bytes!]!
+  retired: Boolean! # Token has been retired (soft flag)
+  retiredAt: BigInt # Timestamp when retired (null if not retired)
   
   # Transfer conditions
   transferController: Bytes
@@ -408,6 +410,8 @@ type ShareClass implements Token @entity {
   paused: Boolean!
   frozenAccounts: [Bytes!]!
   frozenLots: [Bytes!]!
+  retired: Boolean!
+  retiredAt: BigInt
   transferController: Bytes
   hasTransferConditions: Boolean!
   lots: [Lot!]! @derivedFrom(field: "token")
@@ -571,25 +575,75 @@ enum CorporateActionType {
 enum TokenAssetType {
   ShareClass
   UnitInterest # LLC/LP unit interests (for investment vehicles)
+  Safe # Simple Agreement for Future Equity
   # Future token types (commented out until implemented):
-  # Safe
   # EmployeeStockOption
   # Warrant
   # StockAppreciationRight
 }
 
-# FUTURE: SAFE Conversion tracking (uncomment when implementing Safe tokens)
-# type SAFEConversion @entity {
-#   id: ID! # safe-conversion-index
-#   safe: Safe!
-#   lot: Lot! # The SAFE lot being converted
-#   targetShareClass: ShareClass! # What it's converting to
-#   triggerEvent: String! # e.g., "Equity Financing", "Liquidity Event", "Maturity"
-#   conversionPrice: BigInt!
-#   sharesIssued: BigInt!
-#   convertedAt: BigInt!
-#   convertedTx: Bytes!
-# }
+# SAFE Token Type
+type Safe implements Token @entity {
+  # Token interface fields
+  id: ID! # Token address
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  creator: Bytes! # Kept for backwards compatibility
+  admin: Bytes!
+  deployer: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  assetType: TokenAssetType!
+  
+  # Compliance
+  complianceConditions: [Bytes!]! # Compliance conditions used
+  
+  # Admin state
+  paused: Boolean!
+  frozenAccounts: [Bytes!]!
+  frozenLots: [Bytes!]!
+  retired: Boolean!
+  retiredAt: BigInt
+  transferController: Bytes
+  hasTransferConditions: Boolean!
+  lots: [Lot!]! @derivedFrom(field: "token")
+  offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # SAFE-specific fields
+  defaultValuationCap: BigInt! # Default valuation cap (0 = uncapped)
+  defaultDiscountRate: Int! # Default discount rate in basis points
+  defaultTargetEquityToken: Bytes! # Default ShareClass to convert into
+  defaultProRataRight: Boolean! # Default pro-rata participation rights
+  defaultHasMFN: Boolean! # Default Most Favored Nation clause
+  
+  # Statistics
+  totalInvested: BigInt!
+  totalConverted: BigInt!
+  lotsConverted: Int!
+  
+  # Conversions
+  conversions: [SAFEConversion!]! @derivedFrom(field: "safe")
+}
+
+# SAFE Conversion tracking
+type SAFEConversion @entity {
+  id: ID! # tx-hash-logIndex
+  safe: Safe!
+  safeLot: Lot! # The SAFE lot being converted
+  investor: Bytes!
+  investmentAmount: BigInt!
+  sharesIssued: BigInt!
+  effectivePrice: BigInt!
+  targetShareClass: Bytes! # ShareClass token address
+  equityLotId: Bytes! # The new equity lot created
+  conversionNote: String!
+  convertedAt: BigInt!
+  convertedTx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
+}
 
 # FUTURE: ESO Grant tracking (uncomment when implementing ESO tokens)
 # type ESOGrant @entity {

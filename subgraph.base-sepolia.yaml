@@ -161,6 +161,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - ShareClass
+        - Safe
         - Diamond
         - FactoryPaymentConfig
         - FactoryPaymentToken
@@ -170,6 +171,8 @@ dataSources:
           file: ./abis/TokenFactory.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
+        - name: DiamondLoupe
+          file: ./abis/DiamondLoupe.json
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
@@ -292,6 +295,16 @@ templates:
           handler: handleLotFrozen
         - event: LotUnfrozen(indexed bytes32)
           handler: handleLotUnfrozen
+        - event: TokenRetired(uint256)
+          handler: handleTokenRetired
+        - event: TokenUnretired(uint256)
+          handler: handleTokenUnretired
+        - event: DefaultTermsSet(uint256,uint256,address,bool,bool)
+          handler: handleDefaultTermsSet
+        - event: LotTermsSet(indexed bytes32,uint256,uint256,address,bool)
+          handler: handleLotTermsSet
+        - event: SAFEConverted(indexed bytes32,indexed address,indexed bytes32,uint256,uint256,uint256,address,string)
+          handler: handleSAFEConverted
         - event: MaxSupplyUpdated(uint256)
           handler: handleMaxSupplyUpdated
         - event: BaseURIUpdated(string)

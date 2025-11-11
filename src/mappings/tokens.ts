@@ -6,14 +6,19 @@ import {
   AccountUnfrozen,
   LotFrozen,
   LotUnfrozen,
+  TokenRetired,
+  TokenUnretired,
   StockSplitApplied,
   StockDividendApplied,
   BaseURIUpdated,
   LotCreated,
   LotTransferred,
   LotInvalidated,
+  DefaultTermsSet,
+  LotTermsSet,
+  SAFEConverted,
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
-import { ShareClass, Lot, CorporateAction, Wallet } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -289,5 +294,131 @@ export function handleStockDividendApplied(event: StockDividendApplied): void {
     action.timestamp = event.block.timestamp;
     action.tx = event.transaction.hash;
     action.save();
+  }
+}
+
+/**
+ * Handle TokenRetired event
+ */
+export function handleTokenRetired(event: TokenRetired): void {
+  const tokenAddress = event.address.toHexString();
+  
+  // Try loading as ShareClass first
+  let shareClass = ShareClass.load(tokenAddress);
+  if (shareClass != null) {
+    shareClass.retired = true;
+    shareClass.retiredAt = event.params.timestamp;
+    shareClass.save();
+    return;
+  }
+  
+  // Try loading as Safe
+  let safe = Safe.load(tokenAddress);
+  if (safe != null) {
+    safe.retired = true;
+    safe.retiredAt = event.params.timestamp;
+    safe.save();
+    return;
+  }
+}
+
+/**
+ * Handle TokenUnretired event
+ */
+export function handleTokenUnretired(event: TokenUnretired): void {
+  const tokenAddress = event.address.toHexString();
+  
+  // Try loading as ShareClass first
+  let shareClass = ShareClass.load(tokenAddress);
+  if (shareClass != null) {
+    shareClass.retired = false;
+    shareClass.retiredAt = null;
+    shareClass.save();
+    return;
+  }
+  
+  // Try loading as Safe
+  let safe = Safe.load(tokenAddress);
+  if (safe != null) {
+    safe.retired = false;
+    safe.retiredAt = null;
+    safe.save();
+    return;
+  }
+}
+
+/**
+ * Handle DefaultTermsSet event (SAFE tokens)
+ */
+export function handleDefaultTermsSet(event: DefaultTermsSet): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    safe.defaultValuationCap = event.params.valuationCap;
+    safe.defaultDiscountRate = event.params.discountRate.toI32();
+    safe.defaultTargetEquityToken = event.params.targetEquityToken;
+    safe.defaultProRataRight = event.params.proRataRight;
+    safe.defaultHasMFN = event.params.hasMFN;
+    safe.save();
+  }
+}
+
+/**
+ * Handle LotTermsSet event (SAFE tokens)
+ */
+export function handleLotTermsSet(event: LotTermsSet): void {
+  const lotId = event.params.lotId.toHexString();
+  const lot = Lot.load(lotId);
+  
+  if (lot != null) {
+    // Store SAFE-specific lot terms in the lot's data field or create a separate entity
+    // For now, we'll just log it - you may want to extend the Lot entity or create SAFELotTerms entity
+    log.info("SAFE lot terms set for lot {}: cap={}, discount={}, target={}", [
+      lotId,
+      event.params.valuationCap.toString(),
+      event.params.discountRate.toString(),
+      event.params.targetEquityToken.toHexString()
+    ]);
+  }
+}
+
+/**
+ * Handle SAFEConverted event
+ */
+export function handleSAFEConverted(event: SAFEConverted): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    // Update SAFE stats
+    safe.totalConverted = safe.totalConverted.plus(event.params.investmentAmount);
+    safe.lotsConverted = safe.lotsConverted + 1;
+    safe.save();
+    
+    // Create conversion record
+    const conversionId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+    const conversion = new SAFEConversion(conversionId);
+    conversion.safe = tokenAddress;
+    conversion.safeLot = event.params.safeLotId.toHexString();
+    conversion.investor = event.params.investor;
+    conversion.investmentAmount = event.params.investmentAmount;
+    conversion.sharesIssued = event.params.sharesIssued;
+    conversion.effectivePrice = event.params.effectivePrice;
+    conversion.targetShareClass = event.params.targetShareClass;
+    conversion.equityLotId = event.params.equityLotId;
+    conversion.conversionNote = event.params.conversionNote;
+    conversion.convertedAt = event.block.timestamp;
+    conversion.convertedTx = event.transaction.hash;
+    conversion.blockNumber = event.block.number;
+    conversion.logIndex = event.logIndex;
+    conversion.save();
+    
+    // Mark the SAFE lot as converted (invalidated)
+    const safeLot = Lot.load(event.params.safeLotId.toHexString());
+    if (safeLot != null) {
+      safeLot.isValid = false;
+      safeLot.save();
+    }
   }
 }
