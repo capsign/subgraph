@@ -826,7 +826,7 @@ type Attestation @entity {
 type Facet @entity {
   id: ID! # Facet address
   name: String!
-  version: String!
+  version: BigInt!
   selectors: [String!]!
   createdAt: BigInt!
   createdTx: Bytes!

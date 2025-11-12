@@ -78,9 +78,9 @@ dataSources:
         - name: RegistryCoreFacet
           file: ./abis/RegistryCoreFacet.json
       eventHandlers:
-        - event: FacetRegistered(indexed string,indexed string,string,string,address,uint256)
+        - event: FacetRegistered(indexed string,indexed uint256,address,uint256)
           handler: handleFacetRegistered
-        - event: FacetRemoved(indexed string,indexed string,string,string)
+        - event: FacetRemoved(indexed string,indexed uint256)
           handler: handleFacetRemoved
       file: ./src/mappings/facet-registry.ts
 

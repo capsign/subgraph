@@ -17,13 +17,16 @@ export function handleFacetRegistered(event: FacetRegistered): void {
     facet.createdTx = event.transaction.hash;
   }
   
-  facet.name = event.params.name;
+  // Convert indexed string to string
+  const facetName = event.params.name.toString();
+  
+  facet.name = facetName;
   facet.version = event.params.version;
   facet.removed = false;
   
   // Query the selectors from the contract
   const selectorsResult = registry.try_getFacetSelectors(
-    event.params.name,
+    facetName,
     event.params.version
   );
   
@@ -40,7 +43,7 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   const registryEvent = new FacetRegistryEvent(eventId);
   registryEvent.eventType = "REGISTERED";
   registryEvent.facet = event.params.facetAddress;
-  registryEvent.facetName = event.params.name + "@" + event.params.version;
+  registryEvent.facetName = facetName + "@" + event.params.version.toString();
   registryEvent.timestamp = event.block.timestamp;
   registryEvent.tx = event.transaction.hash;
   registryEvent.blockNumber = event.block.number;
@@ -49,7 +52,7 @@ export function handleFacetRegistered(event: FacetRegistered): void {
 }
 
 export function handleFacetRemoved(event: FacetRemoved): void {
-  const facetName = event.params.name + "@" + event.params.version;
+  const facetName = event.params.name.toString() + "@" + event.params.version.toString();
   
   // Note: We can't easily update a specific Facet entity here because the event
   // doesn't include the facet address. We would need to track name->address
