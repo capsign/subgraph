@@ -1,4 +1,4 @@
-import { WalletCreated } from "../../generated/WalletFactory/WalletFactory";
+import { WalletCreated } from "../../generated/WalletFactory/WalletFactoryCoreFacet";
 import { Diamond, Wallet, Owner } from "../../generated/schema";
 import { WalletDiamond } from "../../generated/templates";
 
@@ -7,7 +7,7 @@ import { WalletDiamond } from "../../generated/templates";
  * This event provides immediate type information and owner details
  */
 export function handleWalletCreated(event: WalletCreated): void {
-  const walletAddress = event.params.wallet.toHexString();
+  const walletAddress = event.params.walletDiamond.toHexString();
 
   // Create or update Diamond entity
   let diamond = Diamond.load(walletAddress);
@@ -26,14 +26,12 @@ export function handleWalletCreated(event: WalletCreated): void {
   wallet.createdAt = event.block.timestamp;
   wallet.createdTx = event.transaction.hash;
 
-  // Map ownerType enum (0=EOA, 1=Passkey, 2=MPC)
+  // Map ownerType enum (0=EOA, 1=Passkey)
   const ownerTypeValue = event.params.ownerType;
   if (ownerTypeValue === 0) {
     wallet.type = "EOA";
   } else if (ownerTypeValue === 1) {
     wallet.type = "Passkey";
-  } else if (ownerTypeValue === 2) {
-    wallet.type = "MPC";
   } else {
     wallet.type = "EOA"; // Fallback
   }
@@ -41,14 +39,16 @@ export function handleWalletCreated(event: WalletCreated): void {
   wallet.save();
 
   // Create initial Owner entity
+  // For Passkey: owner param is address(0), use wallet address as unique ID
+  // For EOA: owner param is the actual EOA address
   const ownerTypeStr = wallet.type;
   let ownerId: string;
   
   if (ownerTypeStr === "Passkey") {
-    // For Passkey, use publicKeyHash as the owner ID
-    ownerId = walletAddress + "-" + event.params.publicKeyHash.toHexString();
+    // For Passkey, owner param is 0x0, so use salt for uniqueness
+    ownerId = walletAddress + "-passkey-" + event.params.salt.toHexString();
   } else {
-    // For EOA/MPC, use the owner address
+    // For EOA, use the owner address
     ownerId = walletAddress + "-" + event.params.owner.toHexString();
   }
 
@@ -64,13 +64,8 @@ export function handleWalletCreated(event: WalletCreated): void {
     owner.publicKeyHash = null;
   } else if (ownerTypeStr === "Passkey") {
     owner.ownerType = "Passkey";
-    owner.address = null;
-    owner.publicKey = null; // Could be derived from owners array if needed
-    owner.publicKeyHash = event.params.publicKeyHash;
-  } else if (ownerTypeStr === "MPC") {
-    owner.ownerType = "MPC";
-    owner.address = event.params.owner;
-    owner.publicKey = null;
+    owner.address = null; // Passkey owners have address(0) in the event
+    owner.publicKey = null; // Public key must be fetched from contract via ownerAtIndex()
     owner.publicKeyHash = null;
   }
 
@@ -81,5 +76,5 @@ export function handleWalletCreated(event: WalletCreated): void {
   diamond.save();
 
   // Start tracking wallet diamond for document events
-  WalletDiamond.create(event.params.wallet);
+  WalletDiamond.create(event.params.walletDiamond);
 }

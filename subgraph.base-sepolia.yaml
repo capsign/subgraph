@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x7FDfA407eE66Ec94c58E1f614AbEf917dc9Caae9"
+      address: "0x6607eC3F4ECDF175A80D1B008e017312dd6dedbE"
       abi: FactoryCoreFacet
-      startBlock: 33434900
+      startBlock: 33601010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -20,6 +20,8 @@ dataSources:
         - Offering
         - ShareClass
       abis:
+        - name: DiamondFactory
+          file: ./abis/DiamondFactory.json
         - name: FactoryCoreFacet
           file: ./abis/FactoryCoreFacet.json
         - name: OfferingCore
@@ -64,9 +66,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x95eCa6E8B5Fd3B405889df874b501305240DD9C9"
-      abi: RegistryCoreFacet
-      startBlock: 33434900
+      address: "0xd83c95a7eE4a073606330F9077BF6B3A319294b9"
+      abi: FacetRegistry
+      startBlock: 33601010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -75,12 +77,12 @@ dataSources:
         - Facet
         - FacetRegistryEvent
       abis:
-        - name: RegistryCoreFacet
-          file: ./abis/RegistryCoreFacet.json
+        - name: FacetRegistry
+          file: ./abis/FacetRegistry.json
       eventHandlers:
-        - event: FacetRegistered(indexed string,indexed uint256,address,uint256)
+        - event: FacetRegistered(string,indexed uint256,indexed address,uint256)
           handler: handleFacetRegistered
-        - event: FacetRemoved(indexed string,indexed uint256)
+        - event: FacetRemoved(string,indexed uint256)
           handler: handleFacetRemoved
       file: ./src/mappings/facet-registry.ts
 
@@ -100,6 +102,8 @@ dataSources:
         - Wallet
         - Diamond
       abis:
+        - name: WalletFactory
+          file: ./abis/WalletFactory.json
         - name: WalletFactoryCoreFacet
           file: ./abis/WalletFactoryCoreFacet.json
         - name: WalletCore
@@ -133,7 +137,7 @@ dataSources:
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
       eventHandlers:
-        - event: OfferingCreated(indexed address,indexed address,indexed address,address)
+        - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
           handler: handleOfferingCreated
         - event: PaymentModuleInitialized(indexed address)
           handler: handlePaymentModuleInitialized

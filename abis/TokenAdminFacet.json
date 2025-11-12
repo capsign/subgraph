@@ -1,1 +1,394 @@
-{"abi":[{"type":"function","name":"freezeAccount","inputs":[{"name":"account","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"freezeLot","inputs":[{"name":"lotId","type":"bytes32","internalType":"bytes32"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"isAccountFrozen","inputs":[{"name":"account","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"isLotFrozen","inputs":[{"name":"lotId","type":"bytes32","internalType":"bytes32"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"maxSupply","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"pause","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"paused","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"setBaseURI","inputs":[{"name":"newBaseURI","type":"string","internalType":"string"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setMaxSupply","inputs":[{"name":"_maxSupply","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"unfreezeAccount","inputs":[{"name":"account","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"unfreezeLot","inputs":[{"name":"lotId","type":"bytes32","internalType":"bytes32"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"unpause","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"type":"event","name":"AccountFrozen","inputs":[{"name":"account","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"event","name":"AccountUnfrozen","inputs":[{"name":"account","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"event","name":"BaseURIUpdated","inputs":[{"name":"newBaseURI","type":"string","indexed":false,"internalType":"string"}],"anonymous":false},{"type":"event","name":"LotFrozen","inputs":[{"name":"lotId","type":"bytes32","indexed":true,"internalType":"bytes32"}],"anonymous":false},{"type":"event","name":"LotUnfrozen","inputs":[{"name":"lotId","type":"bytes32","indexed":true,"internalType":"bytes32"}],"anonymous":false},{"type":"event","name":"MaxSupplyUpdated","inputs":[{"name":"maxSupply","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"type":"event","name":"Paused","inputs":[{"name":"account","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"event","name":"Unpaused","inputs":[{"name":"account","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"error","name":"AccessControl_CallerIsNotAuthorized","inputs":[{"name":"caller","type":"address","internalType":"address"},{"name":"functionSig","type":"bytes4","internalType":"bytes4"}]},{"type":"error","name":"Token_AccountAlreadyFrozen","inputs":[]},{"type":"error","name":"Token_AccountNotFrozen","inputs":[]},{"type":"error","name":"Token_AlreadyPaused","inputs":[]},{"type":"error","name":"Token_LotAlreadyFrozen","inputs":[]},{"type":"error","name":"Token_LotNotFrozen","inputs":[]},{"type":"error","name":"Token_NotPaused","inputs":[]}],"bytecode":{"object":"0x608080604052346015576109c4908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f35908160e01c9081631c65bcb9146107fe575080633f4ba83a1461077357806355f804b3146104f05780635c975abb146104c25780636f8b44b014610443578063788649ea146103aa5780638456cb591461031d578063d486df9514610277578063d5abeb011461023b578063dfc05aaf14610193578063e816d97f146101565763f26c159f146100a2575f80fd5b34610152576020366003190112610152576004356001600160a01b03811691828203610152576001600160e01b0319166100dc813361086d565b1561013c575060ff6100ed82610835565b541661012d576100fc90610835565b805460ff191660011790557f4f2a367e694e71282f29ab5eaa04c4c0be45ac5bf2ca74fb67068b98bdc2887d5f80a2005b637368178160e11b5f5260045ffd5b631d64bc3360e11b5f523360045260245260445ffd5b5f80fd5b34610152576020366003190112610152576004356001600160a01b03811681036101525760ff610187602092610835565b54166040519015158152f35b503461015257602036600319011261015257600435906001600160e01b0319166101bd813361086d565b1561013c5750805f525f51602061096f5f395f51905f5260205260ff60405f20541661022c57805f525f51602061096f5f395f51905f5260205260405f20600160ff198254161790557fadffb1dc8f05db4bf973a3d64d9f4a184b4ab3ecf6905dbca4a1b2eb11b57ba35f80a2005b631d56e58d60e01b5f5260045ffd5b34610152575f3660031901126101525760207fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd454604051908152f35b503461015257602036600319011261015257600435906001600160e01b0319166102a1813361086d565b1561013c5750805f525f51602061096f5f395f51905f5260205260ff60405f2054161561030e57805f525f51602061096f5f395f51905f5260205260405f2060ff1981541690557f68019ce31799213bf2c6f2d95022e7e8b7785fa5f2d016512006d7d6744e27a25f80a2005b637eec62e160e11b5f5260045ffd5b5034610152575f366003190112610152576001600160e01b031916610342813361086d565b1561013c575f51602061092f5f395f51905f525460ff811661039b5760ff19166001175f51602061092f5f395f51905f5255337f62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a2585f80a2005b63f415877d60e01b5f5260045ffd5b5034610152576020366003190112610152576004356001600160a01b03811691828203610152576001600160e01b0319166103e5813361086d565b1561013c575060ff6103f682610835565b5416156104345761040690610835565b805460ff191690557ff915cd9fe234de6e8d3afe7bf2388d35b2b6d48e8c629a24602019bde79c213a5f80a2005b63e6e4586160e01b5f5260045ffd5b503461015257602036600319011261015257600435906001600160e01b03191661046d813361086d565b1561013c577f7810bd47de260c3e9ee10061cf438099dd12256c79485f12f94dbccc981e806c602083807fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd455604051908152a1005b34610152575f36600319011261015257602060ff5f51602061092f5f395f51905f5254166040519015158152f35b5034610152576020366003190112610152576004359067ffffffffffffffff821161015257366023830112156101525781600401359067ffffffffffffffff8211610152573660248385010111610152576001600160e01b031916610555813361086d565b1561013c57505f51602061094f5f395f51905f5254600181811c91168015610769575b602082101461075557601f81116106e6575b505f601f821160011461061f577f6741b2fc379fad678116fe3d4d4b9a1a184ab53ba36b86ad0fa66340b1ab41ad92826024936040935f91610612575b508160011b905f198360031b1c1916175f51602061094f5f395f51905f52555b8083519485936020855282602086015201848401375f828201840152601f01601f19168101030190a1005b859150830101355f6105c7565b5f51602061094f5f395f51905f525f9081527f78926ff2c6393c4af14ccf7ab4260f3ac7e5fe09de09064a81f8ccb9abf6658b9190601f198416905b8181106106cb5750926040927f6741b2fc379fad678116fe3d4d4b9a1a184ab53ba36b86ad0fa66340b1ab41ad959282602496106106b0575b5050600181811b015f51602061094f5f395f51905f52556105e7565b83018501355f19600384901b60f8161c191690555f80610694565b91926020600181926024878a0101358155019401920161065b565b5f51602061094f5f395f51905f525f527f78926ff2c6393c4af14ccf7ab4260f3ac7e5fe09de09064a81f8ccb9abf6658b601f830160051c8101916020841061074b575b601f0160051c01905b818110610740575061058a565b5f8155600101610733565b909150819061072a565b634e487b7160e01b5f52602260045260245ffd5b90607f1690610578565b5034610152575f366003190112610152576001600160e01b031916610798813361086d565b1561013c575f51602061092f5f395f51905f525460ff8116156107ef5760ff19165f51602061092f5f395f51905f5255337f5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa5f80a2005b636cb6579f60e01b5f5260045ffd5b34610152576020366003190112610152576020906004355f525f51602061096f5f395f51905f52825260ff60405f20541615158152f35b6001600160a01b03165f9081527fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd26020526040902090565b6001600160a01b03165f8181527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d960209081526040808320546001600160e01b031990951683527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91da909152902054908115610926575f527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d9602052600160405f205416159182159261091e57505090565b161515919050565b50505060019056fea1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd101c2455094cda0d5cdfedb8328ca92c26517e5682673870a2f9f06d0ec3f9ccca1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd3a26469706673582212205e09862bd802b7a54b9c9665e79c5d7cfbc46b426d4ed98f94a761748da0049c64736f6c634300081e0033","sourceMap":"582:4120:90:-:0;;;;;;;;;;;;;;;;;","linkReferences":{}},"deployedBytecode":{"object":"0x6080806040526004361015610012575f80fd5b5f35908160e01c9081631c65bcb9146107fe575080633f4ba83a1461077357806355f804b3146104f05780635c975abb146104c25780636f8b44b014610443578063788649ea146103aa5780638456cb591461031d578063d486df9514610277578063d5abeb011461023b578063dfc05aaf14610193578063e816d97f146101565763f26c159f146100a2575f80fd5b34610152576020366003190112610152576004356001600160a01b03811691828203610152576001600160e01b0319166100dc813361086d565b1561013c575060ff6100ed82610835565b541661012d576100fc90610835565b805460ff191660011790557f4f2a367e694e71282f29ab5eaa04c4c0be45ac5bf2ca74fb67068b98bdc2887d5f80a2005b637368178160e11b5f5260045ffd5b631d64bc3360e11b5f523360045260245260445ffd5b5f80fd5b34610152576020366003190112610152576004356001600160a01b03811681036101525760ff610187602092610835565b54166040519015158152f35b503461015257602036600319011261015257600435906001600160e01b0319166101bd813361086d565b1561013c5750805f525f51602061096f5f395f51905f5260205260ff60405f20541661022c57805f525f51602061096f5f395f51905f5260205260405f20600160ff198254161790557fadffb1dc8f05db4bf973a3d64d9f4a184b4ab3ecf6905dbca4a1b2eb11b57ba35f80a2005b631d56e58d60e01b5f5260045ffd5b34610152575f3660031901126101525760207fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd454604051908152f35b503461015257602036600319011261015257600435906001600160e01b0319166102a1813361086d565b1561013c5750805f525f51602061096f5f395f51905f5260205260ff60405f2054161561030e57805f525f51602061096f5f395f51905f5260205260405f2060ff1981541690557f68019ce31799213bf2c6f2d95022e7e8b7785fa5f2d016512006d7d6744e27a25f80a2005b637eec62e160e11b5f5260045ffd5b5034610152575f366003190112610152576001600160e01b031916610342813361086d565b1561013c575f51602061092f5f395f51905f525460ff811661039b5760ff19166001175f51602061092f5f395f51905f5255337f62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a2585f80a2005b63f415877d60e01b5f5260045ffd5b5034610152576020366003190112610152576004356001600160a01b03811691828203610152576001600160e01b0319166103e5813361086d565b1561013c575060ff6103f682610835565b5416156104345761040690610835565b805460ff191690557ff915cd9fe234de6e8d3afe7bf2388d35b2b6d48e8c629a24602019bde79c213a5f80a2005b63e6e4586160e01b5f5260045ffd5b503461015257602036600319011261015257600435906001600160e01b03191661046d813361086d565b1561013c577f7810bd47de260c3e9ee10061cf438099dd12256c79485f12f94dbccc981e806c602083807fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd455604051908152a1005b34610152575f36600319011261015257602060ff5f51602061092f5f395f51905f5254166040519015158152f35b5034610152576020366003190112610152576004359067ffffffffffffffff821161015257366023830112156101525781600401359067ffffffffffffffff8211610152573660248385010111610152576001600160e01b031916610555813361086d565b1561013c57505f51602061094f5f395f51905f5254600181811c91168015610769575b602082101461075557601f81116106e6575b505f601f821160011461061f577f6741b2fc379fad678116fe3d4d4b9a1a184ab53ba36b86ad0fa66340b1ab41ad92826024936040935f91610612575b508160011b905f198360031b1c1916175f51602061094f5f395f51905f52555b8083519485936020855282602086015201848401375f828201840152601f01601f19168101030190a1005b859150830101355f6105c7565b5f51602061094f5f395f51905f525f9081527f78926ff2c6393c4af14ccf7ab4260f3ac7e5fe09de09064a81f8ccb9abf6658b9190601f198416905b8181106106cb5750926040927f6741b2fc379fad678116fe3d4d4b9a1a184ab53ba36b86ad0fa66340b1ab41ad959282602496106106b0575b5050600181811b015f51602061094f5f395f51905f52556105e7565b83018501355f19600384901b60f8161c191690555f80610694565b91926020600181926024878a0101358155019401920161065b565b5f51602061094f5f395f51905f525f527f78926ff2c6393c4af14ccf7ab4260f3ac7e5fe09de09064a81f8ccb9abf6658b601f830160051c8101916020841061074b575b601f0160051c01905b818110610740575061058a565b5f8155600101610733565b909150819061072a565b634e487b7160e01b5f52602260045260245ffd5b90607f1690610578565b5034610152575f366003190112610152576001600160e01b031916610798813361086d565b1561013c575f51602061092f5f395f51905f525460ff8116156107ef5760ff19165f51602061092f5f395f51905f5255337f5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa5f80a2005b636cb6579f60e01b5f5260045ffd5b34610152576020366003190112610152576020906004355f525f51602061096f5f395f51905f52825260ff60405f20541615158152f35b6001600160a01b03165f9081527fa1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd26020526040902090565b6001600160a01b03165f8181527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d960209081526040808320546001600160e01b031990951683527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91da909152902054908115610926575f527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d9602052600160405f205416159182159261091e57505090565b161515919050565b50505060019056fea1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd101c2455094cda0d5cdfedb8328ca92c26517e5682673870a2f9f06d0ec3f9ccca1bf139cd1fbb7ab220fe2ad0c0725cf27749decebd3021e7171da15395e8fd3a26469706673582212205e09862bd802b7a54b9c9665e79c5d7cfbc46b426d4ed98f94a761748da0049c64736f6c634300081e0033","sourceMap":"582:4120:90:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;;;-1:-1:-1;;;;;582:4120:90;;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;2091:25:90;582:4120;2091:25;;;:::i;:::-;582:4120;;2087:73;;2170:25;;;:::i;:::-;582:4120;;-1:-1:-1;;582:4120:90;2091:16;582:4120;;;2217:29;-1:-1:-1;;2217:29:90;582:4120;2087:73;2125:35;;;582:4120;2125:35;582:4120;;2125:35;1380:139:36;1437:71;;;582:4120:90;1437:71:36;1394:10;582:4120:90;;;;;;1437:71:36;582:4120:90;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;;;-1:-1:-1;;;;;582:4120:90;;;;;;;1790:46;582:4120;1790:46;;:::i;:::-;582:4120;;;;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;582:4120:90;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;2899:63;;582:4120;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;3013:23;582:4120;3013:23;;582:4120;2899:63;2931:31;;;582:4120;2931:31;582:4120;;2931:31;582:4120;;;;;;-1:-1:-1;;582:4120:90;;;;;4258:32;582:4120;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;582:4120:90;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;3283:20;3279:60;;582:4120;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;3391:25;582:4120;3391:25;;582:4120;3279:60;3312:27;;;582:4120;3312:27;582:4120;;3312:27;582:4120;;;;;;;-1:-1:-1;;582:4120:90;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;894:49;;-1:-1:-1;;582:4120:90;964:4;582:4120;-1:-1:-1;;;;;;;;;;;582:4120:90;1394:10:36;983:25:90;582:4120;;983:25;582:4120;894:49;915:28;;;582:4120;915:28;582:4120;;915:28;582:4120;;;;;;;-1:-1:-1;;582:4120:90;;;;;;-1:-1:-1;;;;;582:4120:90;;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;2508:25:90;582:4120;2508:25;;;:::i;:::-;582:4120;;2507:26;2503:70;;2583:25;;;:::i;:::-;582:4120;;-1:-1:-1;;582:4120:90;;;2631:31;-1:-1:-1;;2631:31:90;582:4120;2503:70;2542:31;;;582:4120;2542:31;582:4120;;2542:31;582:4120;;;;;;;-1:-1:-1;;582:4120:90;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;4044:35:90;582:4120;;;4005:11;582:4120;;;;;;4044:35;582:4120;;;;;;;-1:-1:-1;;582:4120:90;;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;582:4120:90;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4660:33;582:4120;;;;;;;;;;;;;;;;;;;4623:9;582:4120;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;4660:33;;;;582:4120;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;-1:-1:-1;;582:4120:90;;;;;;;;;;;;;4660:33;582:4120;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;-1:-1:-1;;4623:9:90;582:4120;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;582:4120:90;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;582:4120:90;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;1187:9;1183:46;;-1:-1:-1;;582:4120:90;-1:-1:-1;;;;;;;;;;;582:4120:90;1394:10:36;1270:27:90;582:4120;;1270:27;582:4120;1183:46;1205:24;;;582:4120;1205:24;582:4120;;1205:24;582:4120;;;;;;-1:-1:-1;;582:4120:90;;;;;;;;;;-1:-1:-1;;;;;;;;;;;582:4120:90;;;;;;;;;;;;;;-1:-1:-1;;;;;582:4120:90;;;;;2508:16;582:4120;;;;;;:::o;3806:615:36:-;-1:-1:-1;;;;;582:4120:90;;;;;869:43:36;582:4120:90;;;;;;;;;-1:-1:-1;;;;;;582:4120:90;;;;;4066:15:36;582:4120:90;;;;;;;4162:31:36;;4158:73;;582:4120:90;;869:43:36;582:4120:90;;4066:15:36;582:4120:90;;;;4780:47:36;:61;;;;4327:87;;;4320:94;;3806:615;:::o;4327:87::-;4366:33;:47;;;3806:615;-1:-1:-1;3806:615:36:o;4158:73::-;4209:11;;;4066:15;4209:11;:::o","linkReferences":{}},"methodIdentifiers":{"freezeAccount(address)":"f26c159f","freezeLot(bytes32)":"dfc05aaf","isAccountFrozen(address)":"e816d97f","isLotFrozen(bytes32)":"1c65bcb9","maxSupply()":"d5abeb01","pause()":"8456cb59","paused()":"5c975abb","setBaseURI(string)":"55f804b3","setMaxSupply(uint256)":"6f8b44b0","unfreezeAccount(address)":"788649ea","unfreezeLot(bytes32)":"d486df95","unpause()":"3f4ba83a"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"AccessControl_CallerIsNotAuthorized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_AccountAlreadyFrozen\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_AccountNotFrozen\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_AlreadyPaused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_LotAlreadyFrozen\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_LotNotFrozen\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Token_NotPaused\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"AccountFrozen\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"AccountUnfrozen\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"newBaseURI\",\"type\":\"string\"}],\"name\":\"BaseURIUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"lotId\",\"type\":\"bytes32\"}],\"name\":\"LotFrozen\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"lotId\",\"type\":\"bytes32\"}],\"name\":\"LotUnfrozen\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maxSupply\",\"type\":\"uint256\"}],\"name\":\"MaxSupplyUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"freezeAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"lotId\",\"type\":\"bytes32\"}],\"name\":\"freezeLot\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isAccountFrozen\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"lotId\",\"type\":\"bytes32\"}],\"name\":\"isLotFrozen\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"newBaseURI\",\"type\":\"string\"}],\"name\":\"setBaseURI\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_maxSupply\",\"type\":\"uint256\"}],\"name\":\"setMaxSupply\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"unfreezeAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"lotId\",\"type\":\"bytes32\"}],\"name\":\"unfreezeLot\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpause\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"CapSign Inc.\",\"details\":\"Handles pausing, freezing, supply controls, and metadata updates      Note: Lot creation/destruction is in TokenLotsFacet\",\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"params\":{\"caller\":\"Address attempting the call\",\"functionSig\":\"Function selector that was called\"}}]},\"events\":{\"AccountFrozen(address)\":{\"params\":{\"account\":\"Address that was frozen\"}},\"AccountUnfrozen(address)\":{\"params\":{\"account\":\"Address that was unfrozen\"}},\"BaseURIUpdated(string)\":{\"params\":{\"newBaseURI\":\"New base URI\"}},\"LotFrozen(bytes32)\":{\"params\":{\"lotId\":\"Lot ID that was frozen\"}},\"LotUnfrozen(bytes32)\":{\"params\":{\"lotId\":\"Lot ID that was unfrozen\"}},\"MaxSupplyUpdated(uint256)\":{\"params\":{\"maxSupply\":\"New maximum supply\"}},\"Paused(address)\":{\"params\":{\"account\":\"Address that triggered pause\"}},\"Unpaused(address)\":{\"params\":{\"account\":\"Address that triggered unpause\"}}},\"kind\":\"dev\",\"methods\":{\"freezeAccount(address)\":{\"params\":{\"account\":\"The account to freeze\"}},\"freezeLot(bytes32)\":{\"params\":{\"lotId\":\"The lot ID to freeze\"}},\"isAccountFrozen(address)\":{\"params\":{\"account\":\"The account to check\"},\"returns\":{\"_0\":\"True if frozen\"}},\"isLotFrozen(bytes32)\":{\"params\":{\"lotId\":\"The lot ID to check\"},\"returns\":{\"_0\":\"True if frozen\"}},\"maxSupply()\":{\"returns\":{\"_0\":\"Maximum supply (0 = unlimited)\"}},\"pause()\":{\"details\":\"Prevents transfers when paused\"},\"paused()\":{\"returns\":{\"_0\":\"True if paused\"}},\"setBaseURI(string)\":{\"params\":{\"newBaseURI\":\"The new base URI\"}},\"setMaxSupply(uint256)\":{\"params\":{\"_maxSupply\":\"Maximum supply (0 = unlimited)\"}},\"unfreezeAccount(address)\":{\"params\":{\"account\":\"The account to unfreeze\"}},\"unfreezeLot(bytes32)\":{\"params\":{\"lotId\":\"The lot ID to unfreeze\"}}},\"title\":\"TokenAdminFacet\",\"version\":1},\"userdoc\":{\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"notice\":\"Thrown when caller lacks required permissions\"}],\"Token_AccountAlreadyFrozen()\":[{\"notice\":\"Thrown when account already frozen\"}],\"Token_AccountNotFrozen()\":[{\"notice\":\"Thrown when account not frozen\"}],\"Token_AlreadyPaused()\":[{\"notice\":\"Thrown when contract already paused\"}],\"Token_LotAlreadyFrozen()\":[{\"notice\":\"Thrown when lot already frozen\"}],\"Token_LotNotFrozen()\":[{\"notice\":\"Thrown when lot not frozen\"}],\"Token_NotPaused()\":[{\"notice\":\"Thrown when contract not paused\"}]},\"events\":{\"AccountFrozen(address)\":{\"notice\":\"Emitted when an account is frozen\"},\"AccountUnfrozen(address)\":{\"notice\":\"Emitted when an account is unfrozen\"},\"BaseURIUpdated(string)\":{\"notice\":\"Emitted when base URI is updated\"},\"LotFrozen(bytes32)\":{\"notice\":\"Emitted when a lot is frozen\"},\"LotUnfrozen(bytes32)\":{\"notice\":\"Emitted when a lot is unfrozen\"},\"MaxSupplyUpdated(uint256)\":{\"notice\":\"Emitted when max supply is updated\"},\"Paused(address)\":{\"notice\":\"Emitted when contract is paused\"},\"Unpaused(address)\":{\"notice\":\"Emitted when contract is unpaused\"}},\"kind\":\"user\",\"methods\":{\"freezeAccount(address)\":{\"notice\":\"Freeze an account\"},\"freezeLot(bytes32)\":{\"notice\":\"Freeze a lot\"},\"isAccountFrozen(address)\":{\"notice\":\"Check if account is frozen\"},\"isLotFrozen(bytes32)\":{\"notice\":\"Check if lot is frozen\"},\"maxSupply()\":{\"notice\":\"Get maximum supply\"},\"pause()\":{\"notice\":\"Pause the contract\"},\"paused()\":{\"notice\":\"Check if contract is paused\"},\"setBaseURI(string)\":{\"notice\":\"Set the base URI for token metadata\"},\"setMaxSupply(uint256)\":{\"notice\":\"Set maximum supply\"},\"unfreezeAccount(address)\":{\"notice\":\"Unfreeze an account\"},\"unfreezeLot(bytes32)\":{\"notice\":\"Unfreeze a lot\"},\"unpause()\":{\"notice\":\"Unpause the contract\"}},\"notice\":\"Administrative controls for token management\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"packages/tokens/src/facets/TokenAdminFacet.sol\":\"TokenAdminFacet\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@diamonds/=packages/diamonds/\",\":@offerings/=packages/offerings/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@tokens/=packages/tokens/\",\":@vehicles/=packages/vehicles/\",\":@wallets/=packages/wallets/\",\":FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/\",\":diamonds-src/=packages/diamonds/src/\",\":diamonds/=packages/diamonds/interfaces/\",\":ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":offerings-src/=packages/offerings/src/\",\":offerings/=packages/offerings/interfaces/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/solady/src/\",\":tokens-src/=packages/tokens/src/\",\":tokens/=packages/tokens/interfaces/\",\":vehicles-src/=packages/vehicles/src/\",\":vehicles/=packages/vehicles/interfaces/\",\":wallets-src/=packages/wallets/src/\",\":wallets/=packages/wallets/interfaces/\",\":webauthn-sol/=lib/webauthn-sol/src/\"],\"viaIR\":true},\"sources\":{\"packages/diamonds/interfaces/IAccessControl.sol\":{\"keccak256\":\"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf\",\"dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT\"]},\"packages/diamonds/src/AccessControl.sol\":{\"keccak256\":\"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062\",\"dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8\"]},\"packages/tokens/interfaces/token/IToken.sol\":{\"keccak256\":\"0x9358c120251d97fc8d1f1e922e8f88d6ad960bace279a33470e92773a9545363\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://1ef539a6eb939f2fd93fc64a9849377cc5720c2a5a0be12fa360b6f3e66522f0\",\"dweb:/ipfs/QmRDBXCWFWpksmjPoJKPDGZrYAYWXppGpohPFS9PBtqVuj\"]},\"packages/tokens/src/TokenStorage.sol\":{\"keccak256\":\"0x1dc6fd85d112472867fa365b7d57cd8fd58b7a0142e665d1df0a83d0709d531d\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://791f35d9bfb8798ab007c66f5405b8ec7d976e27d326e40db0472a08e2a93d7b\",\"dweb:/ipfs/QmVb5uWLiGGDSGv7sauJ1QGhixzXQfHJpbmwuYCrB72pzm\"]},\"packages/tokens/src/facets/TokenAdminFacet.sol\":{\"keccak256\":\"0x873b69503275c081cb4408366d47810e8302352452f9872f47bdae97d021a7f6\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://17b4d6fa27c1b581a787580e3d8cb29e0d2ad00f13b3bbc1f8ffb152408677c3\",\"dweb:/ipfs/QmZVYn8RTusgqV5i3QKGTqqbugE61e712kb22YRT7qm2yi\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.30+commit.73712a01"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"address","name":"caller","type":"address"},{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"type":"error","name":"AccessControl_CallerIsNotAuthorized"},{"inputs":[],"type":"error","name":"Token_AccountAlreadyFrozen"},{"inputs":[],"type":"error","name":"Token_AccountNotFrozen"},{"inputs":[],"type":"error","name":"Token_AlreadyPaused"},{"inputs":[],"type":"error","name":"Token_LotAlreadyFrozen"},{"inputs":[],"type":"error","name":"Token_LotNotFrozen"},{"inputs":[],"type":"error","name":"Token_NotPaused"},{"inputs":[{"internalType":"address","name":"account","type":"address","indexed":true}],"type":"event","name":"AccountFrozen","anonymous":false},{"inputs":[{"internalType":"address","name":"account","type":"address","indexed":true}],"type":"event","name":"AccountUnfrozen","anonymous":false},{"inputs":[{"internalType":"string","name":"newBaseURI","type":"string","indexed":false}],"type":"event","name":"BaseURIUpdated","anonymous":false},{"inputs":[{"internalType":"bytes32","name":"lotId","type":"bytes32","indexed":true}],"type":"event","name":"LotFrozen","anonymous":false},{"inputs":[{"internalType":"bytes32","name":"lotId","type":"bytes32","indexed":true}],"type":"event","name":"LotUnfrozen","anonymous":false},{"inputs":[{"internalType":"uint256","name":"maxSupply","type":"uint256","indexed":false}],"type":"event","name":"MaxSupplyUpdated","anonymous":false},{"inputs":[{"internalType":"address","name":"account","type":"address","indexed":true}],"type":"event","name":"Paused","anonymous":false},{"inputs":[{"internalType":"address","name":"account","type":"address","indexed":true}],"type":"event","name":"Unpaused","anonymous":false},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"stateMutability":"nonpayable","type":"function","name":"freezeAccount"},{"inputs":[{"internalType":"bytes32","name":"lotId","type":"bytes32"}],"stateMutability":"nonpayable","type":"function","name":"freezeLot"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"stateMutability":"view","type":"function","name":"isAccountFrozen","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"bytes32","name":"lotId","type":"bytes32"}],"stateMutability":"view","type":"function","name":"isLotFrozen","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"maxSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}]},{"inputs":[],"stateMutability":"nonpayable","type":"function","name":"pause"},{"inputs":[],"stateMutability":"view","type":"function","name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"string","name":"newBaseURI","type":"string"}],"stateMutability":"nonpayable","type":"function","name":"setBaseURI"},{"inputs":[{"internalType":"uint256","name":"_maxSupply","type":"uint256"}],"stateMutability":"nonpayable","type":"function","name":"setMaxSupply"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"stateMutability":"nonpayable","type":"function","name":"unfreezeAccount"},{"inputs":[{"internalType":"bytes32","name":"lotId","type":"bytes32"}],"stateMutability":"nonpayable","type":"function","name":"unfreezeLot"},{"inputs":[],"stateMutability":"nonpayable","type":"function","name":"unpause"}],"devdoc":{"kind":"dev","methods":{"freezeAccount(address)":{"params":{"account":"The account to freeze"}},"freezeLot(bytes32)":{"params":{"lotId":"The lot ID to freeze"}},"isAccountFrozen(address)":{"params":{"account":"The account to check"},"returns":{"_0":"True if frozen"}},"isLotFrozen(bytes32)":{"params":{"lotId":"The lot ID to check"},"returns":{"_0":"True if frozen"}},"maxSupply()":{"returns":{"_0":"Maximum supply (0 = unlimited)"}},"pause()":{"details":"Prevents transfers when paused"},"paused()":{"returns":{"_0":"True if paused"}},"setBaseURI(string)":{"params":{"newBaseURI":"The new base URI"}},"setMaxSupply(uint256)":{"params":{"_maxSupply":"Maximum supply (0 = unlimited)"}},"unfreezeAccount(address)":{"params":{"account":"The account to unfreeze"}},"unfreezeLot(bytes32)":{"params":{"lotId":"The lot ID to unfreeze"}}},"version":1},"userdoc":{"kind":"user","methods":{"freezeAccount(address)":{"notice":"Freeze an account"},"freezeLot(bytes32)":{"notice":"Freeze a lot"},"isAccountFrozen(address)":{"notice":"Check if account is frozen"},"isLotFrozen(bytes32)":{"notice":"Check if lot is frozen"},"maxSupply()":{"notice":"Get maximum supply"},"pause()":{"notice":"Pause the contract"},"paused()":{"notice":"Check if contract is paused"},"setBaseURI(string)":{"notice":"Set the base URI for token metadata"},"setMaxSupply(uint256)":{"notice":"Set maximum supply"},"unfreezeAccount(address)":{"notice":"Unfreeze an account"},"unfreezeLot(bytes32)":{"notice":"Unfreeze a lot"},"unpause()":{"notice":"Unpause the contract"}},"version":1}},"settings":{"remappings":["@diamonds/=packages/diamonds/","@offerings/=packages/offerings/","@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/","@tokens/=packages/tokens/","@vehicles/=packages/vehicles/","@wallets/=packages/wallets/","FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/","diamonds-src/=packages/diamonds/src/","diamonds/=packages/diamonds/interfaces/","ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/","erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/","forge-std/=lib/forge-std/src/","halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/","offerings-src/=packages/offerings/src/","offerings/=packages/offerings/interfaces/","openzeppelin-contracts/=lib/openzeppelin-contracts/","solady/=lib/solady/src/","tokens-src/=packages/tokens/src/","tokens/=packages/tokens/interfaces/","vehicles-src/=packages/vehicles/src/","vehicles/=packages/vehicles/interfaces/","wallets-src/=packages/wallets/src/","wallets/=packages/wallets/interfaces/","webauthn-sol/=lib/webauthn-sol/src/"],"optimizer":{"enabled":true,"runs":200},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"packages/tokens/src/facets/TokenAdminFacet.sol":"TokenAdminFacet"},"evmVersion":"prague","libraries":{},"viaIR":true},"sources":{"packages/diamonds/interfaces/IAccessControl.sol":{"keccak256":"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8","urls":["bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf","dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT"],"license":"BUSL-1.1"},"packages/diamonds/src/AccessControl.sol":{"keccak256":"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811","urls":["bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062","dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8"],"license":"BUSL-1.1"},"packages/tokens/interfaces/token/IToken.sol":{"keccak256":"0x9358c120251d97fc8d1f1e922e8f88d6ad960bace279a33470e92773a9545363","urls":["bzz-raw://1ef539a6eb939f2fd93fc64a9849377cc5720c2a5a0be12fa360b6f3e66522f0","dweb:/ipfs/QmRDBXCWFWpksmjPoJKPDGZrYAYWXppGpohPFS9PBtqVuj"],"license":"BUSL-1.1"},"packages/tokens/src/TokenStorage.sol":{"keccak256":"0x1dc6fd85d112472867fa365b7d57cd8fd58b7a0142e665d1df0a83d0709d531d","urls":["bzz-raw://791f35d9bfb8798ab007c66f5405b8ec7d976e27d326e40db0472a08e2a93d7b","dweb:/ipfs/QmVb5uWLiGGDSGv7sauJ1QGhixzXQfHJpbmwuYCrB72pzm"],"license":"BUSL-1.1"},"packages/tokens/src/facets/TokenAdminFacet.sol":{"keccak256":"0x873b69503275c081cb4408366d47810e8302352452f9872f47bdae97d021a7f6","urls":["bzz-raw://17b4d6fa27c1b581a787580e3d8cb29e0d2ad00f13b3bbc1f8ffb152408677c3","dweb:/ipfs/QmZVYn8RTusgqV5i3QKGTqqbugE61e712kb22YRT7qm2yi"],"license":"BUSL-1.1"}},"version":1},"id":90}
+[
+  {
+    "type": "function",
+    "name": "freezeAccount",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "freezeLot",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isAccountFrozen",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isLotFrozen",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isRetired",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "maxSupply",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "paused",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "retireToken",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "retiredAt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setBaseURI",
+    "inputs": [
+      {
+        "name": "newBaseURI",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMaxSupply",
+    "inputs": [
+      {
+        "name": "_maxSupply",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unfreezeAccount",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unfreezeLot",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unpause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unretireToken",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AccountFrozen",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AccountUnfrozen",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BaseURIUpdated",
+    "inputs": [
+      {
+        "name": "newBaseURI",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotFrozen",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotUnfrozen",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MaxSupplyUpdated",
+    "inputs": [
+      {
+        "name": "maxSupply",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Paused",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokenRetired",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokenUnretired",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Unpaused",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Token_AccountAlreadyFrozen",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_AccountNotFrozen",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_AlreadyPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_AlreadyRetired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_CannotRetireWithSupply",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_CannotRetireWithUnconvertedSAFEs",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_LotAlreadyFrozen",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_LotNotFrozen",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_NotPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_NotRetired",
+    "inputs": []
+  }
+]

@@ -1,4 +1,4 @@
-import { DiamondCreated } from "../../generated/DiamondFactory/DiamondFactory";
+import { DiamondCreated } from "../../generated/DiamondFactory/FactoryCoreFacet";
 import { Diamond, Wallet, Offering } from "../../generated/schema";
 import {
   OfferingDiamond,
