@@ -68,7 +68,7 @@ dataSources:
     source:
       address: "0x495394087eAd4a60A98145c2aBb752649469e475"
       abi: FacetRegistry
-      startBlock: 33642693
+      startBlock: 33641084
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
