@@ -206,3 +206,12 @@ export function handleAttestationRevoked(event: AttestationRevoked): void {
   }
 }
 
+
+// Re-export paymaster handlers from paymaster.ts
+export {
+  handlePaymasterEnabled,
+  handleDailyBudgetSet,
+  handlePaymasterAddressSet,
+  handleRolePolicySet,
+  handleSpendingRecorded,
+} from "./paymaster";

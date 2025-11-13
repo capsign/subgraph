@@ -192,6 +192,38 @@ dataSources:
           handler: handlePaymentsStatusChanged
       file: ./src/mappings/token-factory.ts
 
+  # CapSignPaymaster - tracks gas sponsorship
+  - kind: ethereum/contract
+    name: CapSignPaymaster
+    network: base-sepolia
+    source:
+      address: "0x7148D45785f39246aecdA749d93B221D74Bc2cc8"
+      abi: CapSignPaymasterFacet
+      startBlock: 33601010
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PaymasterDeposit
+        - PaymasterWithdrawal
+        - SponsoredTransaction
+        - PolicyCheckFailure
+        - PaymasterPolicy
+      abis:
+        - name: CapSignPaymasterFacet
+          file: ./abis/CapSignPaymasterFacet.json
+      eventHandlers:
+        - event: Deposited(indexed address,uint256)
+          handler: handleDeposited
+        - event: Withdrawn(indexed address,indexed address,uint256)
+          handler: handleWithdrawn
+        - event: Sponsored(indexed address,indexed address,uint256,uint256)
+          handler: handleSponsored
+        - event: PolicyCheckFailed(indexed address,indexed address,string)
+          handler: handlePolicyCheckFailed
+      file: ./src/mappings/paymaster.ts
+
 templates:
   # Offering Diamond Template
   - kind: ethereum/contract
@@ -351,6 +383,8 @@ templates:
           file: ./abis/VehicleMembersFacet.json
         - name: SPVDistribution
           file: ./abis/SPVDistributionFacet.json
+        - name: WalletPaymasterPolicyFacet
+          file: ./abis/WalletPaymasterPolicyFacet.json
       eventHandlers:
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
@@ -391,6 +425,22 @@ templates:
           receipt: false
         - event: InvestmentExited(indexed uint256,uint256,uint256)
           handler: handleInvestmentExited
+          receipt: false
+        # Paymaster policy events (from WalletPaymasterPolicyFacet ABI)
+        - event: PaymasterEnabled(bool)
+          handler: handlePaymasterEnabled
+          receipt: false
+        - event: DailyBudgetSet(uint256)
+          handler: handleDailyBudgetSet
+          receipt: false
+        - event: PaymasterAddressSet(indexed address)
+          handler: handlePaymasterAddressSet
+          receipt: false
+        - event: RolePolicySet(indexed uint8,bool,uint256)
+          handler: handleRolePolicySet
+          receipt: false
+        - event: SpendingRecorded(indexed address,uint256)
+          handler: handleSpendingRecorded
           receipt: false
       file: ./src/mappings/wallets.ts
 

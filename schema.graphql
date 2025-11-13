@@ -74,6 +74,91 @@ type DocumentSignature @entity {
   logIndex: BigInt!
 }
 
+# ============ PAYMASTER ENTITIES ============
+
+type PaymasterPolicy @entity {
+  id: ID! # Wallet address
+  wallet: Wallet!
+  enabled: Boolean!
+  dailyBudget: BigInt!
+  paymasterAddress: Bytes!
+  
+  # Policy configuration history
+  configurations: [PaymasterPolicyConfiguration!]! @derivedFrom(field: "policy")
+  
+  # Role policies
+  rolePolicies: [RolePolicy!]! @derivedFrom(field: "policy")
+  
+  # Spending tracking
+  sponsoredTransactions: [SponsoredTransaction!]! @derivedFrom(field: "entityPolicy")
+  totalSponsored: BigInt!
+  
+  updatedAt: BigInt!
+  updatedTx: Bytes!
+}
+
+type PaymasterPolicyConfiguration @entity {
+  id: ID! # tx-hash-logIndex
+  policy: PaymasterPolicy!
+  enabled: Boolean!
+  dailyBudget: BigInt!
+  paymasterAddress: Bytes!
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+type RolePolicy @entity {
+  id: ID! # wallet-address-role
+  policy: PaymasterPolicy!
+  role: Int!
+  canBeSponsored: Boolean!
+  dailyLimit: BigInt!
+  allowedOperations: [Bytes!]!
+  updatedAt: BigInt!
+  updatedTx: Bytes!
+}
+
+type SponsoredTransaction @entity {
+  id: ID! # tx-hash-logIndex
+  entityPolicy: PaymasterPolicy!
+  entity: Bytes! # Entity wallet address
+  user: Bytes! # User who was sponsored
+  actualCost: BigInt! # Gas cost in wei
+  refunded: BigInt! # Amount refunded to paymaster
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+type PaymasterDeposit @entity {
+  id: ID! # tx-hash-logIndex
+  entity: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+type PaymasterWithdrawal @entity {
+  id: ID! # tx-hash-logIndex
+  entity: Bytes!
+  recipient: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+type PolicyCheckFailure @entity {
+  id: ID! # tx-hash-logIndex
+  entity: Bytes!
+  user: Bytes!
+  reason: String!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
 # ============ VEHICLE (SPV/Fund) ENTITIES ============
 
 type Vehicle @entity {
