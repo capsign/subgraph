@@ -3,6 +3,8 @@
  * Handles events from CapSignPaymaster and WalletPaymasterPolicyFacet
  */
 
+import { BigInt } from "@graphprotocol/graph-ts";
+
 import {
   PaymasterPolicy,
   PaymasterPolicyConfiguration,
@@ -19,7 +21,7 @@ import {
   Withdrawn as WithdrawnEvent,
   Sponsored as SponsoredEvent,
   PolicyCheckFailed as PolicyCheckFailedEvent,
-} from "../../generated/templates/CapSignPaymaster/CapSignPaymasterFacet";
+} from "../../generated/CapSignPaymaster/CapSignPaymasterFacet";
 
 import {
   PaymasterEnabled as PaymasterEnabledEvent,

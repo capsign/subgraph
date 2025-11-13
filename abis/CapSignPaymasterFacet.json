@@ -1,77 +1,536 @@
-
-╭----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------╮
-| Type     | Signature                                                                                       | Selector                                                           |
-+=================================================================================================================================================================================+
-| event    | Deposited(address,uint256)                                                                      | 0x2da466a7b24304f47e87fa2e1e5a81b9831ce54fec19055ce277ca2f39ba42c4 |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| event    | Paused()                                                                                        | 0x9e87fac88ff661f02d44f95383c817fece4bce600a3dab7a54406878b965e752 |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| event    | PolicyCheckFailed(address,address,string)                                                       | 0xddfa86e99ab0631781ea7a869ec6907b1e875ed74b0e2d083ed770548cae4525 |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| event    | Sponsored(address,address,uint256,uint256)                                                      | 0xec3e39c3c84c30bff1f79d2736cd5c684597be5ea62883a55ccd80153ddf8eb8 |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| event    | Unpaused()                                                                                      | 0xa45f47fdea8a1efdd9029a5691c7f759c32b7c698632b563573e155625d16933 |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| event    | Withdrawn(address,address,uint256)                                                              | 0xd1c19fbcd4551a5edfb66d43d2e337c04837afda3482b42bdf569a8fccdae5fb |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | AccessControl_CallerIsNotAuthorized(address,bytes4)                                             | 0x3ac97866                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_AlreadyInitialized()                                                                  | 0x167a8630                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InsufficientAvailableBalance()                                                        | 0x31d7c903                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InsufficientDepositInEntryPoint()                                                     | 0x5cd413a5                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InsufficientEntityBalance()                                                           | 0xf17b6796                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InvalidEntity()                                                                       | 0xfa55b54a                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InvalidEntryPoint()                                                                   | 0x8b82bc3c                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_InvalidRecipient()                                                                    | 0xacbbf655                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_Paused()                                                                              | 0xabf4b070                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_PolicyDenied(string)                                                                  | 0x179510ea                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_TransferFailed()                                                                      | 0x8676f1b5                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_Unauthorized()                                                                        | 0xf98da3ac                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| error    | Paymaster_ZeroDeposit()                                                                         | 0xdc0f05e6                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | Paymaster_init(address) nonpayable                                                              | 0x8eb0ecf2                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | canSponsorOperation(address,address,bytes4,uint256) view returns (bool,string)                  | 0x6a4a45b8                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | depositForEntity(address) payable                                                               | 0x4db30860                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | depositToEntryPoint() payable                                                                   | 0x1b3ba101                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | entryPoint() view returns (address)                                                             | 0xb0d691fe                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | getAvailableBalance(address) view returns (uint256)                                             | 0x6c24a76f                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | getDepositInEntryPoint() view returns (uint256)                                                 | 0xf3217630                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | getEntityBalance(address) view returns (uint256,uint256,uint256,uint256)                        | 0x0c981747                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | getTotalSponsored() view returns (uint256)                                                      | 0xcfbe775d                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | isPaused() view returns (bool)                                                                  | 0xb187bd26                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | pause() nonpayable                                                                              | 0x8456cb59                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | postOp(uint8,bytes,uint256,uint256) nonpayable                                                  | 0x7c627b21                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | unpause() nonpayable                                                                            | 0x3f4ba83a                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | validatePaymasterUserOp(PackedUserOperation,bytes32,uint256) nonpayable returns (bytes,uint256) | 0x52b7512c                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | withdraw(uint256,address payable) nonpayable                                                    | 0x00f714ce                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| function | withdrawFromEntryPoint(address payable,uint256) nonpayable                                      | 0xc7d76308                                                         |
-|----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------|
-| receive  | receive() payable                                                                               |                                                                    |
-╰----------+-------------------------------------------------------------------------------------------------+--------------------------------------------------------------------╯
-
+[
+  {
+    "type": "receive",
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "Paymaster_init",
+    "inputs": [
+      {
+        "name": "_entryPoint",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "canSponsorOperation",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "operation",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      },
+      {
+        "name": "estimatedCost",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "canSponsor",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "depositForEntity",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "depositToEntryPoint",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "entryPoint",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAvailableBalance",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "available",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDepositInEntryPoint",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEntityBalance",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "balance",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reserved",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lifetimeSpent",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "monthlySpent",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalSponsored",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isPaused",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "postOp",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "context",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "actualGasCost",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unpause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "validatePaymasterUserOp",
+    "inputs": [
+      {
+        "name": "userOp",
+        "type": "tuple",
+        "internalType": "struct PackedUserOperation",
+        "components": [
+          {
+            "name": "sender",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "initCode",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "callData",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "accountGasLimits",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "preVerificationGas",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "gasFees",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "paymasterAndData",
+            "type": "bytes",
+            "internalType": "bytes"
+          },
+          {
+            "name": "signature",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      },
+      {
+        "name": "userOpHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "maxCost",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "context",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "validationData",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdraw",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address payable"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawFromEntryPoint",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address payable"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "Deposited",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Paused",
+    "inputs": [],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PolicyCheckFailed",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Sponsored",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "actualCost",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "refunded",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Unpaused",
+    "inputs": [],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Withdrawn",
+    "inputs": [
+      {
+        "name": "entity",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InsufficientAvailableBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InsufficientDepositInEntryPoint",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InsufficientEntityBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InvalidEntity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InvalidEntryPoint",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_InvalidRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_Paused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_PolicyDenied",
+    "inputs": [
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_TransferFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_Unauthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Paymaster_ZeroDeposit",
+    "inputs": []
+  }
+]
