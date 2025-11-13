@@ -118,7 +118,7 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0x430a98f112cba9292b388475e6f1f3c16095dfe3"
+      address: "0x37f23985f8D592b11eE736964EB82164D33D0CD8"
       abi: OfferingFactory
       startBlock: 33558000
     mapping:

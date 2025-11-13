@@ -63,7 +63,7 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0xF1f4eAAaDf8CCF742F8005A761A0bd277e313e47"
+      address: "0x495394087eAd4a60A98145c2aBb752649469e475"
       abi: RegistryCoreFacet
       startBlock: 33210200
     mapping:
