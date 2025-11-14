@@ -876,7 +876,7 @@ interface PreApprovedTerms {
 }
 
 # SAFE-specific pre-approved terms
-type SAFEPreApprovedTerms implements PreApprovedTerms @entity {
+type SafePreApprovedTerms implements PreApprovedTerms @entity {
   id: ID! # offering-investor
   offering: Offering!
   investor: Bytes!

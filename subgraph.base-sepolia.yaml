@@ -242,7 +242,7 @@ templates:
         - KYCStatus
         - InvestorClassification
         - Wallet
-        - SAFEPreApprovedTerms
+        - SafePreApprovedTerms
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json

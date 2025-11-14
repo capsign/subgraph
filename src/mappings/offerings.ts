@@ -24,7 +24,7 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SAFEPreApprovedTerms } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -362,9 +362,9 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
   
   // Check asset type and create appropriate entity
   if (assetType == "Safe") {
-    let terms = SAFEPreApprovedTerms.load(id);
+    let terms = SafePreApprovedTerms.load(id);
     if (!terms) {
-      terms = new SAFEPreApprovedTerms(id);
+      terms = new SafePreApprovedTerms(id);
       terms.offering = offeringAddress;
       terms.investor = investor;
       terms.assetType = assetType;
@@ -389,8 +389,16 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
       
       // Convert to BigInt (big-endian)
       terms.valuationCap = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(valuationCapBytes));
-      terms.discountRate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(discountRateBytes)).toI32();
-      terms.interestRate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(interestRateBytes)).toI32();
+      
+      // For rates, decode as BigInt first, then convert to i32 safely
+      const discountRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(discountRateBytes));
+      const interestRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(interestRateBytes));
+      
+      // Convert to i32, clamping to max i32 value if too large
+      const maxI32 = BigInt.fromI32(2147483647);
+      terms.discountRate = discountRateBigInt.gt(maxI32) ? 2147483647 : discountRateBigInt.toI32();
+      terms.interestRate = interestRateBigInt.gt(maxI32) ? 2147483647 : interestRateBigInt.toI32();
+      
       terms.maturityDate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(maturityDateBytes));
     }
     
