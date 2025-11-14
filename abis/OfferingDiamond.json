@@ -2036,5 +2036,24 @@
     "type": "error",
     "name": "ComplianceAdmin_ProviderNotTrusted",
     "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "CustomTermsSet",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "termsData",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      }
+    ],
+    "anonymous": false
   }
 ]

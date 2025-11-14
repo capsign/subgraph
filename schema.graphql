@@ -857,6 +857,46 @@ type CustomIdUpdate @entity {
   transaction: Bytes!
 }
 
+# ============ PRE-APPROVED TERMS (Offering-specific) ============
+
+# Interface for all pre-approved term types
+interface PreApprovedTerms {
+  id: ID! # offering-investor
+  offering: Offering!
+  investor: Bytes!
+  encodedTerms: Bytes! # Raw encoded data
+  assetType: TokenAssetType!
+  setAt: BigInt!
+  setTx: Bytes!
+  setBy: Bytes! # Admin who set the terms
+  cleared: Boolean!
+  clearedAt: BigInt
+  clearedTx: Bytes
+  clearedBy: Bytes
+}
+
+# SAFE-specific pre-approved terms
+type SAFEPreApprovedTerms implements PreApprovedTerms @entity {
+  id: ID! # offering-investor
+  offering: Offering!
+  investor: Bytes!
+  encodedTerms: Bytes!
+  assetType: TokenAssetType!
+  setAt: BigInt!
+  setTx: Bytes!
+  setBy: Bytes!
+  cleared: Boolean!
+  clearedAt: BigInt
+  clearedTx: Bytes
+  clearedBy: Bytes
+  
+  # SAFE-specific decoded fields
+  valuationCap: BigInt! # 0 = uncapped
+  discountRate: Int! # Basis points (e.g., 2000 = 20%)
+  interestRate: Int! # Basis points (e.g., 500 = 5%)
+  maturityDate: BigInt! # Unix timestamp, 0 = no maturity
+}
+
 # ============ COMPLIANCE (ComplianceStorage-based) ============
 
 type KYCStatus @entity {

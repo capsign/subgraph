@@ -242,6 +242,7 @@ templates:
         - KYCStatus
         - InvestorClassification
         - Wallet
+        - SAFEPreApprovedTerms
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -251,6 +252,8 @@ templates:
           file: ./abis/OfferingDocumentsFacet.json
         - name: OfferingCompliance
           file: ./abis/OfferingComplianceFacet.json
+        - name: OfferingTerms
+          file: ./abis/OfferingTermsFacet.json
         - name: ComplianceAdmin
           file: ./abis/ComplianceAdminFacet.json
       eventHandlers:
@@ -285,6 +288,8 @@ templates:
           handler: handleClassificationUpdated
         - event: ClassificationRevoked(indexed address,indexed address)
           handler: handleClassificationRevoked
+        - event: CustomTermsSet(indexed uint256,bytes)
+          handler: handleCustomTermsSet
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template

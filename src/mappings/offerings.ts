@@ -21,8 +21,11 @@ import {
   ClassificationUpdated,
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup } from "../../generated/schema";
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import {
+  CustomTermsSet,
+} from "../../generated/templates/OfferingDiamond/OfferingTerms";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SAFEPreApprovedTerms } from "../../generated/schema";
+import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export compliance handlers
@@ -314,4 +317,84 @@ export function handleComplianceModuleRegistered(event: ComplianceModuleRegister
 export function handleComplianceModuleEnabled(event: ComplianceModuleEnabled): void {
   // TODO: Store compliance module status if needed
   // For now, just log the event
+}
+
+/**
+ * Handle CustomTermsSet event
+ * Creates/updates pre-approved terms for investors
+ * When investmentId = 0, it's a pre-approved term (set before investment)
+ */
+export function handleCustomTermsSet(event: CustomTermsSet): void {
+  const investmentId = event.params.investmentId;
+  
+  // Only handle pre-approved terms (investmentId = 0)
+  // investmentId > 0 means terms set for an existing investment
+  if (!investmentId.equals(BigInt.fromI32(0))) {
+    return;
+  }
+  
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    return; // Skip if offering not found
+  }
+  
+  // Get investor address from transaction (setPreApprovedTermsForInvestor is called with investor as first param)
+  // We need to decode the call data to get the investor address
+  // The function signature is: setPreApprovedTermsForInvestor(address investor, bytes encodedTerms)
+  // Skip first 4 bytes (function selector), then next 32 bytes is the investor address
+  const input = event.transaction.input;
+  if (input.length < 36) {
+    return; // Invalid input
+  }
+  
+  // Extract investor address (bytes 4-36, but address is in last 20 bytes of that 32-byte word)
+  const investorBytes = input.subarray(16, 36);
+  const investor = Bytes.fromUint8Array(investorBytes);
+  
+  // Determine asset type from offering's token
+  let assetType = "Safe"; // Default to SAFE for now
+  // TODO: Query the token contract to get actual asset type
+  
+  // Create entity ID
+  const id = offeringAddress + "-" + investor.toHexString();
+  
+  // Check asset type and create appropriate entity
+  if (assetType == "Safe") {
+    let terms = SAFEPreApprovedTerms.load(id);
+    if (!terms) {
+      terms = new SAFEPreApprovedTerms(id);
+      terms.offering = offeringAddress;
+      terms.investor = investor;
+      terms.assetType = assetType;
+      terms.cleared = false;
+    }
+    
+    // Store raw encoded terms
+    terms.encodedTerms = event.params.termsData;
+    terms.setAt = event.block.timestamp;
+    terms.setTx = event.transaction.hash;
+    terms.setBy = event.transaction.from;
+    
+    // Decode SAFE-specific fields
+    // Format: (uint256 valuationCap, uint256 discountRate, uint256 interestRate, uint256 maturityDate)
+    const encodedTerms = event.params.termsData;
+    if (encodedTerms.length >= 128) { // 4 * 32 bytes
+      // Decode each uint256 (32 bytes each) - AssemblyScript doesn't have reverse on Uint8Array
+      const valuationCapBytes = encodedTerms.subarray(0, 32);
+      const discountRateBytes = encodedTerms.subarray(32, 64);
+      const interestRateBytes = encodedTerms.subarray(64, 96);
+      const maturityDateBytes = encodedTerms.subarray(96, 128);
+      
+      // Convert to BigInt (big-endian)
+      terms.valuationCap = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(valuationCapBytes));
+      terms.discountRate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(discountRateBytes)).toI32();
+      terms.interestRate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(interestRateBytes)).toI32();
+      terms.maturityDate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(maturityDateBytes));
+    }
+    
+    terms.save();
+  }
+  // Future: Add handling for other asset types
 }
