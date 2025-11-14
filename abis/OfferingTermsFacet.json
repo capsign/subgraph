@@ -199,6 +199,12 @@
         "internalType": "uint256"
       },
       {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
         "name": "termsData",
         "type": "bytes",
         "indexed": false,

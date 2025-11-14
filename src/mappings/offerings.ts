@@ -340,18 +340,8 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
     return; // Skip if offering not found
   }
   
-  // Get investor address from transaction (setPreApprovedTermsForInvestor is called with investor as first param)
-  // We need to decode the call data to get the investor address
-  // The function signature is: setPreApprovedTermsForInvestor(address investor, bytes encodedTerms)
-  // Skip first 4 bytes (function selector), then next 32 bytes is the investor address
-  const input = event.transaction.input;
-  if (input.length < 36) {
-    return; // Invalid input
-  }
-  
-  // Extract investor address (bytes 4-36, but address is in last 20 bytes of that 32-byte word)
-  const investorBytes = input.subarray(16, 36);
-  const investor = Bytes.fromUint8Array(investorBytes);
+  // Get investor address directly from the event parameter (now indexed in v3)
+  const investor = event.params.investor;
   
   // Determine asset type from offering's token
   let assetType = "Safe"; // Default to SAFE for now
@@ -380,26 +370,42 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
     // Decode SAFE-specific fields
     // Format: (uint256 valuationCap, uint256 discountRate, uint256 interestRate, uint256 maturityDate)
     const encodedTerms = event.params.termsData;
+    
+    // Debug log the raw data
+    // log.info("Decoding SAFE terms, length: {}, first 32 bytes for valuation cap", [
+    //   encodedTerms.length.toString(),
+    // ]);
+    
     if (encodedTerms.length >= 128) { // 4 * 32 bytes
-      // Decode each uint256 (32 bytes each) - AssemblyScript doesn't have reverse on Uint8Array
-      const valuationCapBytes = encodedTerms.subarray(0, 32);
-      const discountRateBytes = encodedTerms.subarray(32, 64);
-      const interestRateBytes = encodedTerms.subarray(64, 96);
-      const maturityDateBytes = encodedTerms.subarray(96, 128);
+      // Decode each uint256 (32 bytes each) - big-endian encoding
+      // Note: Bytes type in AssemblyScript is 0-indexed
+      const valuationCapBytes = Bytes.fromUint8Array(encodedTerms.subarray(0, 32));
+      const discountRateBytes = Bytes.fromUint8Array(encodedTerms.subarray(32, 64));
+      const interestRateBytes = Bytes.fromUint8Array(encodedTerms.subarray(64, 96));
+      const maturityDateBytes = Bytes.fromUint8Array(encodedTerms.subarray(96, 128));
       
-      // Convert to BigInt (big-endian)
-      terms.valuationCap = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(valuationCapBytes));
+      // Convert to BigInt - big-endian (most significant byte first)
+      terms.valuationCap = BigInt.fromUnsignedBytes(valuationCapBytes);
+      terms.maturityDate = BigInt.fromUnsignedBytes(maturityDateBytes);
       
-      // For rates, decode as BigInt first, then convert to i32 safely
-      const discountRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(discountRateBytes));
-      const interestRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(interestRateBytes));
+      // For rates (should be small numbers like 1500 for 15%), convert directly
+      const discountRateBigInt = BigInt.fromUnsignedBytes(discountRateBytes);
+      const interestRateBigInt = BigInt.fromUnsignedBytes(interestRateBytes);
       
-      // Convert to i32, clamping to max i32 value if too large
-      const maxI32 = BigInt.fromI32(2147483647);
-      terms.discountRate = discountRateBigInt.gt(maxI32) ? 2147483647 : discountRateBigInt.toI32();
-      terms.interestRate = interestRateBigInt.gt(maxI32) ? 2147483647 : interestRateBigInt.toI32();
+      // Only clamp if truly unreasonable (> 100 million basis points = 1 million %)
+      const maxReasonable = BigInt.fromI32(100000000); // 100 million basis points
+      if (discountRateBigInt.gt(maxReasonable)) {
+        // Value is unreasonably large, probably a decoding error - use 0
+        terms.discountRate = 0;
+      } else {
+        terms.discountRate = discountRateBigInt.toI32();
+      }
       
-      terms.maturityDate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(maturityDateBytes));
+      if (interestRateBigInt.gt(maxReasonable)) {
+        terms.interestRate = 0;
+      } else {
+        terms.interestRate = interestRateBigInt.toI32();
+      }
     }
     
     terms.save();
