@@ -377,20 +377,34 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
     // ]);
     
     if (encodedTerms.length >= 128) { // 4 * 32 bytes
-      // Decode each uint256 (32 bytes each) - big-endian encoding
-      // Note: Bytes type in AssemblyScript is 0-indexed
-      const valuationCapBytes = Bytes.fromUint8Array(encodedTerms.subarray(0, 32));
-      const discountRateBytes = Bytes.fromUint8Array(encodedTerms.subarray(32, 64));
-      const interestRateBytes = Bytes.fromUint8Array(encodedTerms.subarray(64, 96));
-      const maturityDateBytes = Bytes.fromUint8Array(encodedTerms.subarray(96, 128));
+      // Decode each uint256 (32 bytes each)
+      // Solidity ABI encoding uses big-endian, but BigInt.fromUnsignedBytes expects little-endian
+      // So we need to reverse the byte order manually
+      const valuationCapBytes = encodedTerms.subarray(0, 32);
+      const discountRateBytes = encodedTerms.subarray(32, 64);
+      const interestRateBytes = encodedTerms.subarray(64, 96);
+      const maturityDateBytes = encodedTerms.subarray(96, 128);
       
-      // Convert to BigInt - big-endian (most significant byte first)
-      terms.valuationCap = BigInt.fromUnsignedBytes(valuationCapBytes);
-      terms.maturityDate = BigInt.fromUnsignedBytes(maturityDateBytes);
+      // Reverse bytes manually (big-endian to little-endian)
+      const valuationCapReversed = new Uint8Array(32);
+      const discountRateReversed = new Uint8Array(32);
+      const interestRateReversed = new Uint8Array(32);
+      const maturityDateReversed = new Uint8Array(32);
+      
+      for (let i = 0; i < 32; i++) {
+        valuationCapReversed[i] = valuationCapBytes[31 - i];
+        discountRateReversed[i] = discountRateBytes[31 - i];
+        interestRateReversed[i] = interestRateBytes[31 - i];
+        maturityDateReversed[i] = maturityDateBytes[31 - i];
+      }
+      
+      // Convert to BigInt
+      terms.valuationCap = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(valuationCapReversed));
+      terms.maturityDate = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(maturityDateReversed));
       
       // For rates (should be small numbers like 1500 for 15%), convert directly
-      const discountRateBigInt = BigInt.fromUnsignedBytes(discountRateBytes);
-      const interestRateBigInt = BigInt.fromUnsignedBytes(interestRateBytes);
+      const discountRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(discountRateReversed));
+      const interestRateBigInt = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(interestRateReversed));
       
       // Only clamp if truly unreasonable (> 100 million basis points = 1 million %)
       const maxReasonable = BigInt.fromI32(100000000); // 100 million basis points
