@@ -55,6 +55,14 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   offering.uri = null;
   offering.complianceModules = []; // Initialize empty array for non-nullable field
   
+  // Initialize library-based compliance fields with defaults
+  offering.complianceInitialized = false;
+  offering.requireKYC = false;
+  offering.requireClassification = false;
+  offering.requiredClassifications = []; // Initialize empty array for non-nullable field
+  offering.requireJurisdiction = false;
+  offering.allowedJurisdictions = []; // Initialize empty array for non-nullable field
+  
   // Don't initialize compliance fields here - let ComplianceInitialized event set them
   // offering.generalSolicitation and offering.allowsSelfCertification will be null by default
 

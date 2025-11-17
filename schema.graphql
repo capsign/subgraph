@@ -392,11 +392,19 @@ type Offering @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   uri: String # Optional metadata URI
-  complianceModules: [Bytes!]! # Compliance modules used
+  complianceModules: [Bytes!]! # Compliance modules used (DEPRECATED - kept for backward compatibility)
   
-  # Compliance settings
+  # Compliance settings (legacy flags)
   generalSolicitation: Boolean
   allowsSelfCertification: Boolean
+  
+  # Library-based compliance configuration (new)
+  complianceInitialized: Boolean
+  requireKYC: Boolean
+  requireClassification: Boolean
+  requiredClassifications: [Bytes!]! # List of acceptable classification IDs
+  requireJurisdiction: Boolean
+  allowedJurisdictions: [Bytes!]! # List of allowed jurisdiction IDs
   
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
@@ -899,7 +907,7 @@ type SafePreApprovedTerms implements PreApprovedTerms @entity {
 
 # ============ COMPLIANCE (ComplianceStorage-based) ============
 
-type KYCStatus @entity {
+type KYCStatus @entity(immutable: false) @plural(name: "kycStatuses") {
   id: ID! # offering-address-wallet-address (e.g., "0x123...abc-0x456...def")
   offering: Offering!
   wallet: Wallet!

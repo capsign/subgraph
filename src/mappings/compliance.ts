@@ -2,7 +2,7 @@ import { Bytes } from "@graphprotocol/graph-ts";
 import {
   KYCStatusUpdated,
   KYCRevoked,
-  ClassificationUpdated,
+  ClassificationAdded,
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import {
@@ -102,7 +102,7 @@ export function handleKYCRevoked(event: KYCRevoked): void {
 /**
  * Handle investor classification updates from ComplianceAdminFacet
  */
-export function handleClassificationUpdated(event: ClassificationUpdated): void {
+export function handleClassificationAdded(event: ClassificationAdded): void {
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
 
@@ -112,56 +112,51 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
     // Create placeholder wallet if it doesn't exist
     wallet = new Wallet(walletId);
     wallet.type = "EOA";
-    wallet.deployer = event.params.verifiedBy;
+    wallet.deployer = event.params.addedBy;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
     wallet.save();
   }
 
-  // Create or update classification for each classification ID
-  const classifications = event.params.classifications;
-  for (let i = 0; i < classifications.length; i++) {
-    const classificationBytes = Bytes.fromByteArray(classifications[i]);
-    const classificationId =
-      event.address.toHexString() +
-      "-" +
-      walletId +
-      "-" +
-      classificationBytes.toHexString();
+  // Create or update classification
+  const classificationBytes = Bytes.fromByteArray(event.params.classification);
+  const classificationId =
+    event.address.toHexString() +
+    "-" +
+    walletId +
+    "-" +
+    classificationBytes.toHexString();
 
-    let classification = InvestorClassification.load(classificationId);
-    
-    if (!classification) {
-      classification = new InvestorClassification(classificationId);
-      classification.offering = event.address.toHexString();
-      classification.wallet = walletId;
-      classification.classification = classificationBytes;
-      classification.addedAt = event.block.timestamp;
-      classification.addedTx = event.transaction.hash;
-      classification.addedBy = event.params.verifiedBy;
-      classification.revoked = false;
-      classification.revokedAt = null;
-      classification.revokedTx = null;
-      classification.revokedBy = null;
-      classification.save();
+  let classification = InvestorClassification.load(classificationId);
+  
+  if (!classification) {
+    classification = new InvestorClassification(classificationId);
+    classification.offering = event.address.toHexString();
+    classification.wallet = walletId;
+    classification.classification = classificationBytes;
+    classification.addedAt = event.block.timestamp;
+    classification.addedTx = event.transaction.hash;
+    classification.addedBy = event.params.addedBy;
+    classification.revoked = false;
+    classification.revokedAt = null;
+    classification.revokedTx = null;
+    classification.revokedBy = null;
+    classification.save();
 
-      // Create activity for new classification
-      const activity = createActivity(
-        "classification-updated-" +
-          event.transaction.hash.toHexString() +
-          "-" +
-          event.logIndex.toString() +
-          "-" +
-          i.toString(),
-        "CLASSIFICATION_UPDATED",
-        event.params.investor,
-        event.block.timestamp,
-        event.transaction.hash,
-        event.block.number
-      );
-      activity.classification = classificationId;
-      activity.save();
-    }
+    // Create activity for new classification
+    const activity = createActivity(
+      "classification-added-" +
+        event.transaction.hash.toHexString() +
+        "-" +
+        event.logIndex.toString(),
+      "CLASSIFICATION_ADDED",
+      event.params.investor,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.classification = classificationId;
+    activity.save();
   }
 }
 
@@ -170,11 +165,23 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
  */
 export function handleClassificationRevoked(event: ClassificationRevoked): void {
   const walletId = event.params.investor.toHexString();
+  const classificationBytes = Bytes.fromByteArray(event.params.classification);
+  const classificationId =
+    event.address.toHexString() +
+    "-" +
+    walletId +
+    "-" +
+    classificationBytes.toHexString();
   
-  // Mark all classifications for this investor in this offering as revoked
-  // Note: We need to load all classifications for this investor-offering pair
-  // This is a simplified approach - in production, you might want to track specific classifications
-  const offering = event.address.toHexString();
+  // Load and mark the specific classification as revoked
+  const classification = InvestorClassification.load(classificationId);
+  if (classification) {
+    classification.revoked = true;
+    classification.revokedAt = event.block.timestamp;
+    classification.revokedTx = event.transaction.hash;
+    classification.revokedBy = event.params.revokedBy;
+    classification.save();
+  }
   
   // Create activity
   const activity = createActivity(
@@ -185,11 +192,7 @@ export function handleClassificationRevoked(event: ClassificationRevoked): void 
     event.transaction.hash,
     event.block.number
   );
+  activity.classification = classificationId;
   activity.save();
-  
-  // Note: To properly mark specific classifications as revoked, we'd need to query
-  // all InvestorClassification entities for this offering-wallet pair and update them.
-  // This requires additional subgraph query capabilities that aren't available in event handlers.
-  // Consider adding a separate event that includes the specific classifications being revoked.
 }
 

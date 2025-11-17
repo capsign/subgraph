@@ -63,9 +63,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x495394087eAd4a60A98145c2aBb752649469e475"
+      address: "0x0EDb7df88025e5714703CEBe0c342393Be3d1411"
       abi: RegistryCoreFacet
-      startBlock: 33210200
+      startBlock: 33815700
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -113,9 +113,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0x430a98f112cba9292b388475e6f1f3c16095dfe3"
+      address: "0x5d211F9A510d89F77a23Eee7edF59491695a0eEc"
       abi: OfferingFactory
-      startBlock: 33558000
+      startBlock: 33815700
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

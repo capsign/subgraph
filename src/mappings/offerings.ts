@@ -12,27 +12,26 @@ import {
   ComplianceInitialized,
   AllowsGeneralSolicitationUpdated,
   AllowsSelfCertificationUpdated,
-  ComplianceModuleRegistered,
-  ComplianceModuleEnabled,
 } from "../../generated/templates/OfferingDiamond/OfferingCompliance";
 import {
   KYCStatusUpdated,
   KYCRevoked,
-  ClassificationUpdated,
+  ClassificationAdded,
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, Wallet } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
+import { WalletCore } from "../../generated/templates/WalletDiamond/WalletCore";
 
 // Re-export compliance handlers
 export {
   handleKYCStatusUpdated,
   handleKYCRevoked,
-  handleClassificationUpdated,
+  handleClassificationAdded,
   handleClassificationRevoked,
 } from "./compliance";
 
@@ -93,6 +92,32 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
 
+  // Ensure investor wallet entity exists
+  const investorAddress = event.params.investor.toHexString();
+  let investor = Wallet.load(investorAddress);
+  if (!investor) {
+    // Create placeholder wallet if it doesn't exist
+    investor = new Wallet(investorAddress);
+    
+    // Infer wallet type by checking first owner length
+    // Try to call ownerAtIndex(0) on the wallet contract
+    const walletContract = WalletCore.bind(event.params.investor);
+    const ownerResult = walletContract.try_ownerAtIndex(BigInt.fromI32(0));
+    
+    if (!ownerResult.reverted && ownerResult.value.length > 0) {
+      // 20 bytes = EOA address, 64 bytes = Passkey public key (x + y coordinates)
+      investor.type = ownerResult.value.length == 20 ? "EOA" : "Passkey";
+    } else {
+      // Fallback: if we can't query the contract, it's likely an EOA
+      investor.type = "EOA";
+    }
+    
+    investor.deployer = event.params.investor;
+    investor.createdAt = event.block.timestamp;
+    investor.createdTx = event.transaction.hash;
+    investor.save();
+  }
+
   // Use tx-hash-logIndex for globally unique ID
   const investmentId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   
@@ -102,7 +127,7 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   const investment = new Investment(investmentId);
   investment.compositeId = compositeId;
   investment.offering = offering.id;
-  investment.investor = event.params.investor.toHexString();
+  investment.investor = investorAddress;
   investment.investmentId = event.params.investmentId;
   investment.amount = event.params.amount;
   investment.tokenQuantity = event.params.tokenQuantity; // Now included in event!
@@ -263,12 +288,21 @@ export function handleComplianceInitialized(event: ComplianceInitialized): void 
     offering.investorCount = BigInt.fromI32(0);
     offering.status = "ACTIVE";
     offering.uri = null;
-    offering.complianceModules = []; // Initialize empty array for non-nullable field
+    offering.complianceModules = []; // Initialize empty array for backward compatibility
+    
+    // Initialize compliance config fields
+    offering.complianceInitialized = false;
+    offering.requireKYC = false;
+    offering.requireClassification = false;
+    offering.requiredClassifications = [];
+    offering.requireJurisdiction = false;
+    offering.allowedJurisdictions = [];
   }
   
   // Set compliance settings from event parameters
   offering.generalSolicitation = event.params.allowsGeneralSolicitation;
   offering.allowsSelfCertification = event.params.allowsSelfCertification;
+  offering.complianceInitialized = true;
   
   offering.save();
 }
@@ -304,19 +338,19 @@ export function handleAllowsSelfCertificationUpdated(event: AllowsSelfCertificat
 }
 
 /**
- * Handle compliance module registration
+ * Handle compliance module registration (DEPRECATED - for backward compatibility only)
  */
-export function handleComplianceModuleRegistered(event: ComplianceModuleRegistered): void {
-  // TODO: Store compliance module details if needed
-  // For now, just log the event
+export function handleComplianceModuleRegistered(event: ethereum.Event): void {
+  // Deprecated: Library-based compliance doesn't use external modules
+  // Event kept for backward compatibility with old deployments
 }
 
 /**
- * Handle compliance module enabled/disabled
+ * Handle compliance module enabled/disabled (DEPRECATED - for backward compatibility only)
  */
-export function handleComplianceModuleEnabled(event: ComplianceModuleEnabled): void {
-  // TODO: Store compliance module status if needed
-  // For now, just log the event
+export function handleComplianceModuleEnabled(event: ethereum.Event): void {
+  // Deprecated: Library-based compliance doesn't use external modules
+  // Event kept for backward compatibility with old deployments
 }
 
 /**

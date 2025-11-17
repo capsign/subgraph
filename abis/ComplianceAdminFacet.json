@@ -1,6 +1,29 @@
 [
   {
     "type": "function",
+    "name": "addClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "addTrustedKYCProvider",
     "inputs": [
       {
@@ -20,31 +43,36 @@
         "name": "investor",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "status",
         "type": "tuple",
         "internalType": "struct ComplianceStorage.ClassificationStatus",
         "components": [
           {
-            "name": "classifications",
-            "type": "bytes32[]",
-            "internalType": "bytes32[]"
+            "name": "hasClassification",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
-            "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
+            "name": "addedAt",
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
             "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
-            "name": "verifiedBy",
+            "name": "addedBy",
             "type": "address",
             "internalType": "address"
           },
@@ -55,10 +83,48 @@
           },
           {
             "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
+            "type": "uint256",
+            "internalType": "uint256"
           }
         ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getJurisdiction",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "stateMutability": "view"
@@ -75,7 +141,7 @@
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "status",
         "type": "tuple",
         "internalType": "struct ComplianceStorage.KYCStatus",
         "components": [
@@ -86,13 +152,13 @@
           },
           {
             "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
             "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
+            "type": "uint256",
+            "internalType": "uint256"
           },
           {
             "name": "verifiedBy",
@@ -106,8 +172,8 @@
           },
           {
             "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
+            "type": "uint256",
+            "internalType": "uint256"
           }
         ]
       }
@@ -120,12 +186,12 @@
     "inputs": [],
     "outputs": [
       {
-        "name": "",
+        "name": "providers",
         "type": "address[]",
         "internalType": "address[]"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "pure"
   },
   {
     "type": "function",
@@ -137,14 +203,14 @@
         "internalType": "address"
       },
       {
-        "name": "classificationId",
+        "name": "classification",
         "type": "bytes32",
         "internalType": "bytes32"
       }
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "valid",
         "type": "bool",
         "internalType": "bool"
       }
@@ -163,7 +229,7 @@
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "valid",
         "type": "bool",
         "internalType": "bool"
       }
@@ -180,14 +246,14 @@
         "internalType": "address"
       },
       {
-        "name": "classificationId",
+        "name": "classification",
         "type": "bytes32",
         "internalType": "bytes32"
       }
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "valid",
         "type": "bool",
         "internalType": "bool"
       }
@@ -206,7 +272,26 @@
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "valid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isSanctioned",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sanctioned",
         "type": "bool",
         "internalType": "bool"
       }
@@ -225,7 +310,31 @@
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "trusted",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isWhitelisted",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "whitelisted",
         "type": "bool",
         "internalType": "bool"
       }
@@ -260,12 +369,48 @@
   },
   {
     "type": "function",
+    "name": "revokeClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "revokeKYC",
     "inputs": [
       {
         "name": "investor",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "selfCertifyClassifications",
+    "inputs": [
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
       }
     ],
     "outputs": [],
@@ -296,6 +441,24 @@
   },
   {
     "type": "function",
+    "name": "setJurisdiction",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setKYCStatus",
     "inputs": [
       {
@@ -318,6 +481,78 @@
     "stateMutability": "nonpayable"
   },
   {
+    "type": "function",
+    "name": "setSanctionStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "sanctioned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setWhitelistStatus",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "whitelisted",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "ClassificationAdded",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "addedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "event",
     "name": "ClassificationRevoked",
     "inputs": [
@@ -326,6 +561,12 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
       },
       {
         "name": "revokedBy",
@@ -338,7 +579,7 @@
   },
   {
     "type": "event",
-    "name": "ClassificationUpdated",
+    "name": "JurisdictionSet",
     "inputs": [
       {
         "name": "investor",
@@ -347,19 +588,13 @@
         "internalType": "address"
       },
       {
-        "name": "classifications",
-        "type": "bytes32[]",
-        "indexed": false,
-        "internalType": "bytes32[]"
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
       },
       {
-        "name": "expirationTime",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      },
-      {
-        "name": "verifiedBy",
+        "name": "setBy",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -404,12 +639,37 @@
       },
       {
         "name": "expirationTime",
-        "type": "uint64",
+        "type": "uint256",
         "indexed": false,
-        "internalType": "uint64"
+        "internalType": "uint256"
       },
       {
         "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SanctionStatusSet",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sanctioned",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "setBy",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -444,6 +704,37 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "WhitelistStatusSet",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "whitelisted",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "setBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AccessControl_CallerIsNotAuthorized",
     "inputs": [
@@ -462,6 +753,11 @@
   {
     "type": "error",
     "name": "ComplianceAdmin_InvalidExpiration",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_InvalidJurisdiction",
     "inputs": []
   },
   {
