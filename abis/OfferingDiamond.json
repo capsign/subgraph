@@ -1,6 +1,1200 @@
 [
   {
     "type": "function",
+    "name": "Compliance_init",
+    "inputs": [
+      {
+        "name": "_allowsSelfCertification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_allowsGeneralSolicitation",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_requireKYC",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_requireClassification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_requiredClassifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "_requireJurisdiction",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_allowedJurisdictions",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "allowsGeneralSolicitation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "allowsSelfCertification",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "checkCompliance",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "canInvest",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "failureReason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeAfterInvestmentCompliance",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "executeBeforeInvestmentCompliance",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getComplianceConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "requireKYC",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "requireClassification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "requiredClassifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "requireJurisdiction",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "allowedJurisdictions",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "initialized",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isComplianceInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsGeneralSolicitation",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsSelfCertification",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setComplianceConfig",
+    "inputs": [
+      {
+        "name": "requireKYC",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "requireClassification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "requiredClassifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "requireJurisdiction",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "allowedJurisdictions",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AllowsGeneralSolicitationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AllowsSelfCertificationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceConfigUpdated",
+    "inputs": [
+      {
+        "name": "offering",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "config",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct ComplianceStorage.OfferingComplianceConfig",
+        "components": [
+          {
+            "name": "requireKYC",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "requireClassification",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "requiredClassifications",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "requireJurisdiction",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "allowedJurisdictions",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "initialized",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceInitialized",
+    "inputs": [
+      {
+        "name": "offering",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "allowsSelfCertification",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "allowsGeneralSolicitation",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_AddressSanctioned",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Compliance_JurisdictionNotAllowed",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_KYCExpired",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "expiredAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_KYCNotVerified",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_KYCRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_MissingClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "requiredClassifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_NoJurisdictionSet",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Compliance_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "function",
+    "name": "addClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "status",
+        "type": "tuple",
+        "internalType": "struct ComplianceStorage.ClassificationStatus",
+        "components": [
+          {
+            "name": "hasClassification",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "addedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "addedBy",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revokedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getJurisdiction",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "status",
+        "type": "tuple",
+        "internalType": "struct ComplianceStorage.KYCStatus",
+        "components": [
+          {
+            "name": "isVerified",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifiedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "verifiedBy",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revokedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTrustedKYCProviders",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "providers",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "hasClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "valid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isClassificationValid",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "valid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isKYCValid",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "valid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isSanctioned",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sanctioned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "trusted",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isWhitelisted",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "whitelisted",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeKYC",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "selfCertifyClassifications",
+    "inputs": [
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setJurisdiction",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setSanctionStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "sanctioned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setWhitelistStatus",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "whitelisted",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "ClassificationAdded",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "addedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClassificationRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classification",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "JurisdictionSet",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "jurisdiction",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "setBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCStatusUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SanctionStatusSet",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sanctioned",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "setBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedKYCProviderAdded",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedKYCProviderRemoved",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WhitelistStatusSet",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "whitelisted",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "setBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_InvalidExpiration",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_InvalidJurisdiction",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderAlreadyTrusted",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderNotTrusted",
+    "inputs": []
+  },
+  {
+    "type": "function",
     "name": "OfferingCore_init",
     "inputs": [
       {
@@ -808,521 +2002,6 @@
   },
   {
     "type": "function",
-    "name": "Compliance_init",
-    "inputs": [
-      {
-        "name": "_allowsSelfCertification",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "_allowsGeneralSolicitation",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "allowsGeneralSolicitation",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "allowsSelfCertification",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "checkComplianceWithAttestations",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "canInvest",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "failureReason",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "executeAfterInvestmentCompliance",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "pure"
-  },
-  {
-    "type": "function",
-    "name": "executeBeforeInvestmentComplianceWithAttestations",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getClassificationCount",
-    "inputs": [
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "count",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getEnabledModules",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "names",
-        "type": "string[]",
-        "internalType": "string[]"
-      },
-      {
-        "name": "addresses",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getModuleInfo",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getRegisteredModules",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "names",
-        "type": "string[]",
-        "internalType": "string[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isComplianceInitialized",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isInvestorClassified",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "classified",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "registerComplianceModule",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setAllowsGeneralSolicitation",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setAllowsSelfCertification",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setModuleEnabled",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "unregisterComplianceModule",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "updateInvestorClassification",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "AllowsGeneralSolicitationUpdated",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AllowsSelfCertificationUpdated",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleEnabled",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleRegistered",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      },
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleUnregistered",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "InvestorClassificationUpdated",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "newCount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "AccessControl_CallerIsNotAuthorized",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_AlreadyInitialized",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "Compliance_CheckFailed",
-    "inputs": [
-      {
-        "name": "moduleName",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "reason",
-        "type": "string",
-        "internalType": "string"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_InvalidModuleAddress",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "Compliance_ModuleAlreadyRegistered",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_ModuleNotFound",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_NotInitialized",
-    "inputs": []
-  },
-  {
-    "type": "function",
     "name": "canSignRequiredDocument",
     "inputs": [
       {
@@ -1540,10 +2219,10 @@
   },
   {
     "type": "function",
-    "name": "addTrustedKYCProvider",
+    "name": "clearPreApprovedTermsForInvestor",
     "inputs": [
       {
-        "name": "provider",
+        "name": "investor",
         "type": "address",
         "internalType": "address"
       }
@@ -1553,122 +2232,7 @@
   },
   {
     "type": "function",
-    "name": "getClassificationStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct ComplianceStorage.ClassificationStatus",
-        "components": [
-          {
-            "name": "classifications",
-            "type": "bytes32[]",
-            "internalType": "bytes32[]"
-          },
-          {
-            "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "verifiedBy",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "revoked",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getKYCStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct ComplianceStorage.KYCStatus",
-        "components": [
-          {
-            "name": "isVerified",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "verifiedBy",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "revoked",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTrustedKYCProviders",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasClassification",
+    "name": "createCustomTermsInvestment",
     "inputs": [
       {
         "name": "investor",
@@ -1676,66 +2240,57 @@
         "internalType": "address"
       },
       {
-        "name": "classificationId",
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "subscriptionAgreementId",
         "type": "bytes32",
         "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isClassificationValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isClassificationValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
       },
       {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "name": "encodedCustomTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "paymentReceived",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [
       {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCustomTermsForInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "isKYCValid",
+    "name": "getPreApprovedTermsForInvestor",
     "inputs": [
       {
         "name": "investor",
@@ -1745,7 +2300,26 @@
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasCustomTermsForInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasTerms",
         "type": "bool",
         "internalType": "bool"
       }
@@ -1754,17 +2328,17 @@
   },
   {
     "type": "function",
-    "name": "isTrustedKYCProvider",
+    "name": "hasPreApprovedTermsForInvestor",
     "inputs": [
       {
-        "name": "provider",
+        "name": "investor",
         "type": "address",
         "internalType": "address"
       }
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "hasTerms",
         "type": "bool",
         "internalType": "bool"
       }
@@ -1773,12 +2347,17 @@
   },
   {
     "type": "function",
-    "name": "removeTrustedKYCProvider",
+    "name": "setCustomTermsForInvestment",
     "inputs": [
       {
-        "name": "provider",
-        "type": "address",
-        "internalType": "address"
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -1786,33 +2365,7 @@
   },
   {
     "type": "function",
-    "name": "revokeClassification",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "revokeKYC",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setClassificationStatus",
+    "name": "setPreApprovedTermsForInvestor",
     "inputs": [
       {
         "name": "investor",
@@ -1820,37 +2373,9 @@
         "internalType": "address"
       },
       {
-        "name": "classifications",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "internalType": "uint64"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setKYCStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "verified",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "internalType": "uint64"
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -1858,8 +2383,14 @@
   },
   {
     "type": "event",
-    "name": "KYCRevoked",
+    "name": "CustomInvestmentCreated",
     "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
       {
         "name": "investor",
         "type": "address",
@@ -1867,106 +2398,13 @@
         "internalType": "address"
       },
       {
-        "name": "revokedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "KYCStatusUpdated",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "verified",
-        "type": "bool",
+        "name": "amount",
+        "type": "uint256",
         "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      },
-      {
-        "name": "verifiedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TrustedKYCProviderAdded",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TrustedKYCProviderRemoved",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "AccessControl_CallerIsNotAuthorized",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_InvalidExpiration",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_NotAuthorized",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_ProviderAlreadyTrusted",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_ProviderNotTrusted",
-    "inputs": []
   },
   {
     "type": "event",
@@ -1994,329 +2432,512 @@
     "anonymous": false
   },
   {
-    "type": "event",
-    "name": "ClassificationAdded",
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
     "inputs": [
       {
-        "name": "investor",
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OfferingTerms_InvalidInvestment",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingTerms_NoCustomTerms",
+    "inputs": []
+  },
+  {
+    "type": "receive",
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "WalletCore_init",
+    "inputs": [
+      {
+        "name": "owners",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      },
+      {
+        "name": "walletType",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "entryPoint_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "activateEmergencyMode",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addOwnerAddress",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addOwnerPublicKey",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "y",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "deactivateEmergencyMode",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "entryPoint",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "execute",
+    "inputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "success",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "result",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeBatch",
+    "inputs": [
+      {
+        "name": "targets",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "values",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "datas",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getWalletInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "walletType",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "ownerCount_",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "emergencyMode",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isEmergencyMode",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isOwnerAddress",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isOwnerBytes",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isOwnerPublicKey",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "y",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "nextOwnerIndex",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerAtIndex",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeOwnerAtIndex",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "owner",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "EmergencyModeActivated",
+    "inputs": [
+      {
+        "name": "activatedBy",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "classification",
-        "type": "bytes32",
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EmergencyModeDeactivated",
+    "inputs": [
+      {
+        "name": "deactivatedBy",
+        "type": "address",
         "indexed": true,
-        "internalType": "bytes32"
+        "internalType": "address"
       },
       {
-        "name": "expirationTime",
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnerAdded",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "bytes",
+        "indexed": true,
+        "internalType": "bytes"
+      },
+      {
+        "name": "ownerType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnerRemoved",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "bytes",
+        "indexed": true,
+        "internalType": "bytes"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TransactionExecuted",
+    "inputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "value",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
       },
       {
-        "name": "addedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "JurisdictionSet",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "jurisdiction",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "SanctionStatusSet",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "sanctioned",
-        "type": "bool",
+        "name": "data",
+        "type": "bytes",
         "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "internalType": "bytes"
       }
     ],
     "anonymous": false
   },
   {
     "type": "event",
-    "name": "TrustedKYCProviderAdded",
+    "name": "WalletInitialized",
     "inputs": [
       {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TrustedKYCProviderRemoved",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "WhitelistStatusSet",
-    "inputs": [
-      {
-        "name": "token",
+        "name": "owner",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "whitelisted",
-        "type": "bool",
+        "name": "walletType",
+        "type": "string",
         "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "internalType": "string"
       }
     ],
     "anonymous": false
   },
   {
-    "type": "event",
-    "name": "ClassificationAdded",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "classification",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "addedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ReentrancyGuard_ReentrantCall",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "ClassificationRevoked",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "classification",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "revokedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_AlreadyInitialized",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "JurisdictionSet",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "jurisdiction",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_BatchLengthMismatch",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "SanctionStatusSet",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "sanctioned",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_CannotRemoveLastOwner",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "TrustedKYCProviderAdded",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_EmergencyModeActive",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "TrustedKYCProviderRemoved",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_ExecutionFailed",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "WhitelistStatusSet",
-    "inputs": [
-      {
-        "name": "token",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "whitelisted",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "setBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_InvalidOwnerData",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "ComplianceInitialized",
-    "inputs": [
-      {
-        "name": "offering",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "allowsSelfCertification",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "allowsGeneralSolicitation",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "WalletCore_InvalidOwnerIndex",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletCore_NoOwnersProvided",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletCore_NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletCore_OwnerAlreadyExists",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletCore_OwnerDoesNotExist",
+    "inputs": []
   }
 ]

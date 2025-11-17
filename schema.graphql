@@ -27,7 +27,7 @@ type Wallet @entity {
   # Relationships
   tokens: [Lot!]! @derivedFrom(field: "owner")
   investments: [Investment!]! @derivedFrom(field: "investor")
-  kycStatus: KYCStatus
+  kycStatus: InvestorKYC
   classifications: [InvestorClassification!]! @derivedFrom(field: "wallet")
 }
 
@@ -342,7 +342,7 @@ type Activity @entity {
   corporateAction: CorporateAction
   documentSignature: DocumentSignature
   document: Document
-  kycStatus: KYCStatus
+  kycStatus: InvestorKYC
   classification: InvestorClassification
   lot: Lot
   attestation: Attestation # Hybrid EAS support - kept for backward compatibility
@@ -907,7 +907,7 @@ type SafePreApprovedTerms implements PreApprovedTerms @entity {
 
 # ============ COMPLIANCE (ComplianceStorage-based) ============
 
-type KYCStatus @entity(immutable: false) @plural(name: "kycStatuses") {
+type InvestorKYC @entity(immutable: false) {
   id: ID! # offering-address-wallet-address (e.g., "0x123...abc-0x456...def")
   offering: Offering!
   wallet: Wallet!

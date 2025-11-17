@@ -278,7 +278,7 @@ templates:
           handler: handleAllowsGeneralSolicitationUpdated
         - event: AllowsSelfCertificationUpdated(bool)
           handler: handleAllowsSelfCertificationUpdated
-        - event: KYCStatusUpdated(indexed address,bool,uint64,indexed address)
+        - event: KYCStatusUpdated(indexed address,bool,uint256,indexed address)
           handler: handleKYCStatusUpdated
         - event: KYCRevoked(indexed address,indexed address)
           handler: handleKYCRevoked

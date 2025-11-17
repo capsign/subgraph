@@ -93,25 +93,6 @@
   },
   {
     "type": "function",
-    "name": "getClassificationStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "classifications",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
     "name": "getJurisdiction",
     "inputs": [
       {
@@ -206,25 +187,6 @@
         "name": "classification",
         "type": "bytes32",
         "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "valid",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isClassificationValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [
@@ -347,19 +309,6 @@
     "inputs": [
       {
         "name": "provider",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "revokeClassification",
-    "inputs": [
-      {
-        "name": "investor",
         "type": "address",
         "internalType": "address"
       }

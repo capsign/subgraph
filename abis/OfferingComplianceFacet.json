@@ -12,6 +12,31 @@
         "name": "_allowsGeneralSolicitation",
         "type": "bool",
         "internalType": "bool"
+      },
+      {
+        "name": "_requireKYC",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_requireClassification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_requiredClassifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "_requireJurisdiction",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_allowedJurisdictions",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
       }
     ],
     "outputs": [],
@@ -45,7 +70,7 @@
   },
   {
     "type": "function",
-    "name": "checkComplianceWithAttestations",
+    "name": "checkCompliance",
     "inputs": [
       {
         "name": "investor",
@@ -56,11 +81,6 @@
         "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
       }
     ],
     "outputs": [
@@ -102,7 +122,7 @@
   },
   {
     "type": "function",
-    "name": "executeBeforeInvestmentComplianceWithAttestations",
+    "name": "executeBeforeInvestmentCompliance",
     "inputs": [
       {
         "name": "investor",
@@ -113,11 +133,6 @@
         "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
       }
     ],
     "outputs": [],

@@ -6,7 +6,7 @@ import {
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import {
-  KYCStatus,
+  InvestorKYC,
   InvestorClassification,
   Wallet,
   Offering,
@@ -34,10 +34,10 @@ export function handleKYCStatusUpdated(event: KYCStatusUpdated): void {
 
   // Create or update KYC status
   const kycId = event.address.toHexString() + "-" + walletId;
-  let kycStatus = KYCStatus.load(kycId);
+  let kycStatus = InvestorKYC.load(kycId);
   
   if (!kycStatus) {
-    kycStatus = new KYCStatus(kycId);
+    kycStatus = new InvestorKYC(kycId);
     kycStatus.offering = event.address.toHexString();
     kycStatus.wallet = walletId;
     kycStatus.revoked = false;
@@ -77,7 +77,7 @@ export function handleKYCRevoked(event: KYCRevoked): void {
   const walletId = event.params.investor.toHexString();
   const kycId = event.address.toHexString() + "-" + walletId;
   
-  const kycStatus = KYCStatus.load(kycId);
+  const kycStatus = InvestorKYC.load(kycId);
   if (!kycStatus) return;
 
   kycStatus.revoked = true;
@@ -149,7 +149,7 @@ export function handleClassificationAdded(event: ClassificationAdded): void {
         event.transaction.hash.toHexString() +
         "-" +
         event.logIndex.toString(),
-      "CLASSIFICATION_ADDED",
+      "CLASSIFICATION_UPDATED",
       event.params.investor,
       event.block.timestamp,
       event.transaction.hash,
