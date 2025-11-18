@@ -66,11 +66,17 @@ export function handleLotCreated(event: LotCreated): void {
   
   lot.save();
   
-  // Update total supply
+  // Update total supply for both ShareClass and Safe
   const shareClass = ShareClass.load(tokenAddress);
   if (shareClass) {
     shareClass.totalSupply = shareClass.totalSupply.plus(event.params.quantity);
     shareClass.save();
+  }
+  
+  const safe = Safe.load(tokenAddress);
+  if (safe) {
+    safe.totalSupply = safe.totalSupply.plus(event.params.quantity);
+    safe.save();
   }
   
   // Create activity
@@ -125,11 +131,25 @@ export function handleLotTransferred(event: LotTransferred): void {
  */
 export function handleLotInvalidated(event: LotInvalidated): void {
   const lotId = event.params.lotId.toHexString();
+  const tokenAddress = event.address.toHexString();
   
   const lot = Lot.load(lotId);
   if (lot) {
     lot.isValid = false;
     lot.save();
+    
+    // Decrease total supply when lot is invalidated (burned)
+    const shareClass = ShareClass.load(tokenAddress);
+    if (shareClass) {
+      shareClass.totalSupply = shareClass.totalSupply.minus(lot.quantity);
+      shareClass.save();
+    }
+    
+    const safe = Safe.load(tokenAddress);
+    if (safe) {
+      safe.totalSupply = safe.totalSupply.minus(lot.quantity);
+      safe.save();
+    }
   }
 }
 
