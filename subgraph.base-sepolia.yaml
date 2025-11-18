@@ -156,7 +156,7 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0x8777212a8196BF98276251f7AB77D8Eb6bfF4FF4"
+      address: "0xf34Df80ad6864328468Ecb2bEaB9e5d5ff66D416"
       abi: TokenFactory
       startBlock: 33865347
     mapping:
