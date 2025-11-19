@@ -426,6 +426,11 @@ type InvestmentLookup @entity {
   investment: Investment! # Points to the actual investment entity
 }
 
+type OffchainInvestmentLookup @entity {
+  id: ID! # offering-investmentId (compositeId)
+  offchainInvestment: OffchainInvestment! # Points to the actual offchain investment entity
+}
+
 type Investment @entity {
   id: ID! # tx-hash-logIndex (unique event identifier)
   compositeId: String! # offering-investmentId (for protocol lookups)
