@@ -399,8 +399,8 @@ type Offering @entity {
   allowsSelfCertification: Boolean
   
   # Offchain investment tracking
-  totalOffchainPending: BigInt!
-  totalOffchainConfirmed: BigInt!
+  totalOffchainPending: BigInt # Nullable for backwards compatibility
+  totalOffchainConfirmed: BigInt # Nullable for backwards compatibility
   
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
@@ -424,11 +424,6 @@ enum InvestmentStatus {
 type InvestmentLookup @entity {
   id: ID! # offering-investmentId (compositeId)
   investment: Investment! # Points to the actual investment entity
-}
-
-type OffchainInvestmentLookup @entity {
-  id: ID! # offering-investmentId (compositeId)
-  offchainInvestment: OffchainInvestment! # Points to the actual offchain investment entity
 }
 
 type Investment @entity {
@@ -460,8 +455,7 @@ type Investment @entity {
 }
 
 type OffchainInvestment @entity {
-  id: ID! # tx-hash-logIndex (unique event identifier)
-  compositeId: String! # offering-investmentId (for protocol lookups)
+  id: ID! # offering-investmentId (compositeId for protocol lookups)
   offering: Offering!
   investor: Wallet!
   investmentId: BigInt! # Protocol's internal investment ID

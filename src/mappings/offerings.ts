@@ -29,16 +29,16 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, OffchainInvestmentLookup } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Helper function to ensure offering has offchain fields initialized
 function ensureOffchainFieldsInitialized(offering: Offering): void {
-  if (offering.totalOffchainPending === null) {
+  if (!offering.totalOffchainPending) {
     offering.totalOffchainPending = BigInt.fromI32(0);
   }
-  if (offering.totalOffchainConfirmed === null) {
+  if (!offering.totalOffchainConfirmed) {
     offering.totalOffchainConfirmed = BigInt.fromI32(0);
   }
 }
@@ -456,14 +456,10 @@ export function handleOffchainInvestmentRecorded(event: OffchainInvestmentRecord
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
 
-  // Create unique ID from tx-hash-logIndex
-  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-  
-  // Create composite ID for protocol lookups
+  // Use compositeId as primary ID (offering-investmentId)
   const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
   
-  const offchainInvestment = new OffchainInvestment(id);
-  offchainInvestment.compositeId = compositeId;
+  const offchainInvestment = new OffchainInvestment(compositeId);
   offchainInvestment.offering = offering.id;
   offchainInvestment.investor = event.params.investor.toHexString();
   offchainInvestment.investmentId = event.params.investmentId;
@@ -478,14 +474,9 @@ export function handleOffchainInvestmentRecorded(event: OffchainInvestmentRecord
   offchainInvestment.status = "PENDING";
   offchainInvestment.save();
   
-  // Create lookup entity for composite ID queries
-  const lookup = new OffchainInvestmentLookup(compositeId);
-  lookup.offchainInvestment = id;
-  lookup.save();
-  
   // Update offering stats (add to pending, not confirmed yet)
   ensureOffchainFieldsInitialized(offering);
-  offering.totalOffchainPending = offering.totalOffchainPending.plus(event.params.amount);
+  offering.totalOffchainPending = offering.totalOffchainPending!.plus(event.params.amount);
   offering.save();
 }
 
@@ -493,12 +484,9 @@ export function handleOffchainInvestmentConfirmed(event: OffchainInvestmentConfi
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
   
-  // Look up offchain investment by compositeId
+  // Load offchain investment directly by compositeId
   const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
-  const lookup = OffchainInvestmentLookup.load(compositeId);
-  if (!lookup) return;
-  
-  const offchainInvestment = OffchainInvestment.load(lookup.offchainInvestment);
+  const offchainInvestment = OffchainInvestment.load(compositeId);
   if (!offchainInvestment) return;
   
   // Update investment status
@@ -510,8 +498,8 @@ export function handleOffchainInvestmentConfirmed(event: OffchainInvestmentConfi
   
   // Update offering totals: move from pending to confirmed
   ensureOffchainFieldsInitialized(offering);
-  offering.totalOffchainPending = offering.totalOffchainPending.minus(offchainInvestment.amount);
-  offering.totalOffchainConfirmed = offering.totalOffchainConfirmed.plus(offchainInvestment.amount);
+  offering.totalOffchainPending = offering.totalOffchainPending!.minus(offchainInvestment.amount);
+  offering.totalOffchainConfirmed = offering.totalOffchainConfirmed!.plus(offchainInvestment.amount);
   offering.save();
   
   // Create activity
@@ -529,12 +517,9 @@ export function handleOffchainInvestmentCancelled(event: OffchainInvestmentCance
   const offering = Offering.load(event.address.toHexString());
   if (!offering) return;
   
-  // Look up offchain investment by compositeId
+  // Load offchain investment directly by compositeId
   const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
-  const lookup = OffchainInvestmentLookup.load(compositeId);
-  if (!lookup) return;
-  
-  const offchainInvestment = OffchainInvestment.load(lookup.offchainInvestment);
+  const offchainInvestment = OffchainInvestment.load(compositeId);
   if (!offchainInvestment) return;
   
   // Update investment status
@@ -546,7 +531,7 @@ export function handleOffchainInvestmentCancelled(event: OffchainInvestmentCance
   
   // Update offering totals: remove from pending
   ensureOffchainFieldsInitialized(offering);
-  offering.totalOffchainPending = offering.totalOffchainPending.minus(offchainInvestment.amount);
+  offering.totalOffchainPending = offering.totalOffchainPending!.minus(offchainInvestment.amount);
   offering.save();
   
   // Create activity
