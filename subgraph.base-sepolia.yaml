@@ -118,9 +118,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xee0f2F3e3F92067bDFcFb795e1Ccf4d85f5E269c"
+      address: "0x4995965ea284814488ACE03c1319fFfe1469244F"
       abi: OfferingFactory
-      startBlock: 33907370 # Redeployed 2025-11-19 with v3/v4 compliance facets
+      startBlock: 33913706 # Redeployed 2025-11-19 with v5 facets (fixed investor counting)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
