@@ -208,6 +208,8 @@ templates:
           file: ./abis/OfferingDocumentsFacet.json
         - name: OfferingCompliance
           file: ./abis/OfferingComplianceFacet.json
+        - name: OfferingOffchain
+          file: ./abis/OfferingOffchainFacet.json
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
@@ -232,6 +234,12 @@ templates:
           handler: handleComplianceModuleRegistered
         - event: ComplianceModuleEnabled(indexed string,bool)
           handler: handleComplianceModuleEnabled
+        - event: OffchainInvestmentRecorded(indexed uint256,indexed address,uint256,uint256,string)
+          handler: handleOffchainInvestmentRecorded
+        - event: OffchainInvestmentConfirmed(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentConfirmed
+        - event: OffchainInvestmentCancelled(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentCancelled
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template

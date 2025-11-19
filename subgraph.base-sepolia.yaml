@@ -238,6 +238,7 @@ templates:
       entities:
         - Offering
         - Investment
+        - OffchainInvestment
         - DocumentSignature
         - KYCStatus
         - InvestorClassification
@@ -252,6 +253,8 @@ templates:
           file: ./abis/OfferingDocumentsFacet.json
         - name: OfferingCompliance
           file: ./abis/OfferingComplianceFacet.json
+        - name: OfferingOffchain
+          file: ./abis/OfferingOffchainFacet.json
         - name: OfferingTerms
           file: ./abis/OfferingTermsFacet.json
         - name: ComplianceAdmin
@@ -290,6 +293,15 @@ templates:
           handler: handleClassificationRevoked
         - event: CustomTermsSet(indexed uint256,indexed address,bytes)
           handler: handleCustomTermsSet
+        - event: OffchainInvestmentRecorded(indexed uint256,indexed address,uint256,uint256,string)
+          handler: handleOffchainInvestmentRecorded
+          receipt: false
+        - event: OffchainInvestmentConfirmed(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentConfirmed
+          receipt: false
+        - event: OffchainInvestmentCancelled(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentCancelled
+          receipt: false
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template

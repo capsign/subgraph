@@ -16,6 +16,11 @@ import {
   ComplianceModuleEnabled,
 } from "../../generated/templates/OfferingDiamond/OfferingCompliance";
 import {
+  OffchainInvestmentRecorded,
+  OffchainInvestmentConfirmed,
+  OffchainInvestmentCancelled,
+} from "../../generated/templates/OfferingDiamond/OfferingOffchain";
+import {
   KYCStatusUpdated,
   KYCRevoked,
   ClassificationUpdated,
@@ -24,9 +29,19 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
+
+// Helper function to ensure offering has offchain fields initialized
+function ensureOffchainFieldsInitialized(offering: Offering): void {
+  if (offering.totalOffchainPending === null) {
+    offering.totalOffchainPending = BigInt.fromI32(0);
+  }
+  if (offering.totalOffchainConfirmed === null) {
+    offering.totalOffchainConfirmed = BigInt.fromI32(0);
+  }
+}
 
 // Re-export compliance handlers
 export {
@@ -64,6 +79,8 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   
   offering.totalInvested = BigInt.fromI32(0);
   offering.investorCount = BigInt.fromI32(0);
+  offering.totalOffchainPending = BigInt.fromI32(0);
+  offering.totalOffchainConfirmed = BigInt.fromI32(0);
   offering.status = "ACTIVE";
 
   offering.save();
@@ -120,6 +137,7 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   lookup.save();
 
   // Update offering totals
+  ensureOffchainFieldsInitialized(offering);
   offering.totalInvested = offering.totalInvested.plus(event.params.amount);
   offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
   offering.save();
@@ -183,6 +201,7 @@ export function handleInvestmentRejected(event: InvestmentRejected): void {
   // Update offering totals
   const offering = Offering.load(event.address.toHexString());
   if (offering) {
+    ensureOffchainFieldsInitialized(offering);
     offering.totalInvested = offering.totalInvested.minus(investment.amount);
     offering.investorCount = offering.investorCount.minus(BigInt.fromI32(1));
     offering.save();
@@ -198,6 +217,7 @@ export function handleOfferingStatusChanged(
   // Map uint8 to enum string
   // Matches OfferingCoreStorage.OfferingStatus: DRAFT(0), ACTIVE(1), COMPLETED(2), CANCELLED(3)
   const statusMap = ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"];
+  ensureOffchainFieldsInitialized(offering);
   offering.status = statusMap[event.params.newStatus];
   offering.save();
 }
@@ -270,6 +290,7 @@ export function handleComplianceInitialized(event: ComplianceInitialized): void 
   offering.generalSolicitation = event.params.allowsGeneralSolicitation;
   offering.allowsSelfCertification = event.params.allowsSelfCertification;
   
+  ensureOffchainFieldsInitialized(offering);
   offering.save();
 }
 
@@ -284,6 +305,7 @@ export function handleAllowsGeneralSolicitationUpdated(event: AllowsGeneralSolic
     return; // Skip if offering not found
   }
   
+  ensureOffchainFieldsInitialized(offering);
   offering.generalSolicitation = event.params.allowed;
   offering.save();
 }
@@ -299,6 +321,7 @@ export function handleAllowsSelfCertificationUpdated(event: AllowsSelfCertificat
     return; // Skip if offering not found
   }
   
+  ensureOffchainFieldsInitialized(offering);
   offering.allowsSelfCertification = event.params.allowed;
   offering.save();
 }
@@ -425,4 +448,46 @@ export function handleCustomTermsSet(event: CustomTermsSet): void {
     terms.save();
   }
   // Future: Add handling for other asset types
+}
+
+// ============ OFFCHAIN INVESTMENT HANDLERS ============
+
+export function handleOffchainInvestmentRecorded(event: OffchainInvestmentRecorded): void {
+  const offering = Offering.load(event.address.toHexString());
+  if (!offering) return;
+
+  // Create unique ID from tx-hash-logIndex
+  const id = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  
+  // Create composite ID for protocol lookups
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  
+  const offchainInvestment = new OffchainInvestment(id);
+  offchainInvestment.compositeId = compositeId;
+  offchainInvestment.offering = offering.id;
+  offchainInvestment.investor = event.params.investor.toHexString();
+  offchainInvestment.investmentId = event.params.investmentId;
+  offchainInvestment.amount = event.params.amount;
+  offchainInvestment.tokenQuantity = event.params.tokenQuantity;
+  offchainInvestment.paymentMethod = event.params.paymentMethod;
+  offchainInvestment.referenceId = "";
+  offchainInvestment.recordedAt = event.block.timestamp;
+  offchainInvestment.recordedTx = event.transaction.hash;
+  offchainInvestment.recordedBlockNumber = event.block.number;
+  offchainInvestment.recordedBy = event.transaction.from;
+  offchainInvestment.status = "PENDING";
+  offchainInvestment.save();
+  
+  // Update offering stats (add to pending, not confirmed yet)
+  ensureOffchainFieldsInitialized(offering);
+  offering.totalOffchainPending = offering.totalOffchainPending.plus(event.params.amount);
+  offering.save();
+}
+
+export function handleOffchainInvestmentConfirmed(event: OffchainInvestmentConfirmed): void {
+  // TODO: Implement
+}
+
+export function handleOffchainInvestmentCancelled(event: OffchainInvestmentCancelled): void {
+  // TODO: Implement
 }

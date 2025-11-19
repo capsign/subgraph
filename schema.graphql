@@ -398,8 +398,13 @@ type Offering @entity {
   generalSolicitation: Boolean
   allowsSelfCertification: Boolean
   
+  # Offchain investment tracking
+  totalOffchainPending: BigInt!
+  totalOffchainConfirmed: BigInt!
+  
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
+  offchainInvestments: [OffchainInvestment!]! @derivedFrom(field: "offering")
 }
 
 enum OfferingStatus {
@@ -447,6 +452,41 @@ type Investment @entity {
   # Attestations
   identityUID: Bytes!
   qualificationUID: Bytes!
+}
+
+type OffchainInvestment @entity {
+  id: ID! # tx-hash-logIndex (unique event identifier)
+  compositeId: String! # offering-investmentId (for protocol lookups)
+  offering: Offering!
+  investor: Wallet!
+  investmentId: BigInt! # Protocol's internal investment ID
+  amount: BigInt!
+  tokenQuantity: BigInt!
+  paymentMethod: String!
+  referenceId: String!
+  recordedAt: BigInt!
+  recordedTx: Bytes!
+  recordedBlockNumber: BigInt!
+  recordedBy: Bytes! # Admin who recorded it
+  
+  # Status management
+  status: OffchainInvestmentStatus!
+  
+  # Confirmation data (when status = CONFIRMED)
+  confirmedAt: BigInt
+  confirmedTx: Bytes
+  confirmedBy: Bytes
+  
+  # Cancellation data (when status = CANCELLED)
+  cancelledAt: BigInt
+  cancelledTx: Bytes
+  cancelledBy: Bytes
+}
+
+enum OffchainInvestmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
 }
 
 # ============ TOKEN ENTITIES ============
