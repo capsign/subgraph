@@ -210,6 +210,10 @@ templates:
           file: ./abis/OfferingComplianceFacet.json
         - name: OfferingOffchain
           file: ./abis/OfferingOffchainFacet.json
+        - name: ComplianceAdmin
+          file: ./abis/ComplianceAdminFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
@@ -240,6 +244,16 @@ templates:
           handler: handleOffchainInvestmentConfirmed
         - event: OffchainInvestmentCancelled(indexed uint256,indexed address)
           handler: handleOffchainInvestmentCancelled
+        - event: KYCStatusUpdated(indexed address,bool,uint256,indexed address)
+          handler: handleKYCStatusUpdated
+        - event: KYCRevoked(indexed address,indexed address)
+          handler: handleKYCRevoked
+        - event: ClassificationUpdated(indexed address,bytes32[],indexed address)
+          handler: handleClassificationUpdated
+        - event: ClassificationRevoked(indexed address,indexed address)
+          handler: handleClassificationRevoked
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleOfferingUserRoleUpdated
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template
@@ -267,6 +281,8 @@ templates:
           file: ./abis/TokenMetadataFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
           handler: handleLotCreated
@@ -294,6 +310,8 @@ templates:
           handler: handleStockSplitApplied
         - event: StockDividendApplied(uint256,uint256,bool)
           handler: handleStockDividendApplied
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleTokenUserRoleUpdated
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template

@@ -9,6 +9,22 @@ type Diamond @entity {
   wallet: Wallet
   offering: Offering
   token: Token # Can reference any token type via interface
+  
+  # Access control
+  userRoles: [UserRole!]! @derivedFrom(field: "diamond")
+}
+
+# Generic access control tracking for all diamonds
+type UserRole @entity {
+  id: ID! # diamond-user-role (e.g., "0x123...abc-0x456...def-1")
+  diamond: Diamond!
+  user: Bytes!
+  role: Int! # uint8 role ID
+  enabled: Boolean!
+  grantedAt: BigInt!
+  grantedTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
 }
 
 type Wallet @entity {
@@ -957,10 +973,11 @@ type KYCStatus @entity {
 }
 
 type InvestorClassification @entity {
-  id: ID! # offering-address-wallet-address-classification (e.g., "0x123...abc-0x456...def-0x789...ghi")
+  id: ID! # offering-address-wallet-address-classification (e.g., "0x123...abc-0x456...def-ACCREDITED_INVESTOR")
   offering: Offering!
   wallet: Wallet!
-  classification: Bytes! # bytes32 classification ID (e.g., ACCREDITED, NON_ACCREDITED)
+  classification: String! # Classification string (e.g., "ACCREDITED_INVESTOR", "NON_ACCREDITED_INVESTOR")
+  classificationHash: Bytes! # bytes32 hash for compatibility
   addedAt: BigInt!
   addedTx: Bytes!
   addedBy: Bytes!

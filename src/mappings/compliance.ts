@@ -1,4 +1,4 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Bytes, crypto } from "@graphprotocol/graph-ts";
 import {
   KYCStatusUpdated,
   KYCRevoked,
@@ -12,6 +12,39 @@ import {
   Offering,
 } from "../../generated/schema";
 import { createActivity } from "./activity";
+
+/**
+ * Known classification strings - these match the protocol's classification IDs
+ */
+const KNOWN_CLASSIFICATIONS = [
+  "ACCREDITED_INVESTOR",
+  "NON_ACCREDITED_INVESTOR",
+  "QUALIFIED_PURCHASER",
+  "SOPHISTICATED_INVESTOR",
+  "QUALIFIED_INSTITUTIONAL_BUYER",
+  "RETAIL_INVESTOR",
+];
+
+/**
+ * Decode a classification hash to its string representation
+ * Returns "UNKNOWN_{hash}" if not found in known classifications
+ */
+function decodeClassification(classificationHash: Bytes): string {
+  const hashStr = classificationHash.toHexString();
+  
+  // Try to match against known classifications by computing their keccak256
+  for (let i = 0; i < KNOWN_CLASSIFICATIONS.length; i++) {
+    const classificationStr = KNOWN_CLASSIFICATIONS[i];
+    const computedHash = crypto.keccak256(Bytes.fromUTF8(classificationStr));
+    
+    if (computedHash.toHexString() === hashStr) {
+      return classificationStr;
+    }
+  }
+  
+  // If unknown, return UNKNOWN_ prefix with first 8 chars of hash
+  return "UNKNOWN_" + hashStr.slice(2, 10);
+}
 
 /**
  * Handle KYC status updates from ComplianceAdminFacet
@@ -122,12 +155,15 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
   const classifications = event.params.classifications;
   for (let i = 0; i < classifications.length; i++) {
     const classificationBytes = Bytes.fromByteArray(classifications[i]);
+    const classificationString = decodeClassification(classificationBytes);
+    
+    // Use the decoded string in the ID instead of the hash
     const classificationId =
       event.address.toHexString() +
       "-" +
       walletId +
       "-" +
-      classificationBytes.toHexString();
+      classificationString;
 
     let classification = InvestorClassification.load(classificationId);
     
@@ -135,7 +171,8 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
       classification = new InvestorClassification(classificationId);
       classification.offering = event.address.toHexString();
       classification.wallet = walletId;
-      classification.classification = classificationBytes;
+      classification.classification = classificationString;
+      classification.classificationHash = classificationBytes;
       classification.addedAt = event.block.timestamp;
       classification.addedTx = event.transaction.hash;
       classification.addedBy = event.params.verifiedBy;

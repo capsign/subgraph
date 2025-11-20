@@ -17,8 +17,9 @@ import {
   DefaultTermsSet,
   LotTermsSet,
   SAFEConverted,
+  UserRoleUpdated
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -422,3 +423,54 @@ export function handleSAFEConverted(event: SAFEConverted): void {
     }
   }
 }
+
+// ============ ACCESS CONTROL HANDLERS ============
+
+/**
+ * Handle UserRoleUpdated events for tokens
+ */
+export function handleTokenUserRoleUpdated(event: UserRoleUpdated): void {
+  const diamondAddress = event.address.toHexString();
+  const userAddress = event.params.user.toHexString();
+  const role = event.params.role;
+  const enabled = event.params.enabled;
+
+  // Ensure diamond entity exists
+  let diamond = Diamond.load(diamondAddress);
+  if (!diamond) {
+    // Create diamond entry if it doesn't exist (for tokens)
+    diamond = new Diamond(diamondAddress);
+    diamond.diamondType = "TOKEN";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    
+    // Link to token if it exists (try ShareClass first, then Safe)
+    const shareClass = ShareClass.load(diamondAddress);
+    const safe = Safe.load(diamondAddress);
+    if (shareClass || safe) {
+      diamond.token = diamondAddress;
+    }
+    diamond.save();
+  }
+
+  // Create or update UserRole entity
+  const userRoleId = `${diamondAddress}-${userAddress}-${role}`;
+  let userRole = UserRole.load(userRoleId);
+
+  if (!userRole) {
+    userRole = new UserRole(userRoleId);
+    userRole.diamond = diamondAddress;
+    userRole.user = event.params.user;
+    userRole.role = role;
+    userRole.grantedAt = event.block.timestamp;
+    userRole.grantedTx = event.transaction.hash;
+  }
+
+  userRole.enabled = enabled;
+  userRole.lastUpdatedAt = event.block.timestamp;
+  userRole.lastUpdatedTx = event.transaction.hash;
+  
+  userRole.save();
+}
+

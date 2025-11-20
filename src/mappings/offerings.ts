@@ -27,9 +27,12 @@ import {
   ClassificationRevoked,
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import {
+  UserRoleUpdated,
+} from "../../generated/templates/OfferingDiamond/OfferingDiamond";
+import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -42,14 +45,6 @@ function ensureOffchainFieldsInitialized(offering: Offering): void {
     offering.totalOffchainConfirmed = BigInt.fromI32(0);
   }
 }
-
-// Re-export compliance handlers
-export {
-  handleKYCStatusUpdated,
-  handleKYCRevoked,
-  handleClassificationUpdated,
-  handleClassificationRevoked,
-} from "./compliance";
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
   const offeringAddress = event.address.toHexString();
@@ -576,4 +571,62 @@ export function handleOffchainInvestmentCancelled(event: OffchainInvestmentCance
     event.transaction.hash,
     event.block.number
   ).save();
+}
+
+// ============ COMPLIANCE HANDLERS ============
+
+export { 
+  handleKYCStatusUpdated,
+  handleKYCRevoked,
+  handleClassificationUpdated,
+  handleClassificationRevoked
+} from "./compliance";
+
+// ============ ACCESS CONTROL HANDLERS ============
+
+/**
+ * Handle UserRoleUpdated events for offerings
+ */
+export function handleOfferingUserRoleUpdated(event: UserRoleUpdated): void {
+  const diamondAddress = event.address.toHexString();
+  const userAddress = event.params.user.toHexString();
+  const role = event.params.role;
+  const enabled = event.params.enabled;
+
+  // Ensure diamond entity exists
+  let diamond = Diamond.load(diamondAddress);
+  if (!diamond) {
+    // Create diamond entry if it doesn't exist (for offerings)
+    diamond = new Diamond(diamondAddress);
+    diamond.diamondType = "OFFERING";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    
+    // Link to offering if it exists
+    const offering = Offering.load(diamondAddress);
+    if (offering) {
+      diamond.offering = diamondAddress;
+    }
+    diamond.save();
+  }
+
+  // Create or update UserRole entity
+  const userRoleId = `${diamondAddress}-${userAddress}-${role}`;
+  let userRole = UserRole.load(userRoleId);
+
+  if (!userRole) {
+    userRole = new UserRole(userRoleId);
+    userRole.diamond = diamondAddress;
+    userRole.user = event.params.user;
+    userRole.role = role;
+    userRole.grantedAt = event.block.timestamp;
+    userRole.grantedTx = event.transaction.hash;
+  }
+
+  userRole.enabled = enabled;
+  userRole.lastUpdatedAt = event.block.timestamp;
+  userRole.lastUpdatedTx = event.transaction.hash;
+  
+  userRole.save();
 }
