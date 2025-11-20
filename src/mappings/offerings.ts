@@ -500,6 +500,39 @@ export function handleOffchainInvestmentConfirmed(event: OffchainInvestmentConfi
   ensureOffchainFieldsInitialized(offering);
   offering.totalOffchainPending = offering.totalOffchainPending!.minus(offchainInvestment.amount);
   offering.totalOffchainConfirmed = offering.totalOffchainConfirmed!.plus(offchainInvestment.amount);
+  
+  // Check if this is the investor's first confirmed investment for this offering
+  const investorId = offchainInvestment.investor;
+  let hasOtherInvestments = false;
+  
+  // Check onchain investments for this offering
+  const onchainInvestments = offering.investments.load();
+  for (let i = 0; i < onchainInvestments.length; i++) {
+    if (onchainInvestments[i].investor == investorId &&
+        (onchainInvestments[i].status == "ACCEPTED" || onchainInvestments[i].status == "COUNTERSIGNED")) {
+      hasOtherInvestments = true;
+      break;
+    }
+  }
+  
+  // Check offchain investments for this offering (excluding this one)
+  if (!hasOtherInvestments) {
+    const offchainInvestments = offering.offchainInvestments.load();
+    for (let i = 0; i < offchainInvestments.length; i++) {
+      if (offchainInvestments[i].investor == investorId &&
+          offchainInvestments[i].status == "CONFIRMED" &&
+          offchainInvestments[i].id != compositeId) {
+        hasOtherInvestments = true;
+        break;
+      }
+    }
+  }
+  
+  // Increment investor count if this is their first confirmed investment for this offering
+  if (!hasOtherInvestments) {
+    offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+  }
+  
   offering.save();
   
   // Create activity
