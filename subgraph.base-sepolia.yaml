@@ -259,6 +259,8 @@ templates:
           file: ./abis/OfferingTermsFacet.json
         - name: ComplianceAdmin
           file: ./abis/ComplianceAdminFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
@@ -291,6 +293,8 @@ templates:
           handler: handleClassificationUpdated
         - event: ClassificationRevoked(indexed address,indexed address)
           handler: handleClassificationRevoked
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleOfferingUserRoleUpdated
         - event: CustomTermsSet(indexed uint256,indexed address,bytes)
           handler: handleCustomTermsSet
         - event: OffchainInvestmentRecorded(indexed uint256,indexed address,uint256,uint256,string)
@@ -329,6 +333,8 @@ templates:
           file: ./abis/TokenMetadataFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
           handler: handleLotCreated
@@ -366,6 +372,8 @@ templates:
           handler: handleStockSplitApplied
         - event: StockDividendApplied(uint256,uint256,bool)
           handler: handleStockDividendApplied
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleTokenUserRoleUpdated
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
