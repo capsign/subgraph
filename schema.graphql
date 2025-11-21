@@ -1040,6 +1040,23 @@ enum FacetRegistryEventType {
   DEPLOYED
 }
 
+# ============ PAYMENT TOKENS ============
+
+# Generic ERC20 token entity (reusable across offerings, factories, etc.)
+type PaymentToken @entity {
+  id: ID! # Token address
+  address: Bytes!
+  symbol: String!
+  decimals: Int!
+  name: String!
+  
+  # Where this token is used
+  factoryConfigs: [FactoryPaymentTokenConfig!]! @derivedFrom(field: "paymentToken")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
 # ============ FACTORY PAYMENT TRACKING ============
 
 type FactoryPaymentConfig @entity {
@@ -1050,8 +1067,8 @@ type FactoryPaymentConfig @entity {
   paymentsEnabled: Boolean!
   deploymentCount: BigInt!
   
-  # Payment tokens
-  paymentTokens: [FactoryPaymentToken!]! @derivedFrom(field: "factoryConfig")
+  # Payment token configurations
+  paymentTokens: [FactoryPaymentTokenConfig!]! @derivedFrom(field: "factoryConfig")
   
   # Payments collected
   payments: [FactoryPayment!]! @derivedFrom(field: "factory")
@@ -1060,18 +1077,14 @@ type FactoryPaymentConfig @entity {
   createdTx: Bytes!
 }
 
-type FactoryPaymentToken @entity {
+# Factory-specific configuration for a payment token
+type FactoryPaymentTokenConfig @entity {
   id: ID! # factory-token
   factoryConfig: FactoryPaymentConfig!
-  paymentToken: Bytes!
+  paymentToken: PaymentToken! # Reference to the token entity
   feeAmount: BigInt!
   isActive: Boolean!
   totalCollected: BigInt!
-  
-  # Token metadata (fetched from ERC20)
-  symbol: String!
-  decimals: Int!
-  name: String!
   
   configuredAt: BigInt!
   configuredTx: Bytes!

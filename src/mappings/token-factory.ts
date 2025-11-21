@@ -15,7 +15,8 @@ import { ERC20 } from "../../generated/TokenFactory/ERC20";
 import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
 import {
   FactoryPaymentConfig,
-  FactoryPaymentToken,
+  FactoryPaymentTokenConfig,
+  PaymentToken,
   FactoryPayment,
 } from "../../generated/schema";
 
@@ -222,49 +223,73 @@ export function handlePaymentTokenConfigured(event: PaymentTokenConfigured): voi
     event.transaction.hash
   );
 
-  let paymentToken = FactoryPaymentToken.load(id);
-  let isNew = false;
-  if (!paymentToken) {
-    paymentToken = new FactoryPaymentToken(id);
-    paymentToken.factoryConfig = factoryConfig.id;
-    paymentToken.paymentToken = tokenAddress;
-    paymentToken.totalCollected = BigInt.zero();
-    paymentToken.configuredAt = event.block.timestamp;
-    paymentToken.configuredTx = event.transaction.hash;
-    isNew = true;
+  // Get or create the PaymentToken entity
+  let paymentToken = getOrCreatePaymentToken(
+    tokenAddress,
+    event.block.timestamp,
+    event.transaction.hash
+  );
+
+  // Get or create the factory-specific config
+  let tokenConfig = FactoryPaymentTokenConfig.load(id);
+  if (!tokenConfig) {
+    tokenConfig = new FactoryPaymentTokenConfig(id);
+    tokenConfig.factoryConfig = factoryConfig.id;
+    tokenConfig.paymentToken = paymentToken.id;
+    tokenConfig.totalCollected = BigInt.zero();
+    tokenConfig.configuredAt = event.block.timestamp;
+    tokenConfig.configuredTx = event.transaction.hash;
   }
 
-  paymentToken.feeAmount = event.params.feeAmount;
-  paymentToken.isActive = event.params.isActive;
-  paymentToken.lastUpdatedAt = event.block.timestamp;
-  paymentToken.lastUpdatedTx = event.transaction.hash;
-  
-  // Fetch ERC20 metadata only for new tokens
-  if (isNew) {
+  tokenConfig.feeAmount = event.params.feeAmount;
+  tokenConfig.isActive = event.params.isActive;
+  tokenConfig.lastUpdatedAt = event.block.timestamp;
+  tokenConfig.lastUpdatedTx = event.transaction.hash;
+  tokenConfig.save();
+}
+
+// Helper to get or create PaymentToken entity
+function getOrCreatePaymentToken(
+  tokenAddress: Address,
+  timestamp: BigInt,
+  tx: Bytes
+): PaymentToken {
+  let id = tokenAddress.toHexString();
+  let token = PaymentToken.load(id);
+
+  if (!token) {
+    token = new PaymentToken(id);
+    token.address = tokenAddress;
+    token.createdAt = timestamp;
+    token.createdTx = tx;
+
+    // Fetch ERC20 metadata
     // Handle zero address (ETH) as special case
     const zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000");
     if (tokenAddress.equals(zeroAddress)) {
-      paymentToken.symbol = "ETH";
-      paymentToken.decimals = 18;
-      paymentToken.name = "Ether";
+      token.symbol = "ETH";
+      token.decimals = 18;
+      token.name = "Ether";
     } else {
       let tokenContract = ERC20.bind(tokenAddress);
       
       // Try fetching symbol
       let symbolResult = tokenContract.try_symbol();
-      paymentToken.symbol = symbolResult.reverted ? "UNKNOWN" : symbolResult.value;
+      token.symbol = symbolResult.reverted ? "UNKNOWN" : symbolResult.value;
       
       // Try fetching decimals
       let decimalsResult = tokenContract.try_decimals();
-      paymentToken.decimals = decimalsResult.reverted ? 18 : decimalsResult.value;
+      token.decimals = decimalsResult.reverted ? 18 : decimalsResult.value;
       
       // Try fetching name
       let nameResult = tokenContract.try_name();
-      paymentToken.name = nameResult.reverted ? "Unknown Token" : nameResult.value;
+      token.name = nameResult.reverted ? "Unknown Token" : nameResult.value;
     }
+    
+    token.save();
   }
-  
-  paymentToken.save();
+
+  return token;
 }
 
 export function handlePaymentCollected(event: PaymentCollected): void {
@@ -298,17 +323,17 @@ export function handlePaymentCollected(event: PaymentCollected): void {
   );
   factoryConfig.save();
 
-  // Update payment token total collected
-  let tokenId = factoryAddress
+  // Update payment token config total collected
+  let tokenConfigId = factoryAddress
     .toHexString()
     .concat("-")
     .concat(event.params.paymentToken.toHexString());
-  let paymentToken = FactoryPaymentToken.load(tokenId);
-  if (paymentToken) {
-    paymentToken.totalCollected = paymentToken.totalCollected.plus(
+  let tokenConfig = FactoryPaymentTokenConfig.load(tokenConfigId);
+  if (tokenConfig) {
+    tokenConfig.totalCollected = tokenConfig.totalCollected.plus(
       event.params.amount
     );
-    paymentToken.save();
+    tokenConfig.save();
   }
 }
 
