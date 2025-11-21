@@ -124,6 +124,7 @@ export function handlePaymentTokenConfigured(event: PaymentTokenConfigured): voi
   );
 
   let paymentToken = FactoryPaymentToken.load(id);
+  let isNew = false;
   if (!paymentToken) {
     paymentToken = new FactoryPaymentToken(id);
     paymentToken.factoryConfig = factoryConfig.id;
@@ -131,8 +132,16 @@ export function handlePaymentTokenConfigured(event: PaymentTokenConfigured): voi
     paymentToken.totalCollected = BigInt.zero();
     paymentToken.configuredAt = event.block.timestamp;
     paymentToken.configuredTx = event.transaction.hash;
-    
-    // Fetch ERC20 metadata
+    isNew = true;
+  }
+
+  paymentToken.feeAmount = event.params.feeAmount;
+  paymentToken.isActive = event.params.isActive;
+  paymentToken.lastUpdatedAt = event.block.timestamp;
+  paymentToken.lastUpdatedTx = event.transaction.hash;
+  
+  // Fetch ERC20 metadata only for new tokens
+  if (isNew) {
     // Handle zero address (ETH) as special case
     const zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000");
     if (tokenAddress.equals(zeroAddress)) {
@@ -155,11 +164,7 @@ export function handlePaymentTokenConfigured(event: PaymentTokenConfigured): voi
       paymentToken.name = nameResult.reverted ? "Unknown Token" : nameResult.value;
     }
   }
-
-  paymentToken.feeAmount = event.params.feeAmount;
-  paymentToken.isActive = event.params.isActive;
-  paymentToken.lastUpdatedAt = event.block.timestamp;
-  paymentToken.lastUpdatedTx = event.transaction.hash;
+  
   paymentToken.save();
 }
 
