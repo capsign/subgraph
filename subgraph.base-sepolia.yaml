@@ -148,6 +148,8 @@ dataSources:
           file: ./abis/OfferingFactory.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
+        - name: ERC20
+          file: ./abis/ERC20.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
@@ -194,6 +196,8 @@ dataSources:
           file: ./abis/TokenMetadataFacet.json
         - name: DiamondLoupe
           file: ./abis/DiamondLoupe.json
+        - name: ERC20
+          file: ./abis/ERC20.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:

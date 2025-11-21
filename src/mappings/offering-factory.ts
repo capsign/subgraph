@@ -9,6 +9,7 @@ import {
 } from "../../generated/OfferingFactory/OfferingFactory";
 import { Diamond, Offering, UserRole } from "../../generated/schema";
 import { OfferingDiamond } from "../../generated/templates";
+import { ERC20 } from "../../generated/OfferingFactory/ERC20";
 import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
 import {
   FactoryPaymentConfig,
@@ -82,7 +83,7 @@ function getOrCreateFactoryPaymentConfig(
     config = new FactoryPaymentConfig(id);
     config.factory = factoryAddress;
     config.factoryType = "OFFERING";
-    config.feeRecipient = Address.zero();
+    config.feeRecipient = Address.fromString("0x0000000000000000000000000000000000000000");
     config.paymentsEnabled = true;
     config.deploymentCount = BigInt.zero();
     config.createdAt = timestamp;
@@ -130,6 +131,29 @@ export function handlePaymentTokenConfigured(event: PaymentTokenConfigured): voi
     paymentToken.totalCollected = BigInt.zero();
     paymentToken.configuredAt = event.block.timestamp;
     paymentToken.configuredTx = event.transaction.hash;
+    
+    // Fetch ERC20 metadata
+    // Handle zero address (ETH) as special case
+    const zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000");
+    if (tokenAddress.equals(zeroAddress)) {
+      paymentToken.symbol = "ETH";
+      paymentToken.decimals = 18;
+      paymentToken.name = "Ether";
+    } else {
+      let tokenContract = ERC20.bind(tokenAddress);
+      
+      // Try fetching symbol
+      let symbolResult = tokenContract.try_symbol();
+      paymentToken.symbol = symbolResult.reverted ? "UNKNOWN" : symbolResult.value;
+      
+      // Try fetching decimals
+      let decimalsResult = tokenContract.try_decimals();
+      paymentToken.decimals = decimalsResult.reverted ? 18 : decimalsResult.value;
+      
+      // Try fetching name
+      let nameResult = tokenContract.try_name();
+      paymentToken.name = nameResult.reverted ? "Unknown Token" : nameResult.value;
+    }
   }
 
   paymentToken.feeAmount = event.params.feeAmount;
