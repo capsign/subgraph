@@ -8,7 +8,7 @@ dataSources:
     network: base-sepolia
     source:
       address: "0x1D137e0bcBDD4B55edF1DDE6895DB042FB85e370"
-      abi: FactoryCoreFacet
+      abi: DiamondFactory
       startBlock: 33865347
     mapping:
       kind: ethereum/events
@@ -19,11 +19,14 @@ dataSources:
         - Wallet
         - Offering
         - ShareClass
+        - UserRole
       abis:
         - name: DiamondFactory
           file: ./abis/DiamondFactory.json
         - name: FactoryCoreFacet
           file: ./abis/FactoryCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
         - name: TokenMetadata
@@ -33,6 +36,9 @@ dataSources:
       eventHandlers:
         - event: DiamondCreated(indexed address,indexed address,indexed bytes32)
           handler: handleDiamondCreated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+          receipt: false
       file: ./src/mappings/diamond-factory.ts
   
   # EAS - tracks attestations (DEPRECATED - kept for backward compatibility)
@@ -92,7 +98,7 @@ dataSources:
     network: base-sepolia
     source:
       address: "0xd6cAa97674Efc782307FD6e7d378b48504613347"
-      abi: WalletFactoryCoreFacet
+      abi: WalletFactory
       startBlock: 33865347
     mapping:
       kind: ethereum/events
@@ -101,6 +107,7 @@ dataSources:
       entities:
         - Wallet
         - Diamond
+        - UserRole
       abis:
         - name: WalletFactory
           file: ./abis/WalletFactory.json
@@ -108,9 +115,13 @@ dataSources:
           file: ./abis/WalletFactoryCoreFacet.json
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: WalletCreated(indexed address,indexed address,uint8,indexed bytes32,address)
           handler: handleWalletCreated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/wallet-factory.ts
 
   # OfferingFactory - tracks offering creation (Permissionless)
@@ -131,11 +142,14 @@ dataSources:
         - FactoryPaymentConfig
         - FactoryPaymentToken
         - FactoryPayment
+        - UserRole
       abis:
         - name: OfferingFactory
           file: ./abis/OfferingFactory.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
           handler: handleOfferingCreated
@@ -149,6 +163,8 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/offering-factory.ts
 
   # TokenFactory - tracks token creation (Permissionless)
@@ -170,6 +186,7 @@ dataSources:
         - FactoryPaymentConfig
         - FactoryPaymentToken
         - FactoryPayment
+        - UserRole
       abis:
         - name: TokenFactory
           file: ./abis/TokenFactory.json
@@ -177,6 +194,8 @@ dataSources:
           file: ./abis/TokenMetadataFacet.json
         - name: DiamondLoupe
           file: ./abis/DiamondLoupe.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
@@ -190,6 +209,8 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/token-factory.ts
 
   # CapSignPaymaster - tracks gas sponsorship
