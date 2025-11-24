@@ -1,4 +1,4 @@
-import { Bytes, crypto } from "@graphprotocol/graph-ts";
+import { Bytes, ByteArray, crypto } from "@graphprotocol/graph-ts";
 import {
   KYCStatusUpdated,
   KYCRevoked,
@@ -12,19 +12,6 @@ import {
   Offering,
 } from "../../generated/schema";
 import { createActivity } from "./activity";
-
-/**
- * Known classification strings - these match the protocol's classification IDs
- */
-const KNOWN_CLASSIFICATIONS = [
-  "ACCREDITED_INVESTOR",
-  "NON_ACCREDITED_INVESTOR",
-  "QUALIFIED_PURCHASER",
-  "SOPHISTICATED_INVESTOR",
-  "QUALIFIED_INSTITUTIONAL_BUYER",
-  "RETAIL_INVESTOR",
-];
-
 /**
  * Decode a classification hash to its string representation
  * Returns "UNKNOWN_{hash}" if not found in known classifications
@@ -32,14 +19,21 @@ const KNOWN_CLASSIFICATIONS = [
 function decodeClassification(classificationHash: Bytes): string {
   const hashStr = classificationHash.toHexString();
   
-  // Try to match against known classifications by computing their keccak256
-  for (let i = 0; i < KNOWN_CLASSIFICATIONS.length; i++) {
-    const classificationStr = KNOWN_CLASSIFICATIONS[i];
-    const computedHash = crypto.keccak256(Bytes.fromUTF8(classificationStr));
-    
-    if (computedHash.toHexString() === hashStr) {
-      return classificationStr;
-    }
+  // Hardcoded lookup table - these are keccak256 hashes of the classification strings
+  if (hashStr == "0x831984e197a0f08053ed1d3e8e42436babe036f180e0318574f4ba6aa3aa2298") {
+    return "ACCREDITED";
+  }
+  if (hashStr == "0x616af448c08a9b9021ebf1a501382c6baa69b1fc6b43a88e5652e51d94c22ece") {
+    return "NON_ACCREDITED";
+  }
+  if (hashStr == "0x3042beb58a9384451aafad38188cf377c725fee348d08ed44ea4b959a5ec9941") {
+    return "SOPHISTICATED";
+  }
+  if (hashStr == "0x0b4e067f27af9eea8c9afe827a2bdef844afdad1217f413021958d87f3b96ed5") {
+    return "HIGH_NET_WORTH";
+  }
+  if (hashStr == "0xf488e0fa3a4c996d5ba832732198a1a0990f196e900e673305a923f66838a389") {
+    return "QUALIFIED_PURCHASER";
   }
   
   // If unknown, return UNKNOWN_ prefix with first 8 chars of hash

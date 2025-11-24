@@ -17,9 +17,11 @@ import {
   DefaultTermsSet,
   LotTermsSet,
   SAFEConverted,
-  UserRoleUpdated
+  UserRoleUpdated,
+  FunctionAccessChanged,
+  LotModuleAdded
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -30,6 +32,15 @@ export function handleLotCreated(event: LotCreated): void {
   const tokenAddress = event.address.toHexString();
   const lotId = event.params.lotId.toHexString();
   const ownerAddress = event.params.owner.toHexString();
+  
+  // Check if token entity exists - skip lots from tokens not created via factory
+  const tokenShareClass = ShareClass.load(tokenAddress);
+  const tokenSafe = Safe.load(tokenAddress);
+  
+  if (!tokenShareClass && !tokenSafe) {
+    // Token entity doesn't exist - skip creating orphaned lot
+    return;
+  }
   
   // Ensure Wallet entity exists (create stub if needed)
   let wallet = Wallet.load(ownerAddress);
@@ -64,14 +75,21 @@ export function handleLotCreated(event: LotCreated): void {
   lot.transferType = "INTERNAL";
   lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
   lot.paymentDecimals = 0;
+  lot.lotSpecificModules = []; // Initialize empty array for lot-specific compliance modules
   
   lot.save();
   
-  // Update total supply
+  // Update total supply for both ShareClass and Safe tokens
   const shareClass = ShareClass.load(tokenAddress);
   if (shareClass) {
     shareClass.totalSupply = shareClass.totalSupply.plus(event.params.quantity);
     shareClass.save();
+  }
+  
+  const safe = Safe.load(tokenAddress);
+  if (safe) {
+    safe.totalSupply = safe.totalSupply.plus(event.params.quantity);
+    safe.save();
   }
   
   // Create activity
@@ -129,8 +147,24 @@ export function handleLotInvalidated(event: LotInvalidated): void {
   
   const lot = Lot.load(lotId);
   if (lot) {
+    const tokenAddress = lot.token;
+    const quantity = lot.quantity;
+    
     lot.isValid = false;
     lot.save();
+    
+    // Update total supply for both ShareClass and Safe tokens
+    const shareClass = ShareClass.load(tokenAddress);
+    if (shareClass) {
+      shareClass.totalSupply = shareClass.totalSupply.minus(quantity);
+      shareClass.save();
+    }
+    
+    const safe = Safe.load(tokenAddress);
+    if (safe) {
+      safe.totalSupply = safe.totalSupply.minus(quantity);
+      safe.save();
+    }
   }
 }
 
@@ -472,5 +506,86 @@ export function handleTokenUserRoleUpdated(event: UserRoleUpdated): void {
   userRole.lastUpdatedTx = event.transaction.hash;
   
   userRole.save();
+}
+
+/**
+ * Handle LotModuleAdded event
+ */
+export function handleLotModuleAdded(event: LotModuleAdded): void {
+  const tokenAddress = event.address.toHexString();
+  const lotId = event.params.lotId;
+  const module = event.params.module;
+  
+  const lotEntityId = `${tokenAddress}-${lotId.toString()}`;
+  const lot = Lot.load(lotEntityId);
+  
+  if (!lot) {
+    log.warning("handleLotModuleAdded: Lot not found: {}", [lotEntityId]);
+    return;
+  }
+  
+  // Add the module to the lot's specific modules array
+  const currentModules = lot.lotSpecificModules || [];
+  currentModules.push(module);
+  lot.lotSpecificModules = currentModules;
+  
+  lot.save();
+  
+  log.info("Added lot-specific module {} to lot {}", [module.toHexString(), lotEntityId]);
+}
+
+/**
+ * Handle FunctionAccessChanged event for tokens
+ */
+export function handleTokenFunctionAccessChanged(event: FunctionAccessChanged): void {
+  const diamondAddress = event.address.toHexString();
+  const functionSelector = event.params.functionSig; // bytes4 function selector
+  const role = event.params.role;
+  const hasAccess = event.params.enabled; // 'enabled' in TokenDiamond ABI
+  
+  // Ensure diamond entity exists
+  let diamond = Diamond.load(diamondAddress);
+  if (!diamond) {
+    // Create diamond entry if it doesn't exist
+    diamond = new Diamond(diamondAddress);
+    diamond.diamondType = "TOKEN";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    
+    // Link to token if it exists (try ShareClass first, then Safe)
+    const shareClass = ShareClass.load(diamondAddress);
+    const safe = Safe.load(diamondAddress);
+    if (shareClass || safe) {
+      diamond.token = diamondAddress;
+    }
+    diamond.save();
+  }
+  
+  // Create or update FunctionAccess entity
+  const functionAccessId = `${diamondAddress}-${functionSelector.toHexString()}-${role.toString()}`;
+  let functionAccess = FunctionAccess.load(functionAccessId);
+  
+  if (!functionAccess) {
+    functionAccess = new FunctionAccess(functionAccessId);
+    functionAccess.diamond = diamondAddress;
+    functionAccess.functionSelector = functionSelector;
+    functionAccess.role = role;
+    functionAccess.grantedAt = event.block.timestamp;
+    functionAccess.grantedTx = event.transaction.hash;
+  }
+  
+  functionAccess.hasAccess = hasAccess;
+  functionAccess.lastUpdatedAt = event.block.timestamp;
+  functionAccess.lastUpdatedTx = event.transaction.hash;
+  
+  functionAccess.save();
+  
+  log.info("Function access updated for diamond {} selector {} role {} hasAccess {}", [
+    diamondAddress,
+    functionSelector.toHexString(),
+    role.toString(),
+    hasAccess ? "true" : "false"
+  ]);
 }
 

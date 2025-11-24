@@ -2142,5 +2142,30 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FunctionAccessChanged",
+    "inputs": [
+      {
+        "name": "selector",
+        "type": "bytes4",
+        "indexed": true,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "hasAccess",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
   }
 ]

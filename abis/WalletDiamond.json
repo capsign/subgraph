@@ -333,6 +333,11 @@
         "name": "category",
         "type": "string",
         "internalType": "string"
+      },
+      {
+        "name": "parentDocumentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "stateMutability": "view"

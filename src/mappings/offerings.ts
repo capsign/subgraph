@@ -28,11 +28,12 @@ import {
 } from "../../generated/templates/OfferingDiamond/ComplianceAdmin";
 import {
   UserRoleUpdated,
+  FunctionAccessChanged,
 } from "../../generated/templates/OfferingDiamond/OfferingDiamond";
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -629,4 +630,51 @@ export function handleOfferingUserRoleUpdated(event: UserRoleUpdated): void {
   userRole.lastUpdatedTx = event.transaction.hash;
   
   userRole.save();
+}
+
+/**
+ * Handle FunctionAccessChanged event for offerings
+ */
+export function handleOfferingFunctionAccessChanged(event: FunctionAccessChanged): void {
+  const diamondAddress = event.address.toHexString();
+  const functionSelector = event.params.selector;
+  const role = event.params.role;
+  const hasAccess = event.params.hasAccess;
+  
+  // Ensure diamond entity exists
+  let diamond = Diamond.load(diamondAddress);
+  if (!diamond) {
+    // Create diamond entry if it doesn't exist
+    diamond = new Diamond(diamondAddress);
+    diamond.diamondType = "OFFERING";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    
+    // Link to offering if it exists
+    const offering = Offering.load(diamondAddress);
+    if (offering) {
+      diamond.offering = diamondAddress;
+    }
+    diamond.save();
+  }
+  
+  // Create or update FunctionAccess entity
+  const functionAccessId = `${diamondAddress}-${functionSelector.toHexString()}-${role.toString()}`;
+  let functionAccess = FunctionAccess.load(functionAccessId);
+  
+  if (!functionAccess) {
+    functionAccess = new FunctionAccess(functionAccessId);
+    functionAccess.diamond = diamondAddress;
+    functionAccess.functionSelector = functionSelector;
+    functionAccess.role = role;
+    functionAccess.grantedAt = event.block.timestamp;
+    functionAccess.grantedTx = event.transaction.hash;
+  }
+  
+  functionAccess.hasAccess = hasAccess;
+  functionAccess.lastUpdatedAt = event.block.timestamp;
+  functionAccess.lastUpdatedTx = event.transaction.hash;
+  
+  functionAccess.save();
 }

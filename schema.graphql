@@ -27,6 +27,18 @@ type UserRole @entity {
   lastUpdatedTx: Bytes!
 }
 
+type FunctionAccess @entity {
+  id: ID! # diamond-functionSelector-role (e.g., "0x123...abc-0x12345678-1")
+  diamond: Diamond!
+  functionSelector: Bytes! # bytes4 function selector
+  role: Int! # uint8 role ID
+  hasAccess: Boolean! # true if role has access, false if revoked
+  grantedAt: BigInt!
+  grantedTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 type Wallet @entity {
   id: ID! # Wallet address
   type: String! # "EOA", "Passkey", "MPC"
@@ -75,6 +87,10 @@ type Document @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   requiredSigners: [Bytes!]!
+  
+  # Parent-child relationship for template-based documents
+  parentDocument: Document # Reference to template document (null if this is a template)
+  childDocuments: [Document!]! @derivedFrom(field: "parentDocument") # Documents created from this template
   
   # Signatures
   signatures: [DocumentSignature!]! @derivedFrom(field: "document")
@@ -879,6 +895,9 @@ type Lot @entity {
   # State
   frozen: Boolean!
   frozenAt: BigInt
+  
+  # Compliance
+  lotSpecificModules: [Bytes!]! # Lot-specific compliance modules (in addition to token's global modules)
   
   # Type-specific references (optional - uncomment as needed)
   # esoGrant: ESOGrant # If this is an ESO grant lot

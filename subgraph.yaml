@@ -279,6 +279,8 @@ templates:
           file: ./abis/TokenLotsFacet.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
+        - name: TokenCompliance
+          file: ./abis/TokenComplianceFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: AccessControl
@@ -312,6 +314,8 @@ templates:
           handler: handleStockDividendApplied
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleTokenUserRoleUpdated
+        - event: LotModuleAdded(indexed bytes32,indexed address)
+          handler: handleLotModuleAdded
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template

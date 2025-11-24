@@ -1212,5 +1212,24 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LotModuleAdded",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "module",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
   }
 ]

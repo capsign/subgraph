@@ -86,6 +86,7 @@ export function handleDocumentUploaded(event: DocumentUploaded): void {
     document.category = "";
     document.title = "";
     document.requiredSigners = [];
+    // parentDocument defaults to null
     document.save();
     return;
   }
@@ -101,6 +102,12 @@ export function handleDocumentUploaded(event: DocumentUploaded): void {
   document.requiredSigners = docDetails.value.value4.map<Bytes>((addr) => addr as Bytes);
   document.title = docDetails.value.value5;
   document.category = docDetails.value.value6;
+  
+  // Handle parent document relationship (value7 is parentDocumentId)
+  const parentDocId = docDetails.value.value7 as Bytes;
+  if (parentDocId.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
+    document.parentDocument = parentDocId.toHexString();
+  }
   
   document.save();
   
@@ -163,6 +170,18 @@ export function handleDocumentCreated(event: DocumentCreated): void {
   document.category = event.params.category;
   document.contentHash = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
   document.storageURI = "";
+  
+  // Fetch full details to get parentDocumentId
+  const walletContract = WalletDocuments.bind(walletAddress);
+  const docDetails = walletContract.try_getDocument(event.params.documentId);
+  if (!docDetails.reverted) {
+    document.contentHash = docDetails.value.value0;
+    document.storageURI = docDetails.value.value1;
+    const parentDocId = docDetails.value.value7 as Bytes;
+    if (parentDocId.toHexString() != "0x0000000000000000000000000000000000000000000000000000000000000000") {
+      document.parentDocument = parentDocId.toHexString();
+    }
+  }
   
   document.save();
   

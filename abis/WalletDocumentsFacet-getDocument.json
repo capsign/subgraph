@@ -1,0 +1,54 @@
+{
+  "type": "function",
+  "name": "getDocument",
+  "inputs": [
+    {
+      "name": "documentId",
+      "type": "bytes32",
+      "internalType": "bytes32"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "contentHash",
+      "type": "bytes32",
+      "internalType": "bytes32"
+    },
+    {
+      "name": "storageURI",
+      "type": "string",
+      "internalType": "string"
+    },
+    {
+      "name": "creator",
+      "type": "address",
+      "internalType": "address"
+    },
+    {
+      "name": "createdAt",
+      "type": "uint256",
+      "internalType": "uint256"
+    },
+    {
+      "name": "requiredSigners",
+      "type": "address[]",
+      "internalType": "address[]"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "internalType": "string"
+    },
+    {
+      "name": "category",
+      "type": "string",
+      "internalType": "string"
+    },
+    {
+      "name": "parentDocumentId",
+      "type": "bytes32",
+      "internalType": "bytes32"
+    }
+  ],
+  "stateMutability": "view"
+}

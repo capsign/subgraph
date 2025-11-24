@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0x4995965ea284814488ACE03c1319fFfe1469244F"
+      address: "0x1446a8Ee217183B4C1Dec9752409281d3Efb85C1"
       abi: OfferingFactory
-      startBlock: 33913706 # Redeployed 2025-11-19 with v5 facets (fixed investor counting)
+      startBlock: 34041031 # Redeployed 2025-11-22 with parent-child document hierarchy
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xf34Df80ad6864328468Ecb2bEaB9e5d5ff66D416"
+      address: "0xe37C2c4D2aA286FEF4d224299838cB96141B6982"
       abi: TokenFactory
-      startBlock: 33865347
+      startBlock: 34002327
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -320,6 +320,8 @@ templates:
           handler: handleClassificationRevoked
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleOfferingUserRoleUpdated
+        - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
+          handler: handleOfferingFunctionAccessChanged
         - event: CustomTermsSet(indexed uint256,indexed address,bytes)
           handler: handleCustomTermsSet
         - event: OffchainInvestmentRecorded(indexed uint256,indexed address,uint256,uint256,string)
@@ -356,6 +358,8 @@ templates:
           file: ./abis/TokenLotsFacet.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
+        - name: TokenCompliance
+          file: ./abis/TokenComplianceFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: AccessControl
@@ -399,6 +403,10 @@ templates:
           handler: handleStockDividendApplied
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleTokenUserRoleUpdated
+        - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
+          handler: handleTokenFunctionAccessChanged
+        - event: LotModuleAdded(indexed bytes32,indexed address)
+          handler: handleLotModuleAdded
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
