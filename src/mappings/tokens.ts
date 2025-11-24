@@ -21,6 +21,8 @@ import {
   FunctionAccessChanged,
   LotModuleAdded
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
+import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
+import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
@@ -66,17 +68,38 @@ export function handleLotCreated(event: LotCreated): void {
   lot.parentLotId = null;
   lot.frozen = false;
   lot.isValid = true;
-  
-  // Set defaults
-  lot.costBasis = BigInt.fromI32(0);
-  lot.acquisitionDate = event.block.timestamp;
-  lot.uri = null;
-  lot.data = null;
-  lot.transferType = "INTERNAL";
-  lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
-  lot.paymentDecimals = 0;
   lot.lotSpecificModules = []; // Initialize empty array for lot-specific compliance modules
   
+  // Fetch full lot details from contract to get cost basis, payment currency, etc.
+  const tokenContract = TokenLots.bind(event.address);
+  const lotDetails = tokenContract.try_getLot(event.params.lotId);
+  
+  if (!lotDetails.reverted) {
+    lot.costBasis = lotDetails.value.costBasis;
+    lot.acquisitionDate = lotDetails.value.acquisitionDate;
+    lot.paymentCurrency = lotDetails.value.paymentCurrency;
+    lot.uri = lotDetails.value.uri;
+    lot.data = lotDetails.value.data;
+    
+    // Get payment token decimals if not ETH
+    if (lotDetails.value.paymentCurrency.toHexString() != "0x0000000000000000000000000000000000000000") {
+      const paymentToken = ERC20.bind(lotDetails.value.paymentCurrency);
+      const decimalsResult = paymentToken.try_decimals();
+      lot.paymentDecimals = decimalsResult.reverted ? 0 : decimalsResult.value;
+    } else {
+      lot.paymentDecimals = 18; // ETH has 18 decimals
+    }
+  } else {
+    // Fallback to defaults if contract call fails
+    lot.costBasis = BigInt.fromI32(0);
+    lot.acquisitionDate = event.block.timestamp;
+    lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    lot.paymentDecimals = 0;
+    lot.uri = null;
+    lot.data = null;
+  }
+  
+  lot.transferType = "INTERNAL";
   lot.save();
   
   // Update total supply for both ShareClass and Safe tokens
