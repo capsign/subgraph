@@ -113,9 +113,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0x430a98f112cba9292b388475e6f1f3c16095dfe3"
+      address: "0xE9Db8e149d73a8d7257dfD81C144fcf123AF81a5"
       abi: OfferingFactory
-      startBlock: 33558000
+      startBlock: 34165080
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -199,6 +199,9 @@ templates:
         - Offering
         - Investment
         - DocumentSignature
+        - OfferingTemplate
+        - OfferingDocument
+        - OfferingDocumentSignature
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -225,6 +228,14 @@ templates:
           handler: handleInvestmentRejected
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
+          handler: handleTemplateRegistered
+          receipt: true
+        - event: RequiredDocumentSet(indexed bytes32,uint8)
+          handler: handleRequiredDocumentSet
+        - event: DocumentCreated(indexed bytes32,indexed bytes32,indexed bytes32,address)
+          handler: handleDocumentCreated
+          receipt: true
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleOfferingDocumentSigned
           receipt: true

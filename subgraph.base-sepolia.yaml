@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0x1446a8Ee217183B4C1Dec9752409281d3Efb85C1"
+      address: "0xE9Db8e149d73a8d7257dfD81C144fcf123AF81a5"
       abi: OfferingFactory
-      startBlock: 34041031 # Redeployed 2025-11-22 with parent-child document hierarchy
+      startBlock: 34165080 # Redeployed 2025-11-25 with single template architecture
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -265,6 +265,9 @@ templates:
         - Investment
         - OffchainInvestment
         - DocumentSignature
+        - OfferingTemplate
+        - OfferingDocument
+        - OfferingDocumentSignature
         - KYCStatus
         - InvestorClassification
         - Wallet
@@ -297,6 +300,14 @@ templates:
           handler: handleInvestmentRejected
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
+          handler: handleTemplateRegistered
+          receipt: true
+        - event: RequiredDocumentSet(indexed bytes32,uint8)
+          handler: handleRequiredDocumentSet
+        - event: DocumentCreated(indexed bytes32,indexed bytes32,indexed address,string)
+          handler: handleDocumentCreated
+          receipt: true
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleOfferingDocumentSigned
           receipt: true

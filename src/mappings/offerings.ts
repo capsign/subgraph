@@ -7,6 +7,9 @@ import {
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import {
   DocumentSigned,
+  TemplateRegistered,
+  RequiredDocumentSet,
+  DocumentCreated,
 } from "../../generated/templates/OfferingDiamond/OfferingDocuments";
 import {
   ComplianceInitialized,
@@ -33,7 +36,7 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -219,26 +222,100 @@ export function handleOfferingStatusChanged(
 }
 
 /**
+ * Handle template registration in offering contracts
+ * Templates are stored in the offering contract and used to create document instances
+ */
+export function handleTemplateRegistered(event: TemplateRegistered): void {
+  const templateId = event.params.templateId.toHexString();
+  const offeringAddress = event.address.toHexString();
+  
+  // Create template entity
+  let template = new OfferingTemplate(templateId);
+  template.offering = offeringAddress;
+  template.contentHash = event.params.contentHash;
+  template.title = event.params.title;
+  template.creator = event.params.creator;
+  template.createdAt = event.block.timestamp;
+  template.createdTx = event.transaction.hash;
+  
+  template.save();
+}
+
+/**
+ * Handle required document set (links template to offering and sets eligibility)
+ */
+export function handleRequiredDocumentSet(event: RequiredDocumentSet): void {
+  const templateId = event.params.templateId.toHexString();
+  const offeringAddress = event.address.toHexString();
+  
+  // Load offering and set required template
+  let offering = Offering.load(offeringAddress);
+  if (offering) {
+    offering.requiredTemplate = templateId;
+    offering.save();
+  }
+  
+  // Load template and set eligibility
+  let template = OfferingTemplate.load(templateId);
+  if (template) {
+    const eligibilityMode = event.params.eligibility;
+    if (eligibilityMode == 0) {
+      template.eligibility = "COMPLIANT_ONLY";
+    } else if (eligibilityMode == 1) {
+      template.eligibility = "WHITELISTED_ONLY";
+    } else if (eligibilityMode == 2) {
+      template.eligibility = "CUSTOM_MODULE";
+    } else if (eligibilityMode == 3) {
+      template.eligibility = "EXPLICIT_LIST";
+    }
+    template.save();
+  }
+}
+
+/**
+ * Handle document creation from template
+ * Creates a personalized document instance from a template
+ */
+export function handleDocumentCreated(event: DocumentCreated): void {
+  const documentId = event.params.documentId.toHexString();
+  const templateId = event.params.templateId.toHexString();
+  const offeringAddress = event.address.toHexString();
+  
+  // Create document instance entity
+  let document = new OfferingDocument(documentId);
+  document.offering = offeringAddress;
+  document.template = templateId;
+  document.title = event.params.title;
+  document.creator = event.params.creator;
+  document.createdAt = event.block.timestamp;
+  document.createdTx = event.transaction.hash;
+  
+  document.save();
+}
+
+/**
  * Handle document signatures from offering contracts
- * Documents are stored in the issuer's wallet, but signatures go through the offering
- * for compliance checks (ONLY_COMPLIANT signer eligibility)
+ * Documents are now stored in the offering contract, not the issuer's wallet
  */
 export function handleOfferingDocumentSigned(event: DocumentSigned): void {
   const documentId = event.params.documentId.toHexString();
   const signer = event.params.signer;
+  const offeringAddress = event.address.toHexString();
   
-  // Check if the document exists - it should have been created by handleDocumentUploaded
-  const document = Document.load(documentId);
-  if (!document) {
-    // Document hasn't been indexed yet, skip (signature will be created by wallet handler)
+  // Check if the offering document exists
+  const offeringDocument = OfferingDocument.load(documentId);
+  if (!offeringDocument) {
+    // Document hasn't been indexed yet, skip
     return;
   }
   
   // Signature entity ID is: tx-hash-logIndex
   const signatureId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
 
-  // Create document signature entity
-  let signature = new DocumentSignature(signatureId);
+  // Create offering document signature entity
+  let signature = new OfferingDocumentSignature(signatureId);
+  signature.offering = offeringAddress;
+  signature.template = offeringDocument.template;
   signature.document = documentId;
   signature.signer = signer;
   signature.signedAt = event.params.timestamp;
@@ -247,6 +324,18 @@ export function handleOfferingDocumentSigned(event: DocumentSigned): void {
   signature.logIndex = event.logIndex;
   
   signature.save();
+  
+  // Create activity for document signing
+  const activity = createActivity(
+    "doc-signed-" + signatureId,
+    "DOCUMENT_SIGNED",
+    signer,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offeringDocumentSignature = signatureId;
+  activity.save();
 }
 
 /**
@@ -637,9 +726,9 @@ export function handleOfferingUserRoleUpdated(event: UserRoleUpdated): void {
  */
 export function handleOfferingFunctionAccessChanged(event: FunctionAccessChanged): void {
   const diamondAddress = event.address.toHexString();
-  const functionSelector = event.params.selector;
+  const functionSelector = event.params.functionSig;
   const role = event.params.role;
-  const hasAccess = event.params.hasAccess;
+  const hasAccess = event.params.enabled;
   
   // Ensure diamond entity exists
   let diamond = Diamond.load(diamondAddress);

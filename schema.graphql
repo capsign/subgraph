@@ -374,6 +374,7 @@ type Activity @entity {
   corporateAction: CorporateAction
   documentSignature: DocumentSignature
   document: Document
+  offeringDocumentSignature: OfferingDocumentSignature
   kycStatus: KYCStatus
   classification: InvestorClassification
   lot: Lot
@@ -440,6 +441,53 @@ type Offering @entity {
   # Relationships
   investments: [Investment!]! @derivedFrom(field: "offering")
   offchainInvestments: [OffchainInvestment!]! @derivedFrom(field: "offering")
+  requiredTemplate: OfferingTemplate # The required template for this offering
+  documents: [OfferingDocument!]! @derivedFrom(field: "offering") # Document instances created from the template
+}
+
+# Document template stored in offering contract
+type OfferingTemplate @entity {
+  id: ID! # templateId (bytes32 as hex string)
+  offering: Offering! # The offering this template belongs to
+  contentHash: Bytes!
+  storageURI: String
+  title: String!
+  category: String
+  creator: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  eligibility: SignerEligibility # Set when this template is made required
+  
+  # Relationships
+  documents: [OfferingDocument!]! @derivedFrom(field: "template") # Documents created from this template
+  signatures: [OfferingDocumentSignature!]! @derivedFrom(field: "template") # All signatures on documents from this template
+}
+
+# Document instance created from a template (stored in offering contract)
+type OfferingDocument @entity {
+  id: ID! # documentId (bytes32 as hex string)
+  offering: Offering!
+  template: OfferingTemplate!
+  title: String!
+  creator: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  
+  # Relationships
+  signatures: [OfferingDocumentSignature!]! @derivedFrom(field: "document")
+}
+
+# Signature on an offering document
+type OfferingDocumentSignature @entity {
+  id: ID! # tx-hash-logIndex
+  offering: Offering!
+  template: OfferingTemplate!
+  document: OfferingDocument!
+  signer: Bytes!
+  signedAt: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
 }
 
 enum OfferingStatus {
@@ -447,6 +495,13 @@ enum OfferingStatus {
   ACTIVE
   COMPLETED
   CANCELLED
+}
+
+enum SignerEligibility {
+  COMPLIANT_ONLY
+  WHITELISTED_ONLY
+  CUSTOM_MODULE
+  EXPLICIT_LIST
 }
 
 enum InvestmentStatus {

@@ -1,100 +1,867 @@
 [
   {
-    "type": "function",
-    "name": "OfferingCore_init",
+    "type": "event",
+    "name": "OffchainInvestmentInitialized",
+    "inputs": [],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AllowsGeneralSolicitationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AllowsSelfCertificationUpdated",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceInitialized",
+    "inputs": [
+      {
+        "name": "allowsSelfCertification",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "allowsGeneralSolicitation",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OfferingStatusChanged",
+    "inputs": [
+      {
+        "name": "oldStatus",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      },
+      {
+        "name": "newStatus",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCStatusUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClassificationUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "indexed": false,
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      },
+      {
+        "name": "verifiedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClassificationRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "KYCRevoked",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "revokedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestorClassificationUpdated",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "newCount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FundsDeposited",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "identityUID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "qualificationUID",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OfferingInitialized",
     "inputs": [
       {
         "name": "issuer",
         "type": "address",
+        "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "tokenAddress",
+        "name": "token",
         "type": "address",
+        "indexed": true,
         "internalType": "address"
       },
       {
         "name": "paymentToken",
         "type": "address",
+        "indexed": false,
         "internalType": "address"
       },
       {
         "name": "paymentRecipient",
         "type": "address",
+        "indexed": false,
         "internalType": "address"
       },
       {
         "name": "pricePerToken",
         "type": "uint256",
+        "indexed": false,
         "internalType": "uint256"
       },
       {
         "name": "minInvestment",
         "type": "uint256",
+        "indexed": false,
         "internalType": "uint256"
       },
       {
         "name": "maxAmount",
         "type": "uint256",
+        "indexed": false,
         "internalType": "uint256"
       },
       {
         "name": "deadline",
         "type": "uint256",
+        "indexed": false,
         "internalType": "uint256"
       },
       {
         "name": "uri",
         "type": "string",
+        "indexed": false,
         "internalType": "string"
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "anonymous": false
   },
   {
-    "type": "function",
-    "name": "attachInvestmentAgreement",
+    "type": "event",
+    "name": "TrustedKYCProviderAdded",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedKYCProviderRemoved",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DocumentSigned",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "signer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DocumentCreated",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RequiredDocumentSet",
+    "inputs": [
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TemplateRegistered",
+    "inputs": [
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "contentHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FunctionAccessChanged",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "indexed": true,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleUnregistered",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleEnabled",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleRegistered",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAgreementAttached",
     "inputs": [
       {
         "name": "investmentId",
         "type": "uint256",
+        "indexed": true,
         "internalType": "uint256"
       },
       {
         "name": "documentUID",
         "type": "bytes32",
+        "indexed": false,
         "internalType": "bytes32"
       }
     ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OffchainInvestmentCancelled",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "cancelledBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OffchainInvestmentConfirmed",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "confirmedBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentRefunded",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CustomTermsSet",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "termsData",
+        "type": "bytes",
+        "indexed": false,
+        "internalType": "bytes"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CustomInvestmentCreated",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OffchainInvestmentRecorded",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "paymentMethod",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokensIssued",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAgreementExecuted",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "subscriptionAgreementRef",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentAccepted",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "InvestmentRejected",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "OffchainInvestment_init",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "claimRefund",
-    "inputs": [
+    "name": "allowsGeneralSolicitation",
+    "inputs": [],
+    "outputs": [
       {
-        "name": "investmentId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "countersignInvestment",
-    "inputs": [
+    "name": "allowsSelfCertification",
+    "inputs": [],
+    "outputs": [
       {
-        "name": "investmentId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -111,121 +878,29 @@
   },
   {
     "type": "function",
-    "name": "getInvestment",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
+    "name": "getEnabledModules",
+    "inputs": [],
     "outputs": [
       {
-        "name": "investment",
-        "type": "tuple",
-        "internalType": "struct OfferingStorage.Investment",
-        "components": [
-          {
-            "name": "investor",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "amount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "tokenQuantity",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "pricePerToken",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "timestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "status",
-            "type": "uint8",
-            "internalType": "enum OfferingStorage.InvestmentStatus"
-          },
-          {
-            "name": "paymentEscrowed",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "subscriptionAgreementRef",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "issuedLotId",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          }
-        ]
+        "name": "names",
+        "type": "string[]",
+        "internalType": "string[]"
+      },
+      {
+        "name": "addresses",
+        "type": "address[]",
+        "internalType": "address[]"
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getInvestorInvestments",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "name": "getNextOffchainInvestmentId",
+    "inputs": [],
     "outputs": [
       {
-        "name": "investmentIds",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getInvestorPaymentTotal",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "totalPayments",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getInvestorTotalInvestment",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "totalAmount",
+        "name": "",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -332,6 +1007,1381 @@
   },
   {
     "type": "function",
+    "name": "getRegisteredModules",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "names",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRequiredDocumentInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTemplate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "template",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.DocumentTemplate",
+        "components": [
+          {
+            "name": "contentHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "storageURI",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "category",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "exists",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalOffchainConfirmed",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalOffchainPending",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTrustedKYCProviders",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isComplianceInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isOffchainInvestmentInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeAfterInvestmentCompliance",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "AccessControl_init",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "clearPreApprovedTermsForInvestor",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct ComplianceStorage.ClassificationStatus",
+        "components": [
+          {
+            "name": "classifications",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "verifiedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "verifiedBy",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revokedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorInvestments",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorOffchainInvestments",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorPaymentTotal",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalPayments",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorTotalInvestment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct ComplianceStorage.KYCStatus",
+        "components": [
+          {
+            "name": "isVerified",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "verifiedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "expirationTime",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "verifiedBy",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revokedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPreApprovedTermsForInvestor",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasPreApprovedTermsForInvestor",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasTerms",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedRequiredDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isClassificationValid",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isKYCValid",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "revokeClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeKYC",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setKYCStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verified",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setPreApprovedTermsForInvestor",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "hasClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isClassificationValid",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isInvestorClassified",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "classified",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "updateInvestorClassification",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "hasSignedDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasSigned",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "signedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setClassificationStatus",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "classifications",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "expirationTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createCustomTermsInvestment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "subscriptionAgreementId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "encodedCustomTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "paymentReceived",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "checkComplianceWithAttestations",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "canInvest",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "failureReason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeBeforeInvestmentComplianceWithAttestations",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "recordOffchainInvestment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "paymentMethod",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "referenceId",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "attestationUID",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "subscriptionAgreementRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "OfferingCore_init",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minInvestment",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeTrustedKYCProvider",
+    "inputs": [
+      {
+        "name": "provider",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "canSignRequiredDocument",
+    "inputs": [
+      {
+        "name": "signer",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "eligible",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "userRoles",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "canCall",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasRole",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setUserRole",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "Compliance_init",
+    "inputs": [
+      {
+        "name": "_allowsSelfCertification",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "_allowsGeneralSolicitation",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsGeneralSolicitation",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAllowsSelfCertification",
+    "inputs": [
+      {
+        "name": "allowed",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getClassificationCount",
+    "inputs": [
+      {
+        "name": "classificationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "count",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "document",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.Document",
+        "components": [
+          {
+            "name": "contentHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "storageURI",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "templateId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "exists",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "signDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createDocument",
+    "inputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "contentHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "storageURI",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRequiredDocument",
+    "inputs": [
+      {
+        "name": "templateId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "contentHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "storageURI",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "eligibility",
+        "type": "uint8",
+        "internalType": "enum IOfferingDocuments.SignerEligibility"
+      },
+      {
+        "name": "customModule",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "functionRoles",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setFunctionAccess",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateOfferingStatus",
+    "inputs": [
+      {
+        "name": "newStatus",
+        "type": "uint8",
+        "internalType": "enum OfferingStorage.OfferingStatus"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getModuleInfo",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "unregisterComplianceModule",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "registerComplianceModule",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "moduleAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "executionOrder",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setModuleEnabled",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "invest",
     "inputs": [
       {
@@ -356,6 +2406,233 @@
   },
   {
     "type": "function",
+    "name": "cancelOffchainInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimRefund",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "confirmOffchainInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "countersignInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCustomTermsForInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investment",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.Investment",
+        "components": [
+          {
+            "name": "investor",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tokenQuantity",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pricePerToken",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum OfferingStorage.InvestmentStatus"
+          },
+          {
+            "name": "paymentEscrowed",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "subscriptionAgreementRef",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "issuedLotId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOffchainInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.OffchainInvestment",
+        "components": [
+          {
+            "name": "investor",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tokenQuantity",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum OfferingStorage.OffchainInvestmentStatus"
+          },
+          {
+            "name": "paymentMethod",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "referenceId",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "attestationUID",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "subscriptionAgreementRef",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "confirmedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasCustomTermsForInvestment",
+    "inputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasTerms",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "rejectInvestment",
     "inputs": [
       {
@@ -369,332 +2646,94 @@
   },
   {
     "type": "function",
-    "name": "updateOfferingStatus",
+    "name": "setCustomTermsForInvestment",
     "inputs": [
       {
-        "name": "newStatus",
-        "type": "uint8",
-        "internalType": "enum OfferingStorage.OfferingStatus"
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "encodedTerms",
+        "type": "bytes",
+        "internalType": "bytes"
       }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
-    "type": "event",
-    "name": "FundsDeposited",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "identityUID",
-        "type": "bytes32",
-        "indexed": false,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "qualificationUID",
-        "type": "bytes32",
-        "indexed": false,
-        "internalType": "bytes32"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "InvestmentAccepted",
+    "type": "function",
+    "name": "attachInvestmentAgreement",
     "inputs": [
       {
         "name": "investmentId",
         "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "issuer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "InvestmentAgreementAttached",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
         "internalType": "uint256"
       },
       {
         "name": "documentUID",
         "type": "bytes32",
-        "indexed": false,
         "internalType": "bytes32"
       }
     ],
-    "anonymous": false
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
-    "type": "event",
-    "name": "InvestmentAgreementExecuted",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "issuer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "pricePerToken",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "subscriptionAgreementRef",
-        "type": "bytes32",
-        "indexed": false,
-        "internalType": "bytes32"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ComplianceAdmin_InvalidExpiration",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "InvestmentRefunded",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ComplianceAdmin_NotAuthorized",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "InvestmentRejected",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "issuer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderAlreadyTrusted",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "OfferingInitialized",
-    "inputs": [
-      {
-        "name": "issuer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "token",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "paymentToken",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "paymentRecipient",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "pricePerToken",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "minInvestment",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "maxAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "uri",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ComplianceAdmin_ProviderNotTrusted",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "OfferingStatusChanged",
-    "inputs": [
-      {
-        "name": "oldStatus",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum OfferingStorage.OfferingStatus"
-      },
-      {
-        "name": "newStatus",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum OfferingStorage.OfferingStatus"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "Compliance_AlreadyInitialized",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "TokensIssued",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "Compliance_InvalidModuleAddress",
+    "inputs": []
   },
   {
-    "type": "event",
-    "name": "UserRoleUpdated",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "role",
-        "type": "uint8",
-        "indexed": true,
-        "internalType": "uint8"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "Compliance_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OffchainInvestment_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OffchainInvestment_InvalidAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OffchainInvestment_InvalidInvestmentId",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OffchainInvestment_NotPending",
+    "inputs": []
   },
   {
     "type": "error",
@@ -803,473 +2842,68 @@
   },
   {
     "type": "error",
-    "name": "ReentrancyGuard_ReentrantCall",
+    "name": "OfferingDocuments_AlreadySigned",
     "inputs": []
   },
   {
-    "type": "function",
-    "name": "Compliance_init",
-    "inputs": [
-      {
-        "name": "_allowsSelfCertification",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "_allowsGeneralSolicitation",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
+    "type": "error",
+    "name": "OfferingDocuments_CannotChangeTemplateAfterInvestments",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "allowsGeneralSolicitation",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_DocumentAlreadyExists",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "allowsSelfCertification",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_DocumentNotFound",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "checkComplianceWithAttestations",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "canInvest",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "failureReason",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_InvalidDocumentId",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "executeAfterInvestmentCompliance",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "pure"
+    "type": "error",
+    "name": "OfferingDocuments_InvalidTemplateId",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "executeBeforeInvestmentComplianceWithAttestations",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "attestationUIDs",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_NoRequiredDocument",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "getClassificationCount",
-    "inputs": [
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "count",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_NotAuthorizedSigner",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "getEnabledModules",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "names",
-        "type": "string[]",
-        "internalType": "string[]"
-      },
-      {
-        "name": "addresses",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_NotRequiredDocument",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "getModuleInfo",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingDocuments_TemplateNotFound",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "getRegisteredModules",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "names",
-        "type": "string[]",
-        "internalType": "string[]"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingTerms_InvalidInvestment",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "isComplianceInitialized",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
+    "type": "error",
+    "name": "OfferingTerms_NoCustomTerms",
+    "inputs": []
   },
   {
-    "type": "function",
-    "name": "isInvestorClassified",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "classified",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "registerComplianceModule",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setAllowsGeneralSolicitation",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setAllowsSelfCertification",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setModuleEnabled",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "unregisterComplianceModule",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "updateInvestorClassification",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "AllowsGeneralSolicitationUpdated",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "AllowsSelfCertificationUpdated",
-    "inputs": [
-      {
-        "name": "allowed",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceInitialized",
-    "inputs": [
-      {
-        "name": "allowsSelfCertification",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "allowsGeneralSolicitation",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleEnabled",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      },
-      {
-        "name": "enabled",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleRegistered",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      },
-      {
-        "name": "moduleAddress",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "executionOrder",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleUnregistered",
-    "inputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": true,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "InvestorClassificationUpdated",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "newCount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
+    "type": "error",
+    "name": "ReentrancyGuard_ReentrantCall",
+    "inputs": []
   },
   {
     "type": "error",
@@ -1289,8 +2923,14 @@
   },
   {
     "type": "error",
-    "name": "Compliance_AlreadyInitialized",
-    "inputs": []
+    "name": "AccessControl_CannotRemoveAdminFromCriticalFunction",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
   },
   {
     "type": "error",
@@ -1307,11 +2947,6 @@
         "internalType": "string"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_InvalidModuleAddress",
-    "inputs": []
   },
   {
     "type": "error",
@@ -1334,838 +2969,5 @@
         "internalType": "string"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "Compliance_NotInitialized",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "name": "canSignRequiredDocument",
-    "inputs": [
-      {
-        "name": "signer",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "eligible",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getRequiredDocumentInfo",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "documentWallet",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "eligibility",
-        "type": "uint8",
-        "internalType": "enum IOfferingDocuments.SignerEligibility"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasSignedDocument",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "hasSigned",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "signedAt",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasSignedRequiredDocument",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "hasSigned",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "setRequiredDocument",
-    "inputs": [
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "eligibility",
-        "type": "uint8",
-        "internalType": "enum IOfferingDocuments.SignerEligibility"
-      },
-      {
-        "name": "customModule",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "signDocument",
-    "inputs": [
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "DocumentSigned",
-    "inputs": [
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "signer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "RequiredDocumentSet",
-    "inputs": [
-      {
-        "name": "documentId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "documentWallet",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "eligibility",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum IOfferingDocuments.SignerEligibility"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "AccessControl_CallerIsNotAuthorized",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "OfferingDocuments_DocumentNotFoundInWallet",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OfferingDocuments_InvalidWalletAddress",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OfferingDocuments_NoRequiredDocument",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OfferingDocuments_NotAuthorizedSigner",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "OfferingDocuments_NotRequiredDocument",
-    "inputs": []
-  },
-  {
-    "type": "function",
-    "name": "addTrustedKYCProvider",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "getClassificationStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct ComplianceStorage.ClassificationStatus",
-        "components": [
-          {
-            "name": "classifications",
-            "type": "bytes32[]",
-            "internalType": "bytes32[]"
-          },
-          {
-            "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "verifiedBy",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "revoked",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getKYCStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct ComplianceStorage.KYCStatus",
-        "components": [
-          {
-            "name": "isVerified",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "verifiedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "expirationTime",
-            "type": "uint64",
-            "internalType": "uint64"
-          },
-          {
-            "name": "verifiedBy",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "revoked",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "revokedAt",
-            "type": "uint64",
-            "internalType": "uint64"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTrustedKYCProviders",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasClassification",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isClassificationValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isClassificationValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classificationId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isKYCValid",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isTrustedKYCProvider",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "removeTrustedKYCProvider",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "revokeClassification",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "revokeKYC",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setClassificationStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "classifications",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "internalType": "uint64"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setKYCStatus",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "verified",
-        "type": "bool",
-        "internalType": "bool"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "internalType": "uint64"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "event",
-    "name": "ClassificationRevoked",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "revokedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ClassificationUpdated",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "classifications",
-        "type": "bytes32[]",
-        "indexed": false,
-        "internalType": "bytes32[]"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      },
-      {
-        "name": "verifiedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "KYCRevoked",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "revokedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "KYCStatusUpdated",
-    "inputs": [
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "verified",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "expirationTime",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      },
-      {
-        "name": "verifiedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TrustedKYCProviderAdded",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TrustedKYCProviderRemoved",
-    "inputs": [
-      {
-        "name": "provider",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "AccessControl_CallerIsNotAuthorized",
-    "inputs": [
-      {
-        "name": "caller",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "functionSig",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_InvalidExpiration",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_NotAuthorized",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_ProviderAlreadyTrusted",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ComplianceAdmin_ProviderNotTrusted",
-    "inputs": []
-  },
-  {
-    "type": "event",
-    "name": "CustomTermsSet",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "termsData",
-        "type": "bytes",
-        "indexed": false,
-        "internalType": "bytes"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OffchainInvestmentCancelled",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "cancelledBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OffchainInvestmentConfirmed",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "confirmedBy",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OffchainInvestmentInitialized",
-    "inputs": [],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "OffchainInvestmentRecorded",
-    "inputs": [
-      {
-        "name": "investmentId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "investor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "tokenQuantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "paymentMethod",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "FunctionAccessChanged",
-    "inputs": [
-      {
-        "name": "selector",
-        "type": "bytes4",
-        "indexed": true,
-        "internalType": "bytes4"
-      },
-      {
-        "name": "role",
-        "type": "uint8",
-        "indexed": true,
-        "internalType": "uint8"
-      },
-      {
-        "name": "hasAccess",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
   }
 ]
