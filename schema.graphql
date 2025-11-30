@@ -497,6 +497,16 @@ enum OfferingStatus {
   CANCELLED
 }
 
+enum AcquisitionStatus {
+  DRAFT
+  LISTED
+  UNDER_OFFER
+  IN_ESCROW
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
 enum SignerEligibility {
   COMPLIANT_ONLY
   WHITELISTED_ONLY
@@ -576,6 +586,21 @@ enum OffchainInvestmentStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+# ============ ACQUISITION ENTITIES ============
+
+type Acquisition @entity {
+  id: ID! # Acquisition address
+  address: Bytes!
+  seller: Bytes!
+  buyer: Bytes
+  arbiter: Bytes
+  price: BigInt!
+  status: AcquisitionStatus!
+  createdAt: BigInt!
+  createdAtBlock: BigInt!
+  transactionHash: Bytes!
 }
 
 # ============ TOKEN ENTITIES ============

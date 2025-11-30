@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x1D137e0bcBDD4B55edF1DDE6895DB042FB85e370"
+      address: "0x36eF3f0Da7372668f600d45D2dfa1Da30FAa00Bc"
       abi: DiamondFactory
-      startBlock: 33865347
+      startBlock: 34384743
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -72,9 +72,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x790B718d80B230aa41b512A897dd7A89a65C804b"
+      address: "0x8E076fAfDFfFCbe947c03c9b6156cd3FB4b11D15"
       abi: FacetRegistry
-      startBlock: 33865347
+      startBlock: 34384743
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -97,9 +97,9 @@ dataSources:
     name: WalletFactory
     network: base-sepolia
     source:
-      address: "0xd6cAa97674Efc782307FD6e7d378b48504613347"
+      address: "0xc775ABF65289D220D885eB4D6cD9F13c33f522F1"
       abi: WalletFactory
-      startBlock: 33865347
+      startBlock: 34384772
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xE9Db8e149d73a8d7257dfD81C144fcf123AF81a5"
+      address: "0xfF1d6ADFB86a88939DCED81b40F3B9011995044B"
       abi: OfferingFactory
-      startBlock: 34165080 # Redeployed 2025-11-25 with single template architecture
+      startBlock: 34384773 # Redeployed 2025-11-30 with Acquisitions
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xe37C2c4D2aA286FEF4d224299838cB96141B6982"
+      address: "0x26Ad4CaF414306a6f834c30faD607621a028Ea23"
       abi: TokenFactory
-      startBlock: 34002327
+      startBlock: 34384771
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -216,6 +216,51 @@ dataSources:
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated
       file: ./src/mappings/token-factory.ts
+
+  # AcquisitionFactory - tracks acquisition/listing creation (Permissionless)
+  - kind: ethereum/contract
+    name: AcquisitionFactory
+    network: base-sepolia
+    source:
+      address: "0x5E8e45D631C52e67f7eb7F8245c1cb6979FA89a4"
+      abi: AcquisitionFactory
+      startBlock: 34387549 # Deployed 2024-11-30 (updated with URI-based metadata)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Acquisition
+        - Diamond
+        - FactoryPaymentConfig
+        - FactoryPaymentToken
+        - FactoryPayment
+        - UserRole
+      abis:
+        - name: AcquisitionFactory
+          file: ./abis/AcquisitionFactory.json
+        - name: AcquisitionFactoryCoreFacet
+          file: ./abis/AcquisitionFactoryCoreFacet.json
+        - name: FactoryPaymentFacet
+          file: ./abis/FactoryPaymentFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
+      eventHandlers:
+        - event: AcquisitionCreated(indexed address,indexed address,uint256)
+          handler: handleAcquisitionCreated
+        - event: PaymentModuleInitialized(indexed address)
+          handler: handlePaymentModuleInitialized
+        - event: PaymentTokenConfigured(indexed address,uint256,bool)
+          handler: handlePaymentTokenConfigured
+        - event: PaymentCollected(indexed address,indexed address,uint256,string)
+          handler: handlePaymentCollected
+        - event: FeeRecipientUpdated(indexed address)
+          handler: handleFeeRecipientUpdated
+        - event: PaymentsStatusChanged(bool)
+          handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+      file: ./src/mappings/acquisition-factory.ts
 
   # CapSignPaymaster - tracks gas sponsorship
   - kind: ethereum/contract
