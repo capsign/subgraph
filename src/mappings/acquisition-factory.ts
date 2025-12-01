@@ -7,6 +7,7 @@
 
 import { AcquisitionCreated } from "../../generated/AcquisitionFactory/AcquisitionFactoryCoreFacet";
 import { Diamond, Acquisition } from "../../generated/schema";
+import { AcquisitionDiamond } from "../../generated/templates";
 import { log } from "@graphprotocol/graph-ts";
 
 /**
@@ -36,7 +37,10 @@ export function handleAcquisitionCreated(event: AcquisitionCreated): void {
   acquisition.transactionHash = event.transaction.hash;
   acquisition.save();
 
-  log.info("Created Acquisition entity: {}", [acquisition.id]);
+  // Start tracking this acquisition diamond for lifecycle events
+  AcquisitionDiamond.create(event.params.acquisition);
+
+  log.info("Created Acquisition entity and started tracking diamond: {}", [acquisition.id]);
 }
 
 // Re-export payment and access control handlers from offering-factory

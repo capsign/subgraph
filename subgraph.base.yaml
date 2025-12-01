@@ -323,3 +323,31 @@ templates:
           receipt: true
       file: ./src/mappings/wallets.ts
 
+  # Acquisition Diamond Template
+  - kind: ethereum/contract
+    name: AcquisitionDiamond
+    network: base
+    source:
+      abi: AcquisitionCoreFacet
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Acquisition
+      abis:
+        - name: AcquisitionDiamond
+          file: ./abis/AcquisitionDiamond.json
+        - name: AcquisitionCoreFacet
+          file: ./abis/AcquisitionCoreFacet.json
+      eventHandlers:
+        - event: AcquisitionListed(uint256)
+          handler: handleAcquisitionListed
+        - event: AcquisitionCancelled()
+          handler: handleAcquisitionCancelled
+        - event: OfferAccepted(indexed address)
+          handler: handleOfferAccepted
+        - event: DisputeRaised(indexed address)
+          handler: handleDisputeRaised
+      file: ./src/mappings/acquisitions.ts
+

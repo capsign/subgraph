@@ -598,9 +598,22 @@ type Acquisition @entity {
   arbiter: Bytes
   price: BigInt!
   status: AcquisitionStatus!
+  
+  # Creation data
   createdAt: BigInt!
   createdAtBlock: BigInt!
   transactionHash: Bytes!
+  
+  # Lifecycle timestamps
+  listedAt: BigInt
+  listedAtBlock: BigInt
+  cancelledAt: BigInt
+  cancelledAtBlock: BigInt
+  offerAcceptedAt: BigInt
+  offerAcceptedAtBlock: BigInt
+  disputeRaisedAt: BigInt
+  disputeRaisedAtBlock: BigInt
+  disputeRaisedBy: Bytes
 }
 
 # ============ TOKEN ENTITIES ============
