@@ -222,9 +222,9 @@ dataSources:
     name: AcquisitionFactory
     network: base-sepolia
     source:
-      address: "0x5E8e45D631C52e67f7eb7F8245c1cb6979FA89a4"
+      address: "0x7b2BC59fDc87a62F5DF37115127714dd171aC790"
       abi: AcquisitionFactory
-      startBlock: 34387549 # Deployed 2024-11-30 (updated with URI-based metadata)
+      startBlock: 34428281 # Deployed 2025-12-01 (email-gated token claims deployment)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -405,6 +405,7 @@ templates:
         - ShareClass
         - Lot
         - Token
+        - TokenClaim
       abis:
         - name: TokenDiamond
           file: ./abis/TokenDiamond.json
@@ -416,6 +417,8 @@ templates:
           file: ./abis/TokenMetadataFacet.json
         - name: TokenCompliance
           file: ./abis/TokenComplianceFacet.json
+        - name: TokenClaims
+          file: ./abis/TokenClaimsFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: AccessControl
@@ -463,6 +466,15 @@ templates:
           handler: handleTokenFunctionAccessChanged
         - event: LotModuleAdded(indexed bytes32,indexed address)
           handler: handleLotModuleAdded
+        - event: ClaimCreated(indexed bytes32,indexed bytes32,uint256,indexed address)
+          handler: handleClaimCreated
+          receipt: false
+        - event: ClaimRedeemed(indexed bytes32,indexed address,indexed bytes32)
+          handler: handleClaimRedeemed
+          receipt: false
+        - event: ClaimCancelled(indexed bytes32,indexed address)
+          handler: handleClaimCancelled
+          receipt: false
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template

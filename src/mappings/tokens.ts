@@ -19,11 +19,14 @@ import {
   SAFEConverted,
   UserRoleUpdated,
   FunctionAccessChanged,
-  LotModuleAdded
+  LotModuleAdded,
+  ClaimCreated,
+  ClaimRedeemed,
+  ClaimCancelled
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -610,5 +613,85 @@ export function handleTokenFunctionAccessChanged(event: FunctionAccessChanged): 
     role.toString(),
     hasAccess ? "true" : "false"
   ]);
+}
+
+/**
+ * Handle ClaimCreated event
+ */
+export function handleClaimCreated(event: ClaimCreated): void {
+  const claimId = event.params.claimId.toHexString();
+  const tokenAddress = event.address.toHexString();
+  
+  let claim = new TokenClaim(claimId);
+  claim.token = tokenAddress;
+  claim.emailHash = event.params.emailHash;
+  claim.quantity = event.params.quantity;
+  claim.issuer = event.params.issuer;
+  claim.redeemed = false;
+  claim.recipient = null;
+  claim.lotId = null;
+  claim.createdAt = event.block.timestamp;
+  claim.createdTx = event.transaction.hash;
+  claim.redeemedAt = null;
+  claim.redeemedTx = null;
+  
+  // Note: expiresAt needs to be fetched from contract state
+  // For now, setting to 0 - will be updated via a contract call if needed
+  claim.expiresAt = BigInt.fromI32(0);
+  
+  claim.save();
+  
+  log.info("Token claim created: claimId={}, token={}, emailHash={}, quantity={}", [
+    claimId,
+    tokenAddress,
+    event.params.emailHash.toHexString(),
+    event.params.quantity.toString()
+  ]);
+}
+
+/**
+ * Handle ClaimRedeemed event
+ */
+export function handleClaimRedeemed(event: ClaimRedeemed): void {
+  const claimId = event.params.claimId.toHexString();
+  
+  let claim = TokenClaim.load(claimId);
+  if (claim) {
+    claim.redeemed = true;
+    claim.recipient = event.params.recipient;
+    claim.lotId = event.params.lotId;
+    claim.redeemedAt = event.block.timestamp;
+    claim.redeemedTx = event.transaction.hash;
+    claim.save();
+    
+    log.info("Token claim redeemed: claimId={}, recipient={}, lotId={}", [
+      claimId,
+      event.params.recipient.toHexString(),
+      event.params.lotId.toHexString()
+    ]);
+  } else {
+    log.warning("ClaimRedeemed event for unknown claim: claimId={}", [claimId]);
+  }
+}
+
+/**
+ * Handle ClaimCancelled event
+ */
+export function handleClaimCancelled(event: ClaimCancelled): void {
+  const claimId = event.params.claimId.toHexString();
+  
+  let claim = TokenClaim.load(claimId);
+  if (claim) {
+    // Mark as redeemed to prevent future use (claim is effectively dead)
+    claim.redeemed = true;
+    claim.save();
+    
+    log.info("Token claim cancelled: claimId={}, canceller={}", [
+      claimId,
+      event.params.canceller.toHexString()
+    ]);
+  } else {
+    log.warning("ClaimCancelled event for unknown claim: claimId={}", [claimId]);
+  }
 }
 

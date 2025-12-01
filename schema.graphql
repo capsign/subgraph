@@ -718,6 +718,23 @@ enum CorporateActionType {
   StockDividend
 }
 
+# Email-gated token claims
+type TokenClaim @entity {
+  id: ID! # claimId (bytes32)
+  token: ShareClass!
+  emailHash: Bytes!
+  quantity: BigInt!
+  expiresAt: BigInt!
+  redeemed: Boolean!
+  issuer: Bytes!
+  recipient: Bytes # null until redeemed
+  lotId: Bytes # null until redeemed
+  createdAt: BigInt!
+  createdTx: Bytes!
+  redeemedAt: BigInt # null until redeemed
+  redeemedTx: Bytes # null until redeemed
+}
+
 # SAFE tokens (Simple Agreement for Future Equity)
 # COMMENTED OUT - Will implement in Phase 4
 # type Safe implements Token @entity {

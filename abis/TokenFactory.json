@@ -1184,6 +1184,11 @@
     },
     {
       "type": "error",
+      "name": "TokenFactory_ModuleRegistrationFailed",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "TokenFactory_NotInitialized",
       "inputs": []
     },
