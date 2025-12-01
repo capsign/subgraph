@@ -686,9 +686,9 @@ export function handleClaimCancelled(event: ClaimCancelled): void {
     claim.redeemed = true;
     claim.save();
     
-    log.info("Token claim cancelled: claimId={}, canceller={}", [
+    log.info("Token claim cancelled: claimId={}, issuer={}", [
       claimId,
-      event.params.canceller.toHexString()
+      event.params.issuer.toHexString()
     ]);
   } else {
     log.warning("ClaimCancelled event for unknown claim: claimId={}", [claimId]);

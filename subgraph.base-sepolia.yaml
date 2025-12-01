@@ -474,7 +474,6 @@ templates:
           receipt: false
         - event: ClaimCancelled(indexed bytes32,indexed address)
           handler: handleClaimCancelled
-          receipt: false
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
