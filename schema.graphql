@@ -98,7 +98,7 @@ type Document @entity {
 
 type DocumentSignature @entity {
   id: ID! # tx-hash-logIndex
-  document: Document!
+  document: Document # Nullable to handle cases where DocumentSigned event is indexed before DocumentCreated
   signer: Bytes!
   signedAt: BigInt!
   tx: Bytes!
@@ -482,7 +482,7 @@ type OfferingDocumentSignature @entity {
   id: ID! # tx-hash-logIndex
   offering: Offering!
   template: OfferingTemplate!
-  document: OfferingDocument!
+  document: OfferingDocument # Nullable to handle cases where signature is created before document
   signer: Bytes!
   signedAt: BigInt!
   tx: Bytes!
