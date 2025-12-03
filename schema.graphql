@@ -638,9 +638,12 @@ interface Token {
   retired: Boolean! # Token has been retired (soft flag)
   retiredAt: BigInt # Timestamp when retired (null if not retired)
   
-  # Transfer conditions
+  # Transfer conditions (legacy - deprecated, use complianceModules instead)
   transferController: Bytes
   hasTransferConditions: Boolean!
+  
+  # Compliance Modules
+  complianceModules: [TokenComplianceConfig!]!
   
   # Relationships
   lots: [Lot!]!
@@ -666,6 +669,7 @@ type ShareClass implements Token @entity {
   retiredAt: BigInt
   transferController: Bytes
   hasTransferConditions: Boolean!
+  complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
   lots: [Lot!]! @derivedFrom(field: "token")
   offerings: [Offering!]! @derivedFrom(field: "token")
   
@@ -877,6 +881,7 @@ type Safe implements Token @entity {
   retiredAt: BigInt
   transferController: Bytes
   hasTransferConditions: Boolean!
+  complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
   lots: [Lot!]! @derivedFrom(field: "token")
   offerings: [Offering!]! @derivedFrom(field: "token")
   
@@ -977,6 +982,150 @@ enum TransferConditionType {
   Custom
 }
 
+# ============ COMPLIANCE MODULES ============
+
+# Compliance module registry - tracks all compliance modules used across tokens
+type ComplianceModule @entity {
+  id: ID! # module-address
+  address: Bytes!
+  name: String!
+  version: String!
+  moduleType: String! # "HoldingPeriod", "VolumeLimit", "AffiliateStatus", "Vesting", "Lockup", "Custom"
+  firstUsedAt: BigInt!
+  firstUsedTx: Bytes!
+  
+  # Relationships
+  tokens: [TokenComplianceConfig!]! @derivedFrom(field: "module")
+}
+
+# Token-level compliance configuration - which modules are active for each token
+type TokenComplianceConfig @entity {
+  id: ID! # token-module
+  token: Token!
+  module: ComplianceModule!
+  isGlobal: Boolean! # True if applies to all lots, false if lot-specific
+  addedAt: BigInt!
+  addedTx: Bytes!
+  removedAt: BigInt
+  removedTx: Bytes
+  isActive: Boolean! # False if removed
+}
+
+# Lot-specific module assignment (overrides or additions to global modules)
+type LotComplianceConfig @entity {
+  id: ID! # lot-module
+  lot: Lot!
+  module: ComplianceModule!
+  addedAt: BigInt!
+  addedTx: Bytes!
+}
+
+# ============ MODULE-SPECIFIC ENTITIES ============
+
+# Holding Period Module - tracks acquisition dates and required holding periods
+type HoldingPeriodConfig @entity {
+  id: ID! # token-lotId-holder
+  token: Token!
+  lotId: Bytes! # bytes32 lot identifier
+  holder: Bytes!
+  module: ComplianceModule! # Reference to the HoldingPeriodModule instance
+  holdingPeriod: BigInt! # Required holding period in seconds (from token-level config)
+  acquisitionDate: BigInt! # When holder acquired this lot
+  unlockDate: BigInt! # Calculated: acquisitionDate + holdingPeriod
+  isUnlocked: Boolean! # True if current time >= unlockDate
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Volume Limit Module - tracks rolling volume limits for affiliates
+type VolumeLimitConfig @entity {
+  id: ID! # token-holder
+  token: Token!
+  holder: Bytes!
+  module: ComplianceModule! # Reference to the VolumeLimitModule instance
+  
+  # Configuration (from token-level settings)
+  limitBps: Int! # Basis points (100 = 1%, 10000 = 100%)
+  windowSeconds: BigInt! # Time window for volume tracking
+  
+  # Current window state
+  currentWindowStart: BigInt! # When current window started
+  currentVolume: BigInt! # Cumulative volume in current window
+  lastTransferAt: BigInt # Last time volume was recorded
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Affiliate Status Module - tracks which holders are affiliates
+type AffiliateStatus @entity {
+  id: ID! # token-holder
+  token: Token!
+  holder: Bytes!
+  module: ComplianceModule! # Reference to the AffiliateStatusModule instance
+  isAffiliate: Boolean!
+  affiliateSince: BigInt # When holder became affiliate (null if never was)
+  affiliateUntil: BigInt # When holder stopped being affiliate (null if currently is)
+  
+  # History tracking
+  statusChanges: [AffiliateStatusChange!]! @derivedFrom(field: "affiliateStatus")
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# History of affiliate status changes
+type AffiliateStatusChange @entity {
+  id: ID! # tx-hash-logIndex
+  affiliateStatus: AffiliateStatus!
+  becameAffiliate: Boolean! # True if became affiliate, false if revoked
+  changedAt: BigInt!
+  changedTx: Bytes!
+}
+
+# Lockup Compliance Module - tracks time-based lockups per lot
+type LockupConfig @entity {
+  id: ID! # lotId (bytes32 as hex string)
+  lotId: Bytes! # bytes32 lot identifier
+  unlockTime: BigInt! # Unix timestamp when lot becomes transferable
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Vesting Compliance Module - tracks vesting schedules per lot
+type VestingConfig @entity {
+  id: ID! # lotId (bytes32 as hex string)
+  lotId: Bytes! # bytes32 lot identifier
+  holder: Bytes! # Token holder address
+  totalBasisPoints: BigInt! # Percentage of lot to vest (10000 = 100%)
+  releasedBasisPoints: BigInt! # Percentage already released
+  startTime: BigInt! # Vesting start timestamp
+  duration: BigInt! # Total vesting duration in seconds
+  cliffDuration: BigInt! # Cliff period in seconds
+  revocable: Boolean! # Whether the schedule can be revoked
+  revoked: Boolean! # Whether the schedule has been revoked
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 type Lot @entity {
   id: ID! # token-lotId
   token: Token! # Can reference any token type via interface
@@ -1007,7 +1156,7 @@ type Lot @entity {
   frozenAt: BigInt
   
   # Compliance
-  lotSpecificModules: [Bytes!]! # Lot-specific compliance modules (in addition to token's global modules)
+  lotSpecificModules: [LotComplianceConfig!]! @derivedFrom(field: "lot") # Lot-specific compliance modules (in addition to token's global modules)
   
   # Type-specific references (optional - uncomment as needed)
   # esoGrant: ESOGrant # If this is an ESO grant lot

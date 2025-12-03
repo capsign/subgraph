@@ -474,6 +474,12 @@ templates:
           receipt: false
         - event: ClaimCancelled(indexed bytes32,indexed address)
           handler: handleClaimCancelled
+        - event: ComplianceModuleAdded(indexed address,string)
+          handler: handleComplianceModuleAdded
+        - event: ComplianceModuleRemoved(indexed address,string)
+          handler: handleComplianceModuleRemoved
+        - event: LotModuleAdded(indexed bytes32,indexed address)
+          handler: handleLotModuleAdded
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
@@ -596,4 +602,131 @@ templates:
         - event: DisputeRaised(indexed address)
           handler: handleDisputeRaised
       file: ./src/mappings/acquisitions.ts
+
+  # NOTE: Rule144ComplianceModule template removed - replaced by modular HoldingPeriodModule, VolumeLimitModule, AffiliateStatusModule
+
+  # Holding Period Module Template
+  - kind: ethereum/contract
+    name: HoldingPeriodModule
+    network: base-sepolia
+    source:
+      abi: HoldingPeriodModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - HoldingPeriodConfig
+        - Token
+      abis:
+        - name: HoldingPeriodModule
+          file: ./abis/HoldingPeriodModule.json
+      eventHandlers:
+        - event: HoldingPeriodSet(indexed address,uint256)
+          handler: handleHoldingPeriodSet
+        - event: AcquisitionDateSet(indexed address,indexed bytes32,indexed address,uint256)
+          handler: handleAcquisitionDateSet
+        - event: AcquisitionDateUpdated(indexed address,indexed bytes32,indexed address,uint256)
+          handler: handleAcquisitionDateUpdated
+      file: ./src/mappings/holding-period-module.ts
+
+  # Volume Limit Module Template
+  - kind: ethereum/contract
+    name: VolumeLimitModule
+    network: base-sepolia
+    source:
+      abi: VolumeLimitModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - VolumeLimitConfig
+        - Token
+      abis:
+        - name: VolumeLimitModule
+          file: ./abis/VolumeLimitModule.json
+      eventHandlers:
+        - event: VolumeConfigSet(indexed address,uint256,uint256,bool)
+          handler: handleVolumeConfigSet
+        - event: VolumeRecorded(indexed address,indexed address,uint256,uint256)
+          handler: handleVolumeRecorded
+        - event: WindowReset(indexed address,indexed address,uint256)
+          handler: handleWindowReset
+      file: ./src/mappings/volume-limit-module.ts
+
+  # Affiliate Status Module Template
+  - kind: ethereum/contract
+    name: AffiliateStatusModule
+    network: base-sepolia
+    source:
+      abi: AffiliateStatusModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - AffiliateStatus
+        - AffiliateStatusChange
+        - Token
+      abis:
+        - name: AffiliateStatusModule
+          file: ./abis/AffiliateStatusModule.json
+      eventHandlers:
+        - event: AffiliateStatusSet(indexed address,indexed address,bool)
+          handler: handleAffiliateStatusSet
+        - event: AffiliateStatusBatchSet(indexed address,uint256)
+          handler: handleAffiliateStatusBatchSet
+      file: ./src/mappings/affiliate-status-module.ts
+
+  # Lockup Compliance Module Template (Lot-level)
+  - kind: ethereum/contract
+    name: LockupComplianceModule
+    network: base-sepolia
+    source:
+      abi: LockupComplianceModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LockupConfig
+      abis:
+        - name: LockupComplianceModule
+          file: ./abis/LockupComplianceModule.json
+      eventHandlers:
+        - event: LockupSet(indexed bytes32,uint256)
+          handler: handleLockupSet
+        - event: LockupExtended(indexed bytes32,uint256,uint256)
+          handler: handleLockupExtended
+        - event: LockupRemoved(indexed bytes32)
+          handler: handleLockupRemoved
+      file: ./src/mappings/lockup-module.ts
+
+  # Vesting Compliance Module Template (Lot-level)
+  - kind: ethereum/contract
+    name: VestingComplianceModule
+    network: base-sepolia
+    source:
+      abi: VestingComplianceModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - VestingConfig
+      abis:
+        - name: VestingComplianceModule
+          file: ./abis/VestingComplianceModule.json
+      eventHandlers:
+        - event: VestingScheduleCreated(indexed address,indexed bytes32,uint256,uint256,uint256,uint256,bool)
+          handler: handleVestingScheduleCreated
+        - event: TokensReleased(indexed address,indexed bytes32,uint256)
+          handler: handleTokensReleased
+        - event: VestingScheduleRevoked(indexed address,indexed bytes32)
+          handler: handleVestingScheduleRevoked
+      file: ./src/mappings/vesting-module.ts
 

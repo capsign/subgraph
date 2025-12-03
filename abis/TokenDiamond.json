@@ -181,6 +181,44 @@
   },
   {
     "type": "event",
+    "name": "ComplianceModuleAdded",
+    "inputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleRemoved",
+    "inputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "CostBasisAdjustmentApplied",
     "inputs": [
       {
@@ -638,6 +676,19 @@
     "inputs": []
   },
   {
+    "type": "function",
+    "name": "TokenCompliance_init",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "event",
     "name": "TokenRetired",
     "inputs": [
@@ -670,7 +721,27 @@
   },
   {
     "type": "error",
+    "name": "Token_InvalidModule",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "Token_InvalidQuantity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_MaxModulesReached",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_ModuleAlreadyExists",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Token_ModuleNotFound",
     "inputs": []
   },
   {
@@ -691,6 +762,37 @@
       },
       {
         "name": "value",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TransferProcessed",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "quantity",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -735,6 +837,42 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "addComplianceModule",
+    "inputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addLotModule",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "module",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -1049,6 +1187,25 @@
   },
   {
     "type": "function",
+    "name": "getApplicableModules",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getClaim",
     "inputs": [
       {
@@ -1082,6 +1239,19 @@
         "name": "issuer",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getComplianceModules",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]",
+        "internalType": "address[]"
       }
     ],
     "stateMutability": "view"
@@ -1257,6 +1427,25 @@
   },
   {
     "type": "function",
+    "name": "getModuleByName",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "hasRole",
     "inputs": [
       {
@@ -1319,7 +1508,45 @@
   },
   {
     "type": "function",
+    "name": "isModuleRegistered",
+    "inputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "lotExists",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "lotHasSpecificModules",
     "inputs": [
       {
         "name": "lotId",
@@ -1409,6 +1636,34 @@
   },
   {
     "type": "function",
+    "name": "processTransferCompliance",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "quantity",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "rawBalanceOf",
     "inputs": [
       {
@@ -1470,6 +1725,24 @@
   },
   {
     "type": "function",
+    "name": "removeComplianceModule",
+    "inputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "symbol",
     "inputs": [],
     "outputs": [
@@ -1509,6 +1782,40 @@
         "name": "",
         "type": "bytes32",
         "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "validateTransferCompliance",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "quantity",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "stateMutability": "view"

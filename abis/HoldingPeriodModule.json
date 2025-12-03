@@ -1,22 +1,12 @@
 [
   {
     "type": "function",
-    "name": "TokenCompliance_init",
+    "name": "HoldingPeriod_init",
     "inputs": [
       {
-        "name": "admin",
+        "name": "_admin",
         "type": "address",
         "internalType": "address"
-      },
-      {
-        "name": "modules",
-        "type": "address[]",
-        "internalType": "address[]"
-      },
-      {
-        "name": "names",
-        "type": "string[]",
-        "internalType": "string[]"
       }
     ],
     "outputs": [],
@@ -24,132 +14,196 @@
   },
   {
     "type": "function",
-    "name": "addComplianceModule",
+    "name": "acquisitionDate",
     "inputs": [
       {
-        "name": "module",
+        "name": "",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "addLotModule",
-    "inputs": [
-      {
-        "name": "lotId",
+        "name": "",
         "type": "bytes32",
         "internalType": "bytes32"
       },
       {
-        "name": "module",
+        "name": "",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "getApplicableModules",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ],
     "outputs": [
       {
         "name": "",
-        "type": "address[]",
-        "internalType": "address[]"
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getComplianceModules",
+    "name": "batchSetAcquisitionDates",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "holders",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "dates",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getDaysRemaining",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holder",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUnlockDate",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holder",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "holdingPeriod",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isUnlocked",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holder",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "moduleName",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getModuleByName",
-    "inputs": [
-      {
-        "name": "name",
         "type": "string",
         "internalType": "string"
       }
     ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
+    "stateMutability": "pure"
   },
   {
     "type": "function",
-    "name": "isModuleRegistered",
-    "inputs": [
-      {
-        "name": "module",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "name": "moduleVersion",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "bool",
-        "internalType": "bool"
+        "type": "string",
+        "internalType": "string"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "pure"
   },
   {
     "type": "function",
-    "name": "lotHasSpecificModules",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "processTransferCompliance",
+    "name": "processTransfer",
     "inputs": [
       {
         "name": "from",
@@ -167,7 +221,7 @@
         "internalType": "bytes32"
       },
       {
-        "name": "quantity",
+        "name": "",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -177,26 +231,13 @@
   },
   {
     "type": "function",
-    "name": "removeComplianceModule",
+    "name": "setAcquisitionDate",
     "inputs": [
       {
-        "name": "module",
+        "name": "token",
         "type": "address",
         "internalType": "address"
       },
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setLotAffiliate",
-    "inputs": [
       {
         "name": "lotId",
         "type": "bytes32",
@@ -208,25 +249,7 @@
         "internalType": "address"
       },
       {
-        "name": "isAffiliate",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setLotLockup",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "unlockTime",
+        "name": "date",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -236,42 +259,17 @@
   },
   {
     "type": "function",
-    "name": "setLotVesting",
+    "name": "setHoldingPeriod",
     "inputs": [
       {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "tokenHolder",
+        "name": "token",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "totalAmount",
+        "name": "period",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "startTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "duration",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "cliffDuration",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "revocable",
-        "type": "bool",
-        "internalType": "bool"
       }
     ],
     "outputs": [],
@@ -279,7 +277,7 @@
   },
   {
     "type": "function",
-    "name": "validateTransferCompliance",
+    "name": "validateTransfer",
     "inputs": [
       {
         "name": "from",
@@ -297,7 +295,7 @@
         "internalType": "bytes32"
       },
       {
-        "name": "quantity",
+        "name": "",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -313,73 +311,10 @@
   },
   {
     "type": "event",
-    "name": "ComplianceModuleAdded",
+    "name": "AcquisitionDateSet",
     "inputs": [
       {
-        "name": "module",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "ComplianceModuleRemoved",
-    "inputs": [
-      {
-        "name": "module",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "name",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "LotModuleAdded",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "module",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TransferProcessed",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "to",
+        "name": "token",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -391,7 +326,63 @@
         "internalType": "bytes32"
       },
       {
-        "name": "quantity",
+        "name": "holder",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "date",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AcquisitionDateUpdated",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holder",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "date",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "HoldingPeriodSet",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "period",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -442,22 +433,12 @@
   },
   {
     "type": "error",
-    "name": "Token_InvalidModule",
+    "name": "HoldingPeriod_AlreadyInitialized",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "Token_MaxModulesReached",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "Token_ModuleAlreadyExists",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "Token_ModuleNotFound",
+    "name": "LengthMismatch",
     "inputs": []
   }
 ]

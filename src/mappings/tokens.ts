@@ -22,11 +22,13 @@ import {
   LotModuleAdded,
   ClaimCreated,
   ClaimRedeemed,
-  ClaimCancelled
+  ClaimCancelled,
+  ComplianceModuleAdded,
+  ComplianceModuleRemoved
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule } from "../../generated/schema";
 import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -71,7 +73,7 @@ export function handleLotCreated(event: LotCreated): void {
   lot.parentLotId = null;
   lot.frozen = false;
   lot.isValid = true;
-  lot.lotSpecificModules = []; // Initialize empty array for lot-specific compliance modules
+  // Note: lotSpecificModules is a @derivedFrom field, populated automatically
   
   // Fetch full lot details from contract to get cost basis, payment currency, etc.
   const tokenContract = TokenLots.bind(event.address);
@@ -550,12 +552,27 @@ export function handleLotModuleAdded(event: LotModuleAdded): void {
     return;
   }
   
-  // Add the module to the lot's specific modules array
-  const currentModules = lot.lotSpecificModules || [];
-  currentModules.push(module);
-  lot.lotSpecificModules = currentModules;
+  // Create compliance module entity if needed
+  let complianceModule = ComplianceModule.load(module.toHexString());
+  if (!complianceModule) {
+    complianceModule = new ComplianceModule(module.toHexString());
+    complianceModule.address = module;
+    complianceModule.name = "Unknown";
+    complianceModule.version = "1.0.0";
+    complianceModule.moduleType = "Custom";
+    complianceModule.firstUsedAt = event.block.timestamp;
+    complianceModule.firstUsedTx = event.transaction.hash;
+    complianceModule.save();
+  }
   
-  lot.save();
+  // Create lot compliance config
+  const configId = tokenAddress + "-" + lotId.toHexString() + "-" + module.toHexString();
+  let config = new LotComplianceConfig(configId);
+  config.lot = lotEntityId;
+  config.module = module.toHexString();
+  config.addedAt = event.block.timestamp;
+  config.addedTx = event.transaction.hash;
+  config.save();
   
   log.info("Added lot-specific module {} to lot {}", [module.toHexString(), lotEntityId]);
 }
@@ -695,3 +712,8 @@ export function handleClaimCancelled(event: ClaimCancelled): void {
   }
 }
 
+// Re-export compliance module handlers from token-compliance.ts
+export {
+  handleComplianceModuleAdded,
+  handleComplianceModuleRemoved
+} from "./token-compliance";
