@@ -140,6 +140,11 @@ export function handleDocumentSigned(event: DocumentSigned): void {
   signature.blockNumber = event.block.number;
   signature.logIndex = event.logIndex;
   
+  // Direct signature (not delegated)
+  signature.actualSigner = signer;
+  signature.onBehalfOf = null;
+  signature.isDelegated = false;
+  
   signature.save();
   
   // Create activity for document signed

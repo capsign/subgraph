@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xfF1d6ADFB86a88939DCED81b40F3B9011995044B"
+      address: "0xA939E1aa1A935773e60EDf88490DfBBBBD998b03"
       abi: OfferingFactory
-      startBlock: 34384773 # Redeployed 2025-11-30 with Acquisitions
+      startBlock: 34558542 # Redeployed 2024-12-04 with Document Requirement Groups
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -343,6 +343,10 @@ templates:
           handler: handleInvestmentAccepted
         - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentRejected
+        - event: InvestmentMadeAsRepresentative(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleInvestmentMadeAsRepresentative
+        - event: DocumentSignerRoleUpdated(uint8)
+          handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
         - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
@@ -355,6 +359,12 @@ templates:
           receipt: true
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleOfferingDocumentSigned
+        - event: DocumentRequirementAdded(indexed uint256,string,uint8,uint8)
+          handler: handleDocumentRequirementAdded
+        - event: DocumentRequirementUpdated(indexed uint256,string,uint8,uint8,uint8)
+          handler: handleDocumentRequirementUpdated
+        - event: DocumentRequirementRemoved(indexed uint256)
+          handler: handleDocumentRequirementRemoved
           receipt: true
         - event: ComplianceInitialized(bool,bool)
           handler: handleComplianceInitialized

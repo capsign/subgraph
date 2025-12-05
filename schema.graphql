@@ -99,11 +99,16 @@ type Document @entity {
 type DocumentSignature @entity {
   id: ID! # tx-hash-logIndex
   document: Document # Nullable to handle cases where DocumentSigned event is indexed before DocumentCreated
-  signer: Bytes!
+  signer: Bytes! # The primary signer (entity for representative signatures, individual otherwise)
   signedAt: BigInt!
   tx: Bytes!
   blockNumber: BigInt!
   logIndex: BigInt!
+  
+  # Representative signing fields
+  actualSigner: Bytes # The individual who physically signed (for representative signatures)
+  onBehalfOf: Bytes # The entity on whose behalf it was signed
+  isDelegated: Boolean! # True if actualSigner signed on behalf of onBehalfOf
 }
 
 # ============ PAYMASTER ENTITIES ============
@@ -434,6 +439,9 @@ type Offering @entity {
   generalSolicitation: Boolean
   allowsSelfCertification: Boolean
   
+  # Representative signing settings
+  documentSignerRoleId: Int # Role ID required for representative document signing (default: 50)
+  
   # Offchain investment tracking
   totalOffchainPending: BigInt # Nullable for backwards compatibility
   totalOffchainConfirmed: BigInt # Nullable for backwards compatibility
@@ -443,6 +451,22 @@ type Offering @entity {
   offchainInvestments: [OffchainInvestment!]! @derivedFrom(field: "offering")
   requiredTemplate: OfferingTemplate # The required template for this offering
   documents: [OfferingDocument!]! @derivedFrom(field: "offering") # Document instances created from the template
+  documentRequirements: [DocumentRequirement!]! @derivedFrom(field: "offering") # Document requirement groups
+}
+
+# Document requirement group for offerings
+type DocumentRequirement @entity {
+  id: ID! # offering-index (e.g., "0x123...abc-0")
+  offering: Offering!
+  index: Int! # Index in the requirements array
+  label: String!
+  allowedTemplateIds: [Bytes!]! # Template IDs that satisfy this requirement
+  isRequired: Boolean!
+  minRequired: Int! # Minimum number of documents to sign from this group
+  maxRequired: Int! # Maximum number of documents allowed from this group
+  priority: Int! # Signing order priority (lower number = sign first)
+  addedAt: BigInt!
+  addedTx: Bytes!
 }
 
 # Document template stored in offering contract
@@ -483,11 +507,16 @@ type OfferingDocumentSignature @entity {
   offering: Offering!
   template: OfferingTemplate!
   document: OfferingDocument # Nullable to handle cases where signature is created before document
-  signer: Bytes!
+  signer: Bytes! # The primary signer (entity for representative signatures, individual otherwise)
   signedAt: BigInt!
   tx: Bytes!
   blockNumber: BigInt!
   logIndex: BigInt!
+  
+  # Representative signing fields
+  actualSigner: Bytes # The individual who physically signed (for representative signatures)
+  onBehalfOf: Bytes # The entity on whose behalf it was signed
+  isDelegated: Boolean! # True if actualSigner signed on behalf of onBehalfOf
 }
 
 enum OfferingStatus {
@@ -538,12 +567,20 @@ type Investment @entity {
   investedTx: Bytes!
   investedBlockNumber: BigInt!
   
+  # Representative signing for investment
+  actualInvestor: Wallet # The individual who physically made the investment (for entity investments)
+  investedOnBehalfOf: Wallet # The entity on whose behalf the investment was made
+  isInvestmentDelegated: Boolean! # True if actualInvestor invested on behalf of investedOnBehalfOf
+  
   # Status management
   status: InvestmentStatus!
   
   # Countersign data (when status = ACCEPTED)
   countersignedAt: BigInt
   countersignedTx: Bytes
+  countersignedBy: Wallet # The individual who physically countersigned
+  countersignedOnBehalfOf: Wallet # The entity on whose behalf countersigning happened
+  isCountersignDelegated: Boolean # True if countersignedBy signed on behalf of countersignedOnBehalfOf
   
   # Rejection data (when status = REJECTED)
   rejectedAt: BigInt

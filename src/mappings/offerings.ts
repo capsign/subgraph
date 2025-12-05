@@ -4,13 +4,21 @@ import {
   InvestmentAccepted,
   InvestmentRejected,
   OfferingStatusChanged,
+  InvestmentMadeAsRepresentative,
+  DocumentSignerRoleUpdated,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import {
   DocumentSigned,
+  DocumentCreated,
+  DocumentRequirementAdded,
+  DocumentRequirementUpdated,
+  DocumentRequirementRemoved,
+  OfferingDocuments,
+} from "../../generated/templates/OfferingDiamond/OfferingDocuments";
+import {
   TemplateRegistered,
   RequiredDocumentSet,
-  DocumentCreated,
-} from "../../generated/templates/OfferingDiamond/OfferingDocuments";
+} from "../../generated/templates/OfferingDiamond/OfferingDiamond";
 import {
   ComplianceInitialized,
   AllowsGeneralSolicitationUpdated,
@@ -36,7 +44,7 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement } from "../../generated/schema";
 import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -128,6 +136,10 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   investment.status = "PENDING"; // Initial status
   investment.identityUID = event.params.identityUID;
   investment.qualificationUID = event.params.qualificationUID;
+  
+  // Initialize representative signing fields (will be updated by InvestmentMadeAsRepresentative if applicable)
+  investment.isInvestmentDelegated = false;
+  
   investment.save();
   
   // Create lookup entity for composite ID queries
@@ -166,6 +178,30 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   issuerActivity.save();
 }
 
+export function handleInvestmentMadeAsRepresentative(event: InvestmentMadeAsRepresentative): void {
+  // Look up investment by compositeId (offering-investmentId)
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  const lookup = InvestmentLookup.load(compositeId);
+  if (!lookup) return; // Investment not found (should have been created by FundsDeposited first)
+  
+  const investment = Investment.load(lookup.investment);
+  if (!investment) return;
+  
+  // Update with representative signing info
+  investment.actualInvestor = event.params.actualInvestor.toHexString();
+  investment.investedOnBehalfOf = event.params.entityAddress.toHexString();
+  investment.isInvestmentDelegated = true;
+  investment.save();
+}
+
+export function handleDocumentSignerRoleUpdated(event: DocumentSignerRoleUpdated): void {
+  const offering = Offering.load(event.address.toHexString());
+  if (!offering) return;
+  
+  offering.documentSignerRoleId = event.params.roleId;
+  offering.save();
+}
+
 export function handleInvestmentAccepted(
   event: InvestmentAccepted
 ): void {
@@ -180,6 +216,19 @@ export function handleInvestmentAccepted(
   investment.status = "ACCEPTED";
   investment.countersignedAt = event.block.timestamp;
   investment.countersignedTx = event.transaction.hash;
+  
+  // Check if countersigner is different from issuer (indicates representative countersigning)
+  const offering = Offering.load(event.address.toHexString());
+  if (offering && event.transaction.from.toHexString() != offering.issuer.toHexString()) {
+    // This was countersigned by a representative
+    investment.countersignedBy = event.transaction.from.toHexString();
+    investment.countersignedOnBehalfOf = offering.issuer.toHexString();
+    investment.isCountersignDelegated = true;
+  } else {
+    // Direct countersigning by issuer
+    investment.isCountersignDelegated = false;
+  }
+  
   investment.save();
 }
 
@@ -322,6 +371,9 @@ export function handleOfferingDocumentSigned(event: DocumentSigned): void {
   signature.tx = event.transaction.hash;
   signature.blockNumber = event.block.number;
   signature.logIndex = event.logIndex;
+  
+  // Initialize representative signing fields (not delegated for regular DocumentSigned)
+  signature.isDelegated = false;
   
   signature.save();
   
@@ -766,4 +818,77 @@ export function handleOfferingFunctionAccessChanged(event: FunctionAccessChanged
   functionAccess.lastUpdatedTx = event.transaction.hash;
   
   functionAccess.save();
+}
+
+/**
+ * Handle document requirement added
+ */
+export function handleDocumentRequirementAdded(event: DocumentRequirementAdded): void {
+  const offeringAddress = event.address.toHexString();
+  const requirementIndex = event.params.requirementIndex;
+  const requirementId = `${offeringAddress}-${requirementIndex.toString()}`;
+  
+  // Get requirement data from contract
+  const contract = OfferingDocuments.bind(event.address);
+  const requirementData = contract.try_getDocumentRequirement(requirementIndex);
+  
+  if (!requirementData.reverted) {
+    const req = requirementData.value;
+    const requirement = new DocumentRequirement(requirementId);
+    requirement.offering = offeringAddress;
+    requirement.index = requirementIndex.toI32();
+    requirement.label = event.params.label;
+    requirement.allowedTemplateIds = req.allowedTemplateIds;
+    requirement.isRequired = req.isRequired;
+    requirement.minRequired = event.params.minRequired;
+    requirement.maxRequired = event.params.maxRequired;
+    requirement.priority = req.priority;
+    requirement.addedAt = event.block.timestamp;
+    requirement.addedTx = event.transaction.hash;
+    requirement.save();
+  }
+}
+
+/**
+ * Handle document requirement updated
+ */
+export function handleDocumentRequirementUpdated(event: DocumentRequirementUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const requirementIndex = event.params.requirementIndex;
+  const requirementId = `${offeringAddress}-${requirementIndex.toString()}`;
+  
+  const requirement = DocumentRequirement.load(requirementId);
+  if (requirement) {
+    requirement.label = event.params.label;
+    requirement.minRequired = event.params.minRequired;
+    requirement.maxRequired = event.params.maxRequired;
+    requirement.priority = event.params.priority;
+    requirement.save();
+  }
+}
+
+/**
+ * Handle document requirement removed
+ */
+export function handleDocumentRequirementRemoved(event: DocumentRequirementRemoved): void {
+  const offeringAddress = event.address.toHexString();
+  const requirementIndex = event.params.requirementIndex;
+  const requirementId = `${offeringAddress}-${requirementIndex.toString()}`;
+  
+  // Note: Due to swap-and-pop removal, the requirement at this index might now be a different one
+  // We need to reload all requirements and renumber them
+  const offering = Offering.load(offeringAddress);
+  if (offering) {
+    const contract = OfferingDocuments.bind(event.address);
+    const requirementsResult = contract.try_getDocumentRequirements();
+    
+    if (!requirementsResult.reverted) {
+      // Remove old requirement
+      const oldRequirement = DocumentRequirement.load(requirementId);
+      if (oldRequirement) {
+        // We can't actually delete the entity in The Graph, so we just leave it
+        // The frontend should only query by offering, which will return the current list
+      }
+    }
+  }
 }

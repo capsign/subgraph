@@ -1,6 +1,44 @@
 [
   {
     "type": "function",
+    "name": "addDocumentRequirement",
+    "inputs": [
+      {
+        "name": "allowedTemplateIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "isRequired",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "minRequired",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "maxRequired",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "priority",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "canSignRequiredDocument",
     "inputs": [
       {
@@ -109,6 +147,140 @@
   },
   {
     "type": "function",
+    "name": "getDocumentRequirement",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct OfferingStorage.DocumentRequirement",
+        "components": [
+          {
+            "name": "allowedTemplateIds",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "isRequired",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "minRequired",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "maxRequired",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "priority",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDocumentRequirements",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct OfferingStorage.DocumentRequirement[]",
+        "components": [
+          {
+            "name": "allowedTemplateIds",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "isRequired",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "minRequired",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "maxRequired",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "priority",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorSignedDocument",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "documentId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorSignedDocumentsByGroup",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "signedByGroup",
+        "type": "bytes32[][]",
+        "internalType": "bytes32[][]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getRequiredDocumentInfo",
     "inputs": [],
     "outputs": [
@@ -127,50 +299,19 @@
   },
   {
     "type": "function",
-    "name": "getTemplate",
-    "inputs": [],
+    "name": "hasSignedAllRequiredDocuments",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
     "outputs": [
       {
-        "name": "template",
-        "type": "tuple",
-        "internalType": "struct OfferingStorage.DocumentTemplate",
-        "components": [
-          {
-            "name": "contentHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "storageURI",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "title",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "category",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "creator",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "createdAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "exists",
-            "type": "bool",
-            "internalType": "bool"
-          }
-        ]
+        "name": "satisfied",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "stateMutability": "view"
@@ -225,42 +366,12 @@
   },
   {
     "type": "function",
-    "name": "setRequiredDocument",
+    "name": "removeDocumentRequirement",
     "inputs": [
       {
-        "name": "templateId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "contentHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "storageURI",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "title",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "category",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "eligibility",
-        "type": "uint8",
-        "internalType": "enum IOfferingDocuments.SignerEligibility"
-      },
-      {
-        "name": "customModule",
-        "type": "address",
-        "internalType": "address"
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -274,6 +385,39 @@
         "name": "documentId",
         "type": "bytes32",
         "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateDocumentRequirement",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minRequired",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "maxRequired",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "priority",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "outputs": [],
@@ -312,6 +456,87 @@
   },
   {
     "type": "event",
+    "name": "DocumentRequirementAdded",
+    "inputs": [
+      {
+        "name": "requirementIndex",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "minRequired",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "maxRequired",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DocumentRequirementRemoved",
+    "inputs": [
+      {
+        "name": "requirementIndex",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DocumentRequirementUpdated",
+    "inputs": [
+      {
+        "name": "requirementIndex",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "minRequired",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "maxRequired",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "priority",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "DocumentSigned",
     "inputs": [
       {
@@ -337,50 +562,31 @@
   },
   {
     "type": "event",
-    "name": "RequiredDocumentSet",
+    "name": "DocumentSignedByRepresentative",
     "inputs": [
       {
-        "name": "templateId",
+        "name": "documentId",
         "type": "bytes32",
         "indexed": true,
         "internalType": "bytes32"
       },
       {
-        "name": "eligibility",
-        "type": "uint8",
-        "indexed": false,
-        "internalType": "enum IOfferingDocuments.SignerEligibility"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "TemplateRegistered",
-    "inputs": [
-      {
-        "name": "templateId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "contentHash",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "title",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "creator",
+        "name": "actualSigner",
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      },
+      {
+        "name": "entity",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -428,7 +634,27 @@
   },
   {
     "type": "error",
+    "name": "OfferingDocuments_InvalidMinMax",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_InvalidRequirementIndex",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "OfferingDocuments_InvalidTemplateId",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_MaxDocumentsReached",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingDocuments_MinDocumentsNotMet",
     "inputs": []
   },
   {
