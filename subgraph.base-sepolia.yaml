@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x36eF3f0Da7372668f600d45D2dfa1Da30FAa00Bc"
+      address: "0x4B0b3572ac00ca5935717A6a9E4c56Ab5FA44C56"
       abi: DiamondFactory
-      startBlock: 34384743
+      startBlock: 34696273
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -74,7 +74,7 @@ dataSources:
     source:
       address: "0x8E076fAfDFfFCbe947c03c9b6156cd3FB4b11D15"
       abi: FacetRegistry
-      startBlock: 34384743
+      startBlock: 34696273
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -97,9 +97,9 @@ dataSources:
     name: WalletFactory
     network: base-sepolia
     source:
-      address: "0xc775ABF65289D220D885eB4D6cD9F13c33f522F1"
+      address: "0xa330d6CC79B9Cd022Acc2fbF1E09eD5b2f2dCEFc"
       abi: WalletFactory
-      startBlock: 34384772
+      startBlock: 34696273
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xA939E1aa1A935773e60EDf88490DfBBBBD998b03"
+      address: "0xE9F2A24a9eBEC7575BC12Ac7F9A96271753FD1Ed"
       abi: OfferingFactory
-      startBlock: 34558542 # Redeployed 2024-12-04 with Document Requirement Groups
+      startBlock: 34696273 # Fresh start 2024-12-08 with unified access control
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0x26Ad4CaF414306a6f834c30faD607621a028Ea23"
+      address: "0x80E94FB02F959D7550203382ADA98Fe20f683D5E"
       abi: TokenFactory
-      startBlock: 34384771
+      startBlock: 34696273
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -222,9 +222,9 @@ dataSources:
     name: AcquisitionFactory
     network: base-sepolia
     source:
-      address: "0x7b2BC59fDc87a62F5DF37115127714dd171aC790"
+      address: "0x2637715a32d8744c5CB4FF371B14Da82A07aBdEF"
       abi: AcquisitionFactory
-      startBlock: 34428281 # Deployed 2025-12-01 (email-gated token claims deployment)
+      startBlock: 34696273 # Redeployed 2024-12-06 with Document Eligibility Modes
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -267,9 +267,9 @@ dataSources:
     name: CapSignPaymaster
     network: base-sepolia
     source:
-      address: "0x125e0c58291B5cB22a05D2D6Dc0Ac72eA9618311"
+      address: "0x09A2e5eda126914208E7da36C8C9ce3d9ec76EfA"
       abi: CapSignPaymasterFacet
-      startBlock: 33865347
+      startBlock: 34696273
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -317,6 +317,7 @@ templates:
         - InvestorClassification
         - Wallet
         - SafePreApprovedTerms
+        - AuthorityDelegation
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -335,6 +336,8 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
+        - event: AuthorityUpdated(indexed address,indexed address)
+          handler: handleAuthorityUpdated
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
         - event: FundsDeposited(indexed address,indexed uint256,uint256,uint256,bytes32,bytes32)
@@ -343,8 +346,6 @@ templates:
           handler: handleInvestmentAccepted
         - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentRejected
-        - event: InvestmentMadeAsRepresentative(indexed uint256,indexed address,indexed address,uint256,uint256)
-          handler: handleInvestmentMadeAsRepresentative
         - event: DocumentSignerRoleUpdated(uint8)
           handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
@@ -416,6 +417,7 @@ templates:
         - Lot
         - Token
         - TokenClaim
+        - AuthorityDelegation
       abis:
         - name: TokenDiamond
           file: ./abis/TokenDiamond.json
@@ -434,6 +436,8 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
+        - event: AuthorityUpdated(indexed address,indexed address)
+          handler: handleAuthorityUpdated
         - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
           handler: handleLotCreated
         - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256,string,bytes,uint8,uint256)
@@ -513,6 +517,8 @@ templates:
         - Distribution
         - DistributionClaim
         - VehicleInvestment
+        - AuthorityDelegation
+        - TargetFunctionPermission
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -526,7 +532,13 @@ templates:
           file: ./abis/SPVDistributionFacet.json
         - name: WalletPaymasterPolicyFacet
           file: ./abis/WalletPaymasterPolicyFacet.json
+        - name: WalletAccessManager
+          file: ./abis/WalletAccessManagerFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
+        - event: WalletTargetFunctionRoleSet(indexed address,indexed bytes4,uint8)
+          handler: handleWalletTargetFunctionRoleSet
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
         - event: DocumentUploaded(indexed bytes32,indexed bytes32,indexed address)

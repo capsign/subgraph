@@ -4,7 +4,6 @@ import {
   InvestmentAccepted,
   InvestmentRejected,
   OfferingStatusChanged,
-  InvestmentMadeAsRepresentative,
   DocumentSignerRoleUpdated,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import {
@@ -13,6 +12,8 @@ import {
   DocumentRequirementAdded,
   DocumentRequirementUpdated,
   DocumentRequirementRemoved,
+  DocumentEligibilityModeSet,
+  CustomEligibilityModuleSet,
   OfferingDocuments,
 } from "../../generated/templates/OfferingDiamond/OfferingDocuments";
 import {
@@ -89,6 +90,9 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   offering.totalOffchainPending = BigInt.fromI32(0);
   offering.totalOffchainConfirmed = BigInt.fromI32(0);
   offering.status = "ACTIVE";
+  
+  // Set default document eligibility mode (2 = COMPLIANT_ONLY)
+  offering.documentEligibilityMode = 2;
 
   offering.save();
   
@@ -137,7 +141,8 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   investment.identityUID = event.params.identityUID;
   investment.qualificationUID = event.params.qualificationUID;
   
-  // Initialize representative signing fields (will be updated by InvestmentMadeAsRepresentative if applicable)
+  // Investments are always made directly by the investor (entity wallet or individual)
+  // Delegation is handled at the document signing level, not investment level
   investment.isInvestmentDelegated = false;
   
   investment.save();
@@ -176,22 +181,6 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   );
   issuerActivity.investment = investmentId;
   issuerActivity.save();
-}
-
-export function handleInvestmentMadeAsRepresentative(event: InvestmentMadeAsRepresentative): void {
-  // Look up investment by compositeId (offering-investmentId)
-  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
-  const lookup = InvestmentLookup.load(compositeId);
-  if (!lookup) return; // Investment not found (should have been created by FundsDeposited first)
-  
-  const investment = Investment.load(lookup.investment);
-  if (!investment) return;
-  
-  // Update with representative signing info
-  investment.actualInvestor = event.params.actualInvestor.toHexString();
-  investment.investedOnBehalfOf = event.params.entityAddress.toHexString();
-  investment.isInvestmentDelegated = true;
-  investment.save();
 }
 
 export function handleDocumentSignerRoleUpdated(event: DocumentSignerRoleUpdated): void {
@@ -890,5 +879,31 @@ export function handleDocumentRequirementRemoved(event: DocumentRequirementRemov
         // The frontend should only query by offering, which will return the current list
       }
     }
+  }
+}
+
+/**
+ * Handle document eligibility mode set
+ */
+export function handleDocumentEligibilityModeSet(event: DocumentEligibilityModeSet): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (offering) {
+    offering.documentEligibilityMode = event.params.mode;
+    offering.save();
+  }
+}
+
+/**
+ * Handle custom eligibility module set
+ */
+export function handleCustomEligibilityModuleSet(event: CustomEligibilityModuleSet): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (offering) {
+    offering.customEligibilityModule = event.params.module;
+    offering.save();
   }
 }

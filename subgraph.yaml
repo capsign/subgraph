@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x7FDfA407eE66Ec94c58E1f614AbEf917dc9Caae9"
+      address: "0x4B0b3572ac00ca5935717A6a9E4c56Ab5FA44C56"
       abi: FactoryCoreFacet
-      startBlock: 33434900
+      startBlock: 34605588
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -113,9 +113,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xE9Db8e149d73a8d7257dfD81C144fcf123AF81a5"
+      address: "0xE9F2A24a9eBEC7575BC12Ac7F9A96271753FD1Ed"
       abi: OfferingFactory
-      startBlock: 34165080
+      startBlock: 34605588
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -239,6 +239,10 @@ templates:
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleOfferingDocumentSigned
           receipt: true
+        - event: DocumentEligibilityModeSet(indexed uint8)
+          handler: handleDocumentEligibilityModeSet
+        - event: CustomEligibilityModuleSet(indexed address)
+          handler: handleCustomEligibilityModuleSet
         - event: ComplianceInitialized(bool,bool)
           handler: handleComplianceInitialized
         - event: AllowsGeneralSolicitationUpdated(bool)

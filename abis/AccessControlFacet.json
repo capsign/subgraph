@@ -1,1 +1,269 @@
-{"abi":[{"type":"function","name":"AccessControl_init","inputs":[{"name":"admin","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"canCall","inputs":[{"name":"user","type":"address","internalType":"address"},{"name":"functionSig","type":"bytes4","internalType":"bytes4"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"functionRoles","inputs":[{"name":"functionSig","type":"bytes4","internalType":"bytes4"}],"outputs":[{"name":"","type":"bytes32","internalType":"bytes32"}],"stateMutability":"view"},{"type":"function","name":"hasRole","inputs":[{"name":"user","type":"address","internalType":"address"},{"name":"role","type":"uint8","internalType":"uint8"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"setFunctionAccess","inputs":[{"name":"functionSig","type":"bytes4","internalType":"bytes4"},{"name":"role","type":"uint8","internalType":"uint8"},{"name":"enabled","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setUserRole","inputs":[{"name":"user","type":"address","internalType":"address"},{"name":"role","type":"uint8","internalType":"uint8"},{"name":"enabled","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"userRoles","inputs":[{"name":"user","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bytes32","internalType":"bytes32"}],"stateMutability":"view"},{"type":"event","name":"FunctionAccessChanged","inputs":[{"name":"functionSig","type":"bytes4","indexed":true,"internalType":"bytes4"},{"name":"role","type":"uint8","indexed":true,"internalType":"uint8"},{"name":"enabled","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"type":"event","name":"UserRoleUpdated","inputs":[{"name":"user","type":"address","indexed":true,"internalType":"address"},{"name":"role","type":"uint8","indexed":true,"internalType":"uint8"},{"name":"enabled","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"type":"error","name":"AccessControl_CallerIsNotAuthorized","inputs":[{"name":"caller","type":"address","internalType":"address"},{"name":"functionSig","type":"bytes4","internalType":"bytes4"}]},{"type":"error","name":"AccessControl_CannotRemoveAdminFromCriticalFunction","inputs":[{"name":"functionSig","type":"bytes4","internalType":"bytes4"}]}],"bytecode":{"object":"0x60808060405234601557610537908161001a8239f35b5f80fdfe60806040526004361015610011575f80fd5b5f358060e01c80634c1c1fcd1461039e5780635fcc08b01461035957806367aff484146102a057806374d5e1001461027457806386bed3e01461023057806395a8c58d146101f15763ef4e953114610067575f80fd5b346101ed5760603660031901126101ed57610080610415565b9061008961042c565b61009161043c565b916001600160e01b0319166100a68133610483565b156101d75750811561011c57602060ff7f582ef36343e8b1880321539d4cfd56efd85de66528023dd3c6ce00eb273a04779263ffffffff60e01b86165f525f5160206104e25f395f51905f52835260405f2060018383161b81541790555b604051941515855216936001600160e01b03191692a3005b60ff8116908115806101a2575b6101835760ff6020917f582ef36343e8b1880321539d4cfd56efd85de66528023dd3c6ce00eb273a04779363ffffffff60e01b87165f525f5160206104e25f395f51905f528452600160405f20911b198154169055610104565b632f5e2ee760e01b5f9081526001600160e01b03198516600452602490fd5b506001600160e01b0319841663ef4e953160e01b81149081156101c6575b50610129565b6319ebfd2160e21b1490505f6101c0565b631d64bc3360e11b5f523360045260245260445ffd5b5f80fd5b346101ed5760403660031901126101ed57602061020c6103ff565b600160ff61022161021b61042c565b9361044b565b5492161b161515604051908152f35b346101ed5760403660031901126101ed576102496103ff565b602435906001600160e01b0319821682036101ed5760209161026a91610483565b6040519015158152f35b346101ed5760203660031901126101ed5760206102976102926103ff565b61044b565b54604051908152f35b50346101ed5760603660031901126101ed576102ba6103ff565b906102c361042c565b6102cb61043c565b916001600160e01b0319166102e08133610483565b156101d75750602060ff7f4c9bdd0c8e073eb5eda2250b18d8e5121ff27b62064fbeeeed4869bb99bc5bf292845f1461033f5761031c8661044b565b60018383161b81541790555b604051941515855216936001600160a01b031692a3005b6103488661044b565b60018383161b198154169055610328565b346101ed5760203660031901126101ed576001600160e01b031961037b610415565b165f525f5160206104e25f395f51905f52602052602060405f2054604051908152f35b346101ed5760203660031901126101ed575f6103b86103ff565b6103c18161044b565b600181541790557f4c9bdd0c8e073eb5eda2250b18d8e5121ff27b62064fbeeeed4869bb99bc5bf26020604051926001845260018060a01b031692a3005b600435906001600160a01b03821682036101ed57565b600435906001600160e01b0319821682036101ed57565b6024359060ff821682036101ed57565b6044359081151582036101ed57565b6001600160a01b03165f9081527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d96020526040902090565b61048c8161044b565b549163ffffffff60e01b165f525f5160206104e25f395f51905f5260205260405f20549081156104d9576104c160019161044b565b541615918215926104d157505090565b161515919050565b50505060019056fe35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91daa264697066735822122074594921f97a0abe055b2d5a4dea3c33dedd78779ea0d72018a51ac51caf2bca64736f6c634300081e0033","sourceMap":"448:2273:41:-:0;;;;;;;;;;;;;;;;;","linkReferences":{}},"deployedBytecode":{"object":"0x60806040526004361015610011575f80fd5b5f358060e01c80634c1c1fcd1461039e5780635fcc08b01461035957806367aff484146102a057806374d5e1001461027457806386bed3e01461023057806395a8c58d146101f15763ef4e953114610067575f80fd5b346101ed5760603660031901126101ed57610080610415565b9061008961042c565b61009161043c565b916001600160e01b0319166100a68133610483565b156101d75750811561011c57602060ff7f582ef36343e8b1880321539d4cfd56efd85de66528023dd3c6ce00eb273a04779263ffffffff60e01b86165f525f5160206104e25f395f51905f52835260405f2060018383161b81541790555b604051941515855216936001600160e01b03191692a3005b60ff8116908115806101a2575b6101835760ff6020917f582ef36343e8b1880321539d4cfd56efd85de66528023dd3c6ce00eb273a04779363ffffffff60e01b87165f525f5160206104e25f395f51905f528452600160405f20911b198154169055610104565b632f5e2ee760e01b5f9081526001600160e01b03198516600452602490fd5b506001600160e01b0319841663ef4e953160e01b81149081156101c6575b50610129565b6319ebfd2160e21b1490505f6101c0565b631d64bc3360e11b5f523360045260245260445ffd5b5f80fd5b346101ed5760403660031901126101ed57602061020c6103ff565b600160ff61022161021b61042c565b9361044b565b5492161b161515604051908152f35b346101ed5760403660031901126101ed576102496103ff565b602435906001600160e01b0319821682036101ed5760209161026a91610483565b6040519015158152f35b346101ed5760203660031901126101ed5760206102976102926103ff565b61044b565b54604051908152f35b50346101ed5760603660031901126101ed576102ba6103ff565b906102c361042c565b6102cb61043c565b916001600160e01b0319166102e08133610483565b156101d75750602060ff7f4c9bdd0c8e073eb5eda2250b18d8e5121ff27b62064fbeeeed4869bb99bc5bf292845f1461033f5761031c8661044b565b60018383161b81541790555b604051941515855216936001600160a01b031692a3005b6103488661044b565b60018383161b198154169055610328565b346101ed5760203660031901126101ed576001600160e01b031961037b610415565b165f525f5160206104e25f395f51905f52602052602060405f2054604051908152f35b346101ed5760203660031901126101ed575f6103b86103ff565b6103c18161044b565b600181541790557f4c9bdd0c8e073eb5eda2250b18d8e5121ff27b62064fbeeeed4869bb99bc5bf26020604051926001845260018060a01b031692a3005b600435906001600160a01b03821682036101ed57565b600435906001600160e01b0319821682036101ed57565b6024359060ff821682036101ed57565b6044359081151582036101ed57565b6001600160a01b03165f9081527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d96020526040902090565b61048c8161044b565b549163ffffffff60e01b165f525f5160206104e25f395f51905f5260205260405f20549081156104d9576104c160019161044b565b541615918215926104d157505090565b161515919050565b50505060019056fe35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91daa264697066735822122074594921f97a0abe055b2d5a4dea3c33dedd78779ea0d72018a51ac51caf2bca64736f6c634300081e0033","sourceMap":"448:2273:41:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;;:::i;:::-;;;;:::i;:::-;;;:::i;:::-;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;-1:-1:-1;2444:469:36;;;;448:2273:41;;2928:64:36;448:2273:41;;;;;;;;-1:-1:-1;;;;;;;;;;;448:2273:41;;;;;2519:1:36;448:2273:41;;;;;;2471:59:36;448:2273:41;;2444:469:36;448:2273:41;;;;;;;;;-1:-1:-1;;;;;;448:2273:41;;2928:64:36;448:2273:41;2444:469:36;448:2273:41;;;2647:26:36;;;:61;;;2444:469;2643:186;;448:2273:41;;;2928:64:36;448:2273:41;;;;;;;;-1:-1:-1;;;;;;;;;;;448:2273:41;;2891:1:36;448:2273:41;;;;;2874:28:36;448:2273:41;;2842:60:36;448:2273:41;;2444:469:36;;2643:186;-1:-1:-1;;;448:2273:41;2735:79:36;;;-1:-1:-1;;;;;;448:2273:41;;;;;;2735:79:36;2647:61;-1:-1:-1;;;;;;;448:2273:41;;-1:-1:-1;;;2582:60:41;;;:130;;;;2647:61:36;;;;2582:130:41;-1:-1:-1;;;2658:54:41;;-1:-1:-1;2582:130:41;;;1380:139:36;1437:71;;;448:2273:41;1437:71:36;1394:10;448:2273:41;;;;;;1437:71:36;448:2273:41;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;;;:::i;:::-;4816:1:36;448:2273:41;4780:17:36;448:2273:41;;:::i;:::-;1282:20;4780:17:36;:::i;:::-;448:2273:41;;;;4780:47:36;:61;;448:2273:41;;;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;;:::i;:::-;;;;-1:-1:-1;;;;;;448:2273:41;;;;;;;1096:27;;;;:::i;:::-;448:2273;;;;;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;5080:41:36;448:2273:41;;:::i;:::-;5080:41:36;:::i;:::-;448:2273:41;;;;;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;;:::i;:::-;;;;:::i;:::-;;;:::i;:::-;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;3354:166;448:2273:41;;3535:51:36;3354:166;;;;;;3381:17;;;:::i;:::-;3418:1;448:2273:41;;;;;;3381:48:36;448:2273:41;;3354:166:36;448:2273:41;;;;;;;;;-1:-1:-1;;;;;448:2273:41;;3535:51:36;448:2273:41;3354:166:36;3460:17;;;:::i;:::-;3498:1;448:2273:41;;;;3481:28:36;448:2273:41;;3460:49:36;448:2273:41;;3354:166:36;;448:2273:41;;;;;;-1:-1:-1;;448:2273:41;;;;-1:-1:-1;;;;;;448:2273:41;;:::i;:::-;;;;-1:-1:-1;;;;;;;;;;;448:2273:41;;;;;;;;;;;;;;;;;;;-1:-1:-1;;448:2273:41;;;;;;;:::i;:::-;3381:17:36;;;:::i;:::-;2153:4:41;448:2273;;3381:48:36;448:2273:41;;3535:51:36;448:2273:41;;;;2153:4;448:2273;;;;;;;;3535:51:36;;448:2273:41;;;;;-1:-1:-1;;;;;448:2273:41;;;;;;:::o;:::-;;;;-1:-1:-1;;;;;;448:2273:41;;;;;;:::o;:::-;;;;;;;;;;;:::o;:::-;;;;;;;;;;;:::o;:::-;-1:-1:-1;;;;;448:2273:41;;;;;869:43:36;448:2273:41;;;;;;:::o;3806:615:36:-;4011:17;;;:::i;:::-;448:2273:41;;;;;;;;-1:-1:-1;;;;;;;;;;;448:2273:41;;;;;;4162:31:36;;;4158:73;;4780:17;4066:15;4327:34;4780:17;:::i;:::-;448:2273:41;4780:47:36;:61;;;;4327:87;;;4320:94;;3806:615;:::o;4327:87::-;4366:33;:47;;;3806:615;-1:-1:-1;3806:615:36:o;4158:73::-;4209:11;;;4066:15;4209:11;:::o","linkReferences":{}},"methodIdentifiers":{"AccessControl_init(address)":"4c1c1fcd","canCall(address,bytes4)":"86bed3e0","functionRoles(bytes4)":"5fcc08b0","hasRole(address,uint8)":"95a8c58d","setFunctionAccess(bytes4,uint8,bool)":"ef4e9531","setUserRole(address,uint8,bool)":"67aff484","userRoles(address)":"74d5e100"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"AccessControl_CallerIsNotAuthorized\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"AccessControl_CannotRemoveAdminFromCriticalFunction\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"role\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"FunctionAccessChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint8\",\"name\":\"role\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"UserRoleUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"}],\"name\":\"AccessControl_init\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"canCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"functionRoles\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"role\",\"type\":\"uint8\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"},{\"internalType\":\"uint8\",\"name\":\"role\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"setFunctionAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"role\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"setUserRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"userRoles\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"CapSign Inc.\",\"details\":\"See {IAccessControl} for full documentation      Exposes AccessControl role management functions as external interface\",\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"params\":{\"caller\":\"Address attempting the call\",\"functionSig\":\"Function selector that was called\"}}],\"AccessControl_CannotRemoveAdminFromCriticalFunction(bytes4)\":[{\"params\":{\"functionSig\":\"The critical function selector\"}}]},\"events\":{\"FunctionAccessChanged(bytes4,uint8,bool)\":{\"params\":{\"enabled\":\"True if role was added, false if removed\",\"functionSig\":\"The function selector that was modified\",\"role\":\"The role that was added or removed\"}},\"UserRoleUpdated(address,uint8,bool)\":{\"params\":{\"enabled\":\"True if role was granted, false if revoked\",\"role\":\"The role ID that was granted or revoked\",\"user\":\"The address whose role was modified\"}}},\"kind\":\"dev\",\"methods\":{\"canCall(address,bytes4)\":{\"details\":\"Returns true if:      - User has DEFAULT_ADMIN_ROLE (role 0), OR      - Function has no role requirements (functionRoles == 0), OR      - User has at least one of the required roles\",\"params\":{\"functionSig\":\"The function selector to check\",\"user\":\"The address to check permissions for\"},\"returns\":{\"_0\":\"bool True if user is authorized to call the function\"}},\"functionRoles(bytes4)\":{\"details\":\"Returns a bytes32 bit-flag where each bit represents a required role      If returns 0, anyone can call the function\",\"params\":{\"functionSig\":\"The function selector to query\"},\"returns\":{\"_0\":\"bytes32 The function's required role bit-flags\"}},\"hasRole(address,uint8)\":{\"details\":\"Checks if the specified role bit is set in user's role flags\",\"params\":{\"role\":\"The role ID (0-255) to check for\",\"user\":\"The address to check\"},\"returns\":{\"_0\":\"bool True if user has the specified role\"}},\"setFunctionAccess(bytes4,uint8,bool)\":{\"details\":\"Associates a role requirement with a specific function selector      Only users with the specified role (or admin) can call the function\",\"params\":{\"enabled\":\"True to require this role, false to remove requirement\",\"functionSig\":\"The function selector to configure\",\"role\":\"The role ID (0-255) required to call this function\"}},\"setUserRole(address,uint8,bool)\":{\"details\":\"Updates the user's role bit-flags      Role 0 (DEFAULT_ADMIN_ROLE) grants access to all functions\",\"params\":{\"enabled\":\"True to grant the role, false to revoke it\",\"role\":\"The role ID (0-255) to grant or revoke\",\"user\":\"The address to grant/revoke role for\"}},\"userRoles(address)\":{\"details\":\"Returns a bytes32 bit-flag where each bit represents a role (0-255)      Bit N set to 1 means user has role N\",\"params\":{\"user\":\"The address to query\"},\"returns\":{\"_0\":\"bytes32 The user's role bit-flags\"}}},\"title\":\"AccessControlFacet\",\"version\":1},\"userdoc\":{\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"notice\":\"Thrown when caller lacks required permissions\"}],\"AccessControl_CannotRemoveAdminFromCriticalFunction(bytes4)\":[{\"notice\":\"Thrown when attempting to remove admin role from critical function\"}]},\"events\":{\"FunctionAccessChanged(bytes4,uint8,bool)\":{\"notice\":\"Emitted when function access requirements change\"},\"UserRoleUpdated(address,uint8,bool)\":{\"notice\":\"Emitted when a user's role is granted or revoked\"}},\"kind\":\"user\",\"methods\":{\"AccessControl_init(address)\":{\"notice\":\"forge-lint: disable-next-item(mixed-case-function)\"},\"canCall(address,bytes4)\":{\"notice\":\"Check if a user can call a specific function\"},\"functionRoles(bytes4)\":{\"notice\":\"Get required roles for a function\"},\"hasRole(address,uint8)\":{\"notice\":\"Check if a user has a specific role\"},\"setFunctionAccess(bytes4,uint8,bool)\":{\"notice\":\"Set function access requirements\"},\"setUserRole(address,uint8,bool)\":{\"notice\":\"Grant or revoke a role from a user\"},\"userRoles(address)\":{\"notice\":\"Get all roles assigned to a user\"}},\"notice\":\"Implementation of IAccessControl\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"packages/diamonds/src/facets/AccessControlFacet.sol\":\"AccessControlFacet\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@diamonds/=packages/diamonds/\",\":@offerings/=packages/offerings/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@tokens/=packages/tokens/\",\":@vehicles/=packages/vehicles/\",\":@wallets/=packages/wallets/\",\":FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/\",\":diamonds-src/=packages/diamonds/src/\",\":diamonds/=packages/diamonds/interfaces/\",\":ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":offerings-src/=packages/offerings/src/\",\":offerings/=packages/offerings/interfaces/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/solady/src/\",\":tokens-src/=packages/tokens/src/\",\":tokens/=packages/tokens/interfaces/\",\":vehicles-src/=packages/vehicles/src/\",\":vehicles/=packages/vehicles/interfaces/\",\":wallets-src/=packages/wallets/src/\",\":wallets/=packages/wallets/interfaces/\",\":webauthn-sol/=lib/webauthn-sol/src/\"],\"viaIR\":true},\"sources\":{\"packages/diamonds/interfaces/IAccessControl.sol\":{\"keccak256\":\"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf\",\"dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT\"]},\"packages/diamonds/src/AccessControl.sol\":{\"keccak256\":\"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062\",\"dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8\"]},\"packages/diamonds/src/facets/AccessControlFacet.sol\":{\"keccak256\":\"0x3b6a5223a7b8b1acac5e6e919b0314f38b69d642b7f5a2fd6ab1e32af1a76f9f\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://467c7e47fae8c58a4841250a8cc340b8976a9114c94f5bfc6b6e10c837f69175\",\"dweb:/ipfs/QmPFpKMNsb4GCb8RDJ7AE9T4QXXSBX6y6jKctWk2iUF2Fg\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.30+commit.73712a01"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"address","name":"caller","type":"address"},{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"type":"error","name":"AccessControl_CallerIsNotAuthorized"},{"inputs":[{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"type":"error","name":"AccessControl_CannotRemoveAdminFromCriticalFunction"},{"inputs":[{"internalType":"bytes4","name":"functionSig","type":"bytes4","indexed":true},{"internalType":"uint8","name":"role","type":"uint8","indexed":true},{"internalType":"bool","name":"enabled","type":"bool","indexed":false}],"type":"event","name":"FunctionAccessChanged","anonymous":false},{"inputs":[{"internalType":"address","name":"user","type":"address","indexed":true},{"internalType":"uint8","name":"role","type":"uint8","indexed":true},{"internalType":"bool","name":"enabled","type":"bool","indexed":false}],"type":"event","name":"UserRoleUpdated","anonymous":false},{"inputs":[{"internalType":"address","name":"admin","type":"address"}],"stateMutability":"nonpayable","type":"function","name":"AccessControl_init"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"stateMutability":"view","type":"function","name":"canCall","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"stateMutability":"view","type":"function","name":"functionRoles","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}]},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint8","name":"role","type":"uint8"}],"stateMutability":"view","type":"function","name":"hasRole","outputs":[{"internalType":"bool","name":"","type":"bool"}]},{"inputs":[{"internalType":"bytes4","name":"functionSig","type":"bytes4"},{"internalType":"uint8","name":"role","type":"uint8"},{"internalType":"bool","name":"enabled","type":"bool"}],"stateMutability":"nonpayable","type":"function","name":"setFunctionAccess"},{"inputs":[{"internalType":"address","name":"user","type":"address"},{"internalType":"uint8","name":"role","type":"uint8"},{"internalType":"bool","name":"enabled","type":"bool"}],"stateMutability":"nonpayable","type":"function","name":"setUserRole"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"stateMutability":"view","type":"function","name":"userRoles","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}]}],"devdoc":{"kind":"dev","methods":{"canCall(address,bytes4)":{"details":"Returns true if:      - User has DEFAULT_ADMIN_ROLE (role 0), OR      - Function has no role requirements (functionRoles == 0), OR      - User has at least one of the required roles","params":{"functionSig":"The function selector to check","user":"The address to check permissions for"},"returns":{"_0":"bool True if user is authorized to call the function"}},"functionRoles(bytes4)":{"details":"Returns a bytes32 bit-flag where each bit represents a required role      If returns 0, anyone can call the function","params":{"functionSig":"The function selector to query"},"returns":{"_0":"bytes32 The function's required role bit-flags"}},"hasRole(address,uint8)":{"details":"Checks if the specified role bit is set in user's role flags","params":{"role":"The role ID (0-255) to check for","user":"The address to check"},"returns":{"_0":"bool True if user has the specified role"}},"setFunctionAccess(bytes4,uint8,bool)":{"details":"Associates a role requirement with a specific function selector      Only users with the specified role (or admin) can call the function","params":{"enabled":"True to require this role, false to remove requirement","functionSig":"The function selector to configure","role":"The role ID (0-255) required to call this function"}},"setUserRole(address,uint8,bool)":{"details":"Updates the user's role bit-flags      Role 0 (DEFAULT_ADMIN_ROLE) grants access to all functions","params":{"enabled":"True to grant the role, false to revoke it","role":"The role ID (0-255) to grant or revoke","user":"The address to grant/revoke role for"}},"userRoles(address)":{"details":"Returns a bytes32 bit-flag where each bit represents a role (0-255)      Bit N set to 1 means user has role N","params":{"user":"The address to query"},"returns":{"_0":"bytes32 The user's role bit-flags"}}},"version":1},"userdoc":{"kind":"user","methods":{"AccessControl_init(address)":{"notice":"forge-lint: disable-next-item(mixed-case-function)"},"canCall(address,bytes4)":{"notice":"Check if a user can call a specific function"},"functionRoles(bytes4)":{"notice":"Get required roles for a function"},"hasRole(address,uint8)":{"notice":"Check if a user has a specific role"},"setFunctionAccess(bytes4,uint8,bool)":{"notice":"Set function access requirements"},"setUserRole(address,uint8,bool)":{"notice":"Grant or revoke a role from a user"},"userRoles(address)":{"notice":"Get all roles assigned to a user"}},"version":1}},"settings":{"remappings":["@diamonds/=packages/diamonds/","@offerings/=packages/offerings/","@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/","@tokens/=packages/tokens/","@vehicles/=packages/vehicles/","@wallets/=packages/wallets/","FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/","diamonds-src/=packages/diamonds/src/","diamonds/=packages/diamonds/interfaces/","ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/","erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/","forge-std/=lib/forge-std/src/","halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/","offerings-src/=packages/offerings/src/","offerings/=packages/offerings/interfaces/","openzeppelin-contracts/=lib/openzeppelin-contracts/","solady/=lib/solady/src/","tokens-src/=packages/tokens/src/","tokens/=packages/tokens/interfaces/","vehicles-src/=packages/vehicles/src/","vehicles/=packages/vehicles/interfaces/","wallets-src/=packages/wallets/src/","wallets/=packages/wallets/interfaces/","webauthn-sol/=lib/webauthn-sol/src/"],"optimizer":{"enabled":true,"runs":200},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"packages/diamonds/src/facets/AccessControlFacet.sol":"AccessControlFacet"},"evmVersion":"prague","libraries":{},"viaIR":true},"sources":{"packages/diamonds/interfaces/IAccessControl.sol":{"keccak256":"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8","urls":["bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf","dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT"],"license":"BUSL-1.1"},"packages/diamonds/src/AccessControl.sol":{"keccak256":"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811","urls":["bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062","dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8"],"license":"BUSL-1.1"},"packages/diamonds/src/facets/AccessControlFacet.sol":{"keccak256":"0x3b6a5223a7b8b1acac5e6e919b0314f38b69d642b7f5a2fd6ab1e32af1a76f9f","urls":["bzz-raw://467c7e47fae8c58a4841250a8cc340b8976a9114c94f5bfc6b6e10c837f69175","dweb:/ipfs/QmPFpKMNsb4GCb8RDJ7AE9T4QXXSBX6y6jKctWk2iUF2Fg"],"license":"BUSL-1.1"}},"version":1},"id":41}
+[
+  {
+    "type": "function",
+    "name": "AccessControl_init",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "authority",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "canCall",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "functionRoles",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasRole",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setAuthority",
+    "inputs": [
+      {
+        "name": "newAuthority",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setFunctionAccess",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setUserRole",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "userRoles",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "AuthorityUpdated",
+    "inputs": [
+      {
+        "name": "oldAuthority",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newAuthority",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FunctionAccessChanged",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "indexed": true,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CannotRemoveAdminFromCriticalFunction",
+    "inputs": [
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  }
+]

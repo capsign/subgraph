@@ -1,5 +1,10 @@
-import { Diamond, UserRole } from "../../generated/schema";
-import { UserRoleUpdated as UserRoleUpdatedEvent } from "../../generated/templates/OfferingDiamond/OfferingDiamond";
+import { Diamond, UserRole, AuthorityDelegation, Wallet } from "../../generated/schema";
+import { 
+  UserRoleUpdated as UserRoleUpdatedEvent,
+} from "../../generated/templates/OfferingDiamond/OfferingDiamond";
+import {
+  AuthorityUpdated as AuthorityUpdatedEvent
+} from "../../generated/templates/OfferingDiamond/AccessControl";
 
 /**
  * Handle UserRoleUpdated events from any diamond
@@ -46,5 +51,49 @@ export function handleUserRoleUpdated(event: UserRoleUpdatedEvent): void {
   userRole.lastUpdatedTx = event.transaction.hash;
   
   userRole.save();
+}
+
+/**
+ * Handle AuthorityUpdated events from tokens/offerings
+ * Event: AuthorityUpdated(address indexed oldAuthority, address indexed newAuthority)
+ * 
+ * Tracks when a token or offering delegates its access control to a wallet (AccessManager)
+ */
+export function handleAuthorityUpdated(event: AuthorityUpdatedEvent): void {
+  const managedContract = event.address;
+  const newAuthority = event.params.newAuthority;
+  const oldAuthority = event.params.oldAuthority;
+
+  // Only track if newAuthority is non-zero (authority is being set)
+  if (newAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+    const delegationId = `${managedContract.toHexString()}-${newAuthority.toHexString()}`;
+    
+    let delegation = AuthorityDelegation.load(delegationId);
+    if (!delegation) {
+      delegation = new AuthorityDelegation(delegationId);
+      delegation.managedContract = managedContract;
+      delegation.authorityWallet = newAuthority.toHexString();
+      delegation.setAt = event.block.timestamp;
+      delegation.setTx = event.transaction.hash;
+      
+      // Store previous authority if it was non-zero
+      if (oldAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+        delegation.previousAuthority = oldAuthority;
+      }
+      
+      // Ensure the wallet entity exists (may be created later by factory, but create placeholder if needed)
+      let wallet = Wallet.load(newAuthority.toHexString());
+      if (!wallet) {
+        wallet = new Wallet(newAuthority.toHexString());
+        wallet.type = "UNKNOWN"; // Will be updated when WalletCreated event fires
+        wallet.deployer = event.transaction.from;
+        wallet.createdAt = event.block.timestamp;
+        wallet.createdTx = event.transaction.hash;
+        wallet.save();
+      }
+      
+      delegation.save();
+    }
+  }
 }
 

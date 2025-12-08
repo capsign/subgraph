@@ -57,6 +57,33 @@ type Wallet @entity {
   investments: [Investment!]! @derivedFrom(field: "investor")
   kycStatus: KYCStatus
   classifications: [InvestorClassification!]! @derivedFrom(field: "wallet")
+  
+  # Access Manager - contracts this wallet manages
+  managedContracts: [AuthorityDelegation!]! @derivedFrom(field: "authorityWallet")
+  targetPermissions: [TargetFunctionPermission!]! @derivedFrom(field: "managerWallet")
+}
+
+# Tracks which wallet (AccessManager) has authority over a contract (AccessManaged)
+type AuthorityDelegation @entity {
+  id: ID! # managedContract-authorityWallet (e.g., "0xtoken-0xwallet")
+  managedContract: Bytes! # The token/offering diamond being managed
+  authorityWallet: Wallet! # The wallet diamond acting as AccessManager
+  setAt: BigInt!
+  setTx: Bytes!
+  previousAuthority: Bytes # Previous authority address (or null if first time)
+}
+
+# Tracks permissions configured by a wallet for calling functions on managed contracts
+type TargetFunctionPermission @entity {
+  id: ID! # managerWallet-target-selector (e.g., "0xwallet-0xtoken-0x12345678")
+  managerWallet: Wallet! # The wallet that manages this permission
+  targetContract: Bytes! # The contract (token/offering) this permission applies to
+  functionSelector: Bytes! # bytes4 function selector
+  requiredRole: Int! # uint8 role ID required on the manager wallet
+  setAt: BigInt!
+  setTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
 }
 
 type Owner @entity {
@@ -441,6 +468,10 @@ type Offering @entity {
   
   # Representative signing settings
   documentSignerRoleId: Int # Role ID required for representative document signing (default: 50)
+  
+  # Document eligibility settings
+  documentEligibilityMode: Int # 0=EXPLICIT_LIST, 1=WHITELISTED_ONLY, 2=COMPLIANT_ONLY, 3=CUSTOM_MODULE (default: 2)
+  customEligibilityModule: Bytes # Custom eligibility module address (if mode = 3)
   
   # Offchain investment tracking
   totalOffchainPending: BigInt # Nullable for backwards compatibility

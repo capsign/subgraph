@@ -10,8 +10,11 @@ import {
   AttestationAdded,
   AttestationRevoked,
 } from "../../generated/templates/WalletDiamond/WalletDiamond";
+import {
+  WalletTargetFunctionRoleSet,
+} from "../../generated/templates/WalletDiamond/WalletAccessManager";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
-import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation } from "../../generated/schema";
+import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -230,6 +233,37 @@ export function handleAttestationRevoked(event: AttestationRevoked): void {
   }
 }
 
+/**
+ * Handle WalletTargetFunctionRoleSet events from WalletAccessManagerFacet
+ * Event: WalletTargetFunctionRoleSet(address indexed target, bytes4 indexed selector, uint8 roleId)
+ * 
+ * Tracks permission configurations set by wallet diamonds for managed contracts
+ */
+export function handleWalletTargetFunctionRoleSet(event: WalletTargetFunctionRoleSet): void {
+  const managerWallet = event.address;
+  const targetContract = event.params.target;
+  const functionSelector = event.params.selector;
+  const requiredRole = event.params.roleId;
+
+  // Create unique ID for this permission
+  const permissionId = `${managerWallet.toHexString()}-${targetContract.toHexString()}-${functionSelector.toHexString()}`;
+
+  let permission = TargetFunctionPermission.load(permissionId);
+  if (!permission) {
+    permission = new TargetFunctionPermission(permissionId);
+    permission.managerWallet = managerWallet.toHexString();
+    permission.targetContract = targetContract;
+    permission.functionSelector = functionSelector;
+    permission.setAt = event.block.timestamp;
+    permission.setTx = event.transaction.hash;
+  }
+
+  permission.requiredRole = requiredRole;
+  permission.lastUpdatedAt = event.block.timestamp;
+  permission.lastUpdatedTx = event.transaction.hash;
+
+  permission.save();
+}
 
 // Re-export paymaster handlers from paymaster.ts
 export {
