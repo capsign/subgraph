@@ -1,4 +1,4 @@
-import { Diamond, UserRole, AuthorityDelegation, Wallet } from "../../generated/schema";
+import { Diamond, UserRole, UserRoleHistory, AuthorityDelegation, Wallet } from "../../generated/schema";
 import { 
   UserRoleUpdated as UserRoleUpdatedEvent,
 } from "../../generated/templates/OfferingDiamond/OfferingDiamond";
@@ -51,6 +51,19 @@ export function handleUserRoleUpdated(event: UserRoleUpdatedEvent): void {
   userRole.lastUpdatedTx = event.transaction.hash;
   
   userRole.save();
+
+  // Create history entry for this role change
+  const historyId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  const history = new UserRoleHistory(historyId);
+  history.diamond = diamondAddress;
+  history.user = event.params.user;
+  history.role = role;
+  history.enabled = enabled;
+  history.changedBy = event.transaction.from;
+  history.timestamp = event.block.timestamp;
+  history.tx = event.transaction.hash;
+  history.blockNumber = event.block.number;
+  history.save();
 }
 
 /**

@@ -29,8 +29,37 @@ import {
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule } from "../../generated/schema";
-import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
+
+/**
+ * Helper function to get payment currency decimals
+ * Handles magic values for ETH and USD, and queries ERC20 contracts for others
+ */
+function getPaymentDecimals(paymentCurrency: Bytes): number {
+  const currencyHex = paymentCurrency.toHexString().toLowerCase();
+  
+  // Magic value for ETH (native token)
+  if (currencyHex === "0x0000000000000000000000000000000000000000") {
+    return 18;
+  }
+  
+  // Magic value for USD (off-chain currency)
+  if (currencyHex === "0x0000000000000000000000000000000000000348") {
+    return 2; // USD uses 2 decimals (cents)
+  }
+  
+  // For other currencies, try to query decimals() from ERC20 contract
+  const paymentToken = ERC20.bind(Address.fromBytes(paymentCurrency));
+  const decimalsResult = paymentToken.try_decimals();
+  
+  if (decimalsResult.reverted) {
+    log.warning("Failed to get decimals for payment currency: {}", [currencyHex]);
+    return 18; // Default to 18 decimals
+  }
+  
+  return decimalsResult.value;
+}
 
 /**
  * Handle LotCreated event
@@ -86,20 +115,14 @@ export function handleLotCreated(event: LotCreated): void {
     lot.uri = lotDetails.value.uri;
     lot.data = lotDetails.value.data;
     
-    // Get payment token decimals if not ETH
-    if (lotDetails.value.paymentCurrency.toHexString() != "0x0000000000000000000000000000000000000000") {
-      const paymentToken = ERC20.bind(lotDetails.value.paymentCurrency);
-      const decimalsResult = paymentToken.try_decimals();
-      lot.paymentDecimals = decimalsResult.reverted ? 0 : decimalsResult.value;
-    } else {
-      lot.paymentDecimals = 18; // ETH has 18 decimals
-    }
+    // Get payment token decimals using helper function
+    lot.paymentDecimals = getPaymentDecimals(lotDetails.value.paymentCurrency);
   } else {
     // Fallback to defaults if contract call fails
     lot.costBasis = BigInt.fromI32(0);
     lot.acquisitionDate = event.block.timestamp;
     lot.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
-    lot.paymentDecimals = 0;
+    lot.paymentDecimals = 18; // Default to 18 decimals
     lot.uri = null;
     lot.data = null;
   }

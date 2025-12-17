@@ -12,6 +12,7 @@ type Diamond @entity {
   
   # Access control
   userRoles: [UserRole!]! @derivedFrom(field: "diamond")
+  functionAccess: [FunctionAccess!]! @derivedFrom(field: "diamond")
 }
 
 # Generic access control tracking for all diamonds
@@ -25,6 +26,18 @@ type UserRole @entity {
   grantedTx: Bytes!
   lastUpdatedAt: BigInt!
   lastUpdatedTx: Bytes!
+}
+
+type UserRoleHistory @entity {
+  id: ID! # tx-logIndex (unique per event)
+  diamond: Diamond!
+  user: Bytes!
+  role: Int! # uint8 role ID
+  enabled: Boolean! # true = granted, false = revoked
+  changedBy: Bytes! # Transaction sender (admin who made the change)
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
 }
 
 type FunctionAccess @entity {

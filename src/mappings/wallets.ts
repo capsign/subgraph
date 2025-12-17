@@ -13,8 +13,12 @@ import {
 import {
   WalletTargetFunctionRoleSet,
 } from "../../generated/templates/WalletDiamond/WalletAccessManager";
+import {
+  UserRoleUpdated as UserRoleUpdatedEvent,
+  FunctionAccessChanged as FunctionAccessChangedEvent,
+} from "../../generated/templates/WalletDiamond/AccessControl";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
-import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission } from "../../generated/schema";
+import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -263,6 +267,104 @@ export function handleWalletTargetFunctionRoleSet(event: WalletTargetFunctionRol
   permission.lastUpdatedTx = event.transaction.hash;
 
   permission.save();
+}
+
+/**
+ * Handle UserRoleUpdated events from wallet diamonds
+ * Event: UserRoleUpdated(address indexed user, uint8 indexed role, bool enabled)
+ * 
+ * Tracks role grants/revocations for individual wallets on entity wallets
+ */
+export function handleUserRoleUpdated(event: UserRoleUpdatedEvent): void {
+  const walletAddress = event.address.toHexString();
+  const userAddress = event.params.user.toHexString();
+  const role = event.params.role;
+  const enabled = event.params.enabled;
+
+  // Ensure Diamond entity exists for this wallet
+  let diamond = Diamond.load(walletAddress);
+  if (!diamond) {
+    // Create minimal diamond entry if it doesn't exist
+    diamond = new Diamond(walletAddress);
+    diamond.diamondType = "WALLET";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    diamond.save();
+  }
+
+  // Create or update UserRole entity
+  const userRoleId = `${walletAddress}-${userAddress}-${role}`;
+  let userRole = UserRole.load(userRoleId);
+
+  if (!userRole) {
+    userRole = new UserRole(userRoleId);
+    userRole.diamond = walletAddress;
+    userRole.user = event.params.user;
+    userRole.role = role;
+    userRole.grantedAt = event.block.timestamp;
+    userRole.grantedTx = event.transaction.hash;
+  }
+
+  userRole.enabled = enabled;
+  userRole.lastUpdatedAt = event.block.timestamp;
+  userRole.lastUpdatedTx = event.transaction.hash;
+  
+  userRole.save();
+
+  // Create history entry for this role change
+  const historyId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  const history = new UserRoleHistory(historyId);
+  history.diamond = walletAddress;
+  history.user = event.params.user;
+  history.role = role;
+  history.enabled = enabled;
+  history.changedBy = event.transaction.from;
+  history.timestamp = event.block.timestamp;
+  history.tx = event.transaction.hash;
+  history.blockNumber = event.block.number;
+  history.save();
+}
+
+/**
+ * Handle FunctionAccessChanged event for wallet diamonds
+ */
+export function handleWalletFunctionAccessChanged(event: FunctionAccessChangedEvent): void {
+  const diamondAddress = event.address.toHexString();
+  const functionSelector = event.params.functionSig;
+  const role = event.params.role;
+  const hasAccess = event.params.enabled;
+  
+  // Ensure diamond entity exists
+  let diamond = Diamond.load(diamondAddress);
+  if (!diamond) {
+    // Create diamond entry if it doesn't exist
+    diamond = new Diamond(diamondAddress);
+    diamond.diamondType = "WALLET";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+    diamond.save();
+  }
+  
+  // Create or update FunctionAccess entity
+  const functionAccessId = diamondAddress + "-" + functionSelector.toHexString() + "-" + role.toString();
+  let functionAccess = FunctionAccess.load(functionAccessId);
+  
+  if (!functionAccess) {
+    functionAccess = new FunctionAccess(functionAccessId);
+    functionAccess.diamond = diamondAddress;
+    functionAccess.functionSelector = functionSelector;
+    functionAccess.role = role;
+    functionAccess.grantedAt = event.block.timestamp;
+    functionAccess.grantedTx = event.transaction.hash;
+  }
+  
+  functionAccess.hasAccess = hasAccess;
+  functionAccess.lastUpdatedAt = event.block.timestamp;
+  functionAccess.lastUpdatedTx = event.transaction.hash;
+  
+  functionAccess.save();
 }
 
 // Re-export paymaster handlers from paymaster.ts

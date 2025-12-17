@@ -299,6 +299,9 @@ templates:
       language: wasm/assemblyscript
       entities:
         - Wallet
+        - Diamond
+        - FunctionAccess
+        - UserRole
         - Document
         - DocumentSignature
       abis:
@@ -306,7 +309,15 @@ templates:
           file: ./abis/WalletCoreFacet.json
         - name: WalletDocuments
           file: ./abis/WalletDocumentsFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+          receipt: false
+        - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
+          handler: handleWalletFunctionAccessChanged
+          receipt: false
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
         - event: DocumentUploaded(indexed bytes32,indexed bytes32,indexed address)
