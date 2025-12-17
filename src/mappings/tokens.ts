@@ -36,7 +36,7 @@ import { createActivity } from "./activity";
  * Helper function to get payment currency decimals
  * Handles magic values for ETH and USD, and queries ERC20 contracts for others
  */
-function getPaymentDecimals(paymentCurrency: Bytes): number {
+function getPaymentDecimals(paymentCurrency: Bytes): i32 {
   const currencyHex = paymentCurrency.toHexString().toLowerCase();
   
   // Magic value for ETH (native token)
