@@ -3,8 +3,8 @@ import {
   ClaimCreated as ClaimCreatedEvent,
   ClaimRedeemed as ClaimRedeemedEvent,
   ClaimCancelled as ClaimCancelledEvent,
-  TokenClaimsFacet,
-} from "../../generated/ShareClassFactory/TokenClaimsFacet";
+} from "../../generated/templates/TokenDiamond/TokenDiamond";
+import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { TokenClaim, ShareClass } from "../../generated/schema";
 
 /**
@@ -27,7 +27,7 @@ export function handleClaimCreated(event: ClaimCreatedEvent): void {
   claim.redeemedTx = null;
   
   // Fetch expiresAt from contract state
-  let contract = TokenClaimsFacet.bind(event.address);
+  let contract = TokenClaims.bind(event.address);
   let claimData = contract.try_getClaim(event.params.claimId);
   
   if (!claimData.reverted) {
