@@ -3,6 +3,7 @@ import {
   ClaimCreated as ClaimCreatedEvent,
   ClaimRedeemed as ClaimRedeemedEvent,
   ClaimCancelled as ClaimCancelledEvent,
+  TokenClaimsFacet,
 } from "../../generated/ShareClassFactory/TokenClaimsFacet";
 import { TokenClaim, ShareClass } from "../../generated/schema";
 
@@ -25,9 +26,17 @@ export function handleClaimCreated(event: ClaimCreatedEvent): void {
   claim.redeemedAt = null;
   claim.redeemedTx = null;
   
-  // Note: expiresAt needs to be fetched from contract state
-  // For now, we'll set it to 0 and update it when we add a contract call
-  claim.expiresAt = BigInt.fromI32(0);
+  // Fetch expiresAt from contract state
+  let contract = TokenClaimsFacet.bind(event.address);
+  let claimData = contract.try_getClaim(event.params.claimId);
+  
+  if (!claimData.reverted) {
+    // getClaim returns: (emailHash, quantity, expiresAt, redeemed, issuer)
+    claim.expiresAt = claimData.value.value2; // value2 is expiresAt (third return value)
+  } else {
+    // Fallback to 0 if contract call fails
+    claim.expiresAt = BigInt.fromI32(0);
+  }
   
   claim.save();
   
