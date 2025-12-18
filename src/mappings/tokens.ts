@@ -27,6 +27,7 @@ import {
   ComplianceModuleRemoved
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
+import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
@@ -675,17 +676,26 @@ export function handleClaimCreated(event: ClaimCreated): void {
   claim.redeemedAt = null;
   claim.redeemedTx = null;
   
-  // Note: expiresAt needs to be fetched from contract state
-  // For now, setting to 0 - will be updated via a contract call if needed
-  claim.expiresAt = BigInt.fromI32(0);
+  // Fetch expiresAt from contract state
+  let contract = TokenClaims.bind(event.address);
+  let claimData = contract.try_getClaim(event.params.claimId);
+  
+  if (!claimData.reverted) {
+    // getClaim returns: (emailHash, quantity, expiresAt, redeemed, issuer)
+    claim.expiresAt = claimData.value.value2; // value2 is expiresAt (third return value)
+  } else {
+    // Fallback to 0 if contract call fails
+    claim.expiresAt = BigInt.fromI32(0);
+  }
   
   claim.save();
   
-  log.info("Token claim created: claimId={}, token={}, emailHash={}, quantity={}", [
+  log.info("Token claim created: claimId={}, token={}, emailHash={}, quantity={}, expiresAt={}", [
     claimId,
     tokenAddress,
     event.params.emailHash.toHexString(),
-    event.params.quantity.toString()
+    event.params.quantity.toString(),
+    claim.expiresAt.toString()
   ]);
 }
 
