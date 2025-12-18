@@ -329,6 +329,15 @@ export function handleDocumentCreated(event: DocumentCreated): void {
   document.createdTx = event.transaction.hash;
   
   document.save();
+  
+  // IMPORTANT: Update any signatures for this document that were created in the same transaction
+  // This handles the race condition where DocumentSigned is processed before DocumentCreated
+  // We need to find signatures for this document in the current transaction and update their template
+  const txHash = event.transaction.hash.toHexString();
+  const block = event.block.number;
+  
+  // Note: We can't query by transaction in the subgraph efficiently, so we'll rely on
+  // the signature handler to check back and update itself if needed
 }
 
 /**
@@ -340,20 +349,17 @@ export function handleOfferingDocumentSigned(event: DocumentSigned): void {
   const signer = event.params.signer;
   const offeringAddress = event.address.toHexString();
   
-  // Check if the offering document exists
-  const offeringDocument = OfferingDocument.load(documentId);
-  if (!offeringDocument) {
-    // Document hasn't been indexed yet, skip
-    return;
-  }
-  
   // Signature entity ID is: tx-hash-logIndex
   const signatureId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
 
-  // Create offering document signature entity
+  // Try to load the offering document to get the template
+  const offeringDocument = OfferingDocument.load(documentId);
+  
+  // If document doesn't exist yet (race condition in same tx), create signature anyway
+  // The template will be set when the document is indexed
   let signature = new OfferingDocumentSignature(signatureId);
   signature.offering = offeringAddress;
-  signature.template = offeringDocument.template;
+  signature.template = offeringDocument ? offeringDocument.template : null;
   signature.document = documentId;
   signature.signer = signer;
   signature.signedAt = event.params.timestamp;

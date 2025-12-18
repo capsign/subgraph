@@ -549,7 +549,7 @@ type OfferingDocument @entity {
 type OfferingDocumentSignature @entity {
   id: ID! # tx-hash-logIndex
   offering: Offering!
-  template: OfferingTemplate!
+  template: OfferingTemplate # Nullable to handle race conditions during indexing
   document: OfferingDocument # Nullable to handle cases where signature is created before document
   signer: Bytes! # The primary signer (entity for representative signatures, individual otherwise)
   signedAt: BigInt!

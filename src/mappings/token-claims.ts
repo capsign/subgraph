@@ -35,7 +35,7 @@ export function handleClaimCreated(event: ClaimCreatedEvent): void {
     claim.expiresAt = claimData.value.value2; // value2 is expiresAt (third return value)
   } else {
     // Fallback to 0 if contract call fails
-    claim.expiresAt = BigInt.fromI32(0);
+  claim.expiresAt = BigInt.fromI32(0);
   }
   
   claim.save();
