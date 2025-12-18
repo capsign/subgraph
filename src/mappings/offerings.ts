@@ -46,7 +46,7 @@ import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
 import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement } from "../../generated/schema";
-import { BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Helper function to ensure offering has offchain fields initialized
@@ -816,6 +816,13 @@ export function handleDocumentRequirementAdded(event: DocumentRequirementAdded):
   const offeringAddress = event.address.toHexString();
   const requirementIndex = event.params.requirementIndex;
   const requirementId = `${offeringAddress}-${requirementIndex.toString()}`;
+  
+  // Ensure offering exists (it should, but check to avoid foreign key constraint failures)
+  let offering = Offering.load(offeringAddress);
+  if (!offering) {
+    log.warning('[DocumentRequirement] Offering {} not found when adding requirement {}', [offeringAddress, requirementIndex.toString()]);
+    return;
+  }
   
   // Get requirement data from contract
   const contract = OfferingDocuments.bind(event.address);

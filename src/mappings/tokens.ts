@@ -37,6 +37,7 @@ import { createActivity } from "./activity";
  * Helper function to get payment currency decimals
  * Handles magic values for ETH and USD, and queries ERC20 contracts for others
  */
+// @ts-ignore - i32 is AssemblyScript type, not TypeScript
 function getPaymentDecimals(paymentCurrency: Bytes): i32 {
   const currencyHex = paymentCurrency.toHexString().toLowerCase();
   

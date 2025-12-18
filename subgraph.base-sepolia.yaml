@@ -99,7 +99,7 @@ dataSources:
     source:
       address: "0x09018ebE4DA0A269E0a6F8342732BcE9154A5931"
       abi: WalletFactory
-      startBlock: 35120181
+      startBlock: 35043961
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
