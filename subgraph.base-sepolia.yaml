@@ -350,6 +350,8 @@ templates:
           handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: DocumentEligibilityModeSet(uint8)
+          handler: handleDocumentEligibilityModeSet
         - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
           handler: handleTemplateRegistered
           receipt: true
