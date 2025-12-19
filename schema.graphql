@@ -535,7 +535,7 @@ type OfferingTemplate @entity {
 # Required signer for a template (for EXPLICIT_LIST eligibility mode)
 type RequiredSigner @entity {
   id: ID! # template-signer (e.g., "0xtemplate-0xsigner")
-  template: OfferingTemplate!
+  template: OfferingTemplate # Nullable to handle cases where template hasn't been indexed yet
   signer: Bytes!
   addedAt: BigInt!
   addedTx: Bytes!
@@ -548,7 +548,7 @@ type RequiredSigner @entity {
 type OfferingDocument @entity {
   id: ID! # documentId (bytes32 as hex string)
   offering: Offering!
-  template: OfferingTemplate!
+  template: OfferingTemplate # Nullable to handle cases where template hasn't been indexed yet
   title: String!
   creator: Bytes!
   createdAt: BigInt!

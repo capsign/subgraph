@@ -44,11 +44,12 @@ import {
 import {
   UserRoleUpdated,
   FunctionAccessChanged,
+  AuthorityUpdated,
 } from "../../generated/templates/OfferingDiamond/OfferingDiamond";
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement, RequiredSigner } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement, RequiredSigner, AuthorityDelegation } from "../../generated/schema";
 import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -816,6 +817,39 @@ export function handleOfferingFunctionAccessChanged(event: FunctionAccessChanged
   functionAccess.lastUpdatedTx = event.transaction.hash;
   
   functionAccess.save();
+}
+
+/**
+ * Handle AuthorityUpdated events for offerings
+ * Event: AuthorityUpdated(address indexed oldAuthority, address indexed newAuthority)
+ *
+ * Tracks when an offering delegates its access control to a wallet (AccessManager)
+ */
+export function handleOfferingAuthorityUpdated(event: AuthorityUpdated): void {
+  const managedContract = event.address;
+  const newAuthority = event.params.newAuthority;
+  const oldAuthority = event.params.oldAuthority;
+
+  // Only track if newAuthority is non-zero (authority is being set)
+  if (newAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+    const delegationId = `${managedContract.toHexString()}-${newAuthority.toHexString()}`;
+    
+    let delegation = AuthorityDelegation.load(delegationId);
+    if (!delegation) {
+      delegation = new AuthorityDelegation(delegationId);
+      delegation.managedContract = managedContract;
+      delegation.authorityWallet = newAuthority.toHexString();
+      delegation.setAt = event.block.timestamp;
+      delegation.setTx = event.transaction.hash;
+      
+      // Store previous authority if it was non-zero
+      if (oldAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+        delegation.previousAuthority = oldAuthority;
+      }
+      
+      delegation.save();
+    }
+  }
 }
 
 /**

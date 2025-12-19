@@ -24,14 +24,59 @@ import {
   ClaimRedeemed,
   ClaimCancelled,
   ComplianceModuleAdded,
-  ComplianceModuleRemoved
+  ComplianceModuleRemoved,
+  AuthorityUpdated
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
+
+/**
+ * Handle AuthorityUpdated events for tokens
+ * Event: AuthorityUpdated(address indexed oldAuthority, address indexed newAuthority)
+ *
+ * Tracks when a token delegates its access control to a wallet (AccessManager)
+ */
+export function handleTokenAuthorityUpdated(event: AuthorityUpdated): void {
+  const managedContract = event.address;
+  const newAuthority = event.params.newAuthority;
+  const oldAuthority = event.params.oldAuthority;
+
+  // Only track if newAuthority is non-zero (authority is being set)
+  if (newAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+    const delegationId = `${managedContract.toHexString()}-${newAuthority.toHexString()}`;
+
+    let delegation = AuthorityDelegation.load(delegationId);
+    if (!delegation) {
+      delegation = new AuthorityDelegation(delegationId);
+      delegation.managedContract = managedContract;
+      delegation.authorityWallet = newAuthority.toHexString();
+      delegation.setAt = event.block.timestamp;
+      delegation.setTx = event.transaction.hash;
+
+      // Store previous authority if it was non-zero
+      if (oldAuthority.toHexString() != "0x0000000000000000000000000000000000000000") {
+        delegation.previousAuthority = oldAuthority;
+      }
+
+      // Ensure the wallet entity exists
+      let wallet = Wallet.load(newAuthority.toHexString());
+      if (!wallet) {
+        wallet = new Wallet(newAuthority.toHexString());
+        wallet.type = "UNKNOWN"; // Will be updated when WalletCreated event fires
+        wallet.deployer = event.transaction.from;
+        wallet.createdAt = event.block.timestamp;
+        wallet.createdTx = event.transaction.hash;
+        wallet.save();
+      }
+
+      delegation.save();
+    }
+  }
+}
 
 /**
  * Helper function to get payment currency decimals
