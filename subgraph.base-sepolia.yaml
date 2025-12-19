@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xfFF2EDC42e23e0Aef34fD4C2a2c2c5bf39AF3FbF"
+      address: "0xe0864309Dec4e99540C582cd0DFD7441E8eCDA4f"
       abi: OfferingFactory
-      startBlock: 35169099 # Updated 2024-12-19 with v2 factory (sets authority on offerings)
+      startBlock: 35120181 # Keep tracking from original deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
