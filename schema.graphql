@@ -529,6 +529,19 @@ type OfferingTemplate @entity {
   # Relationships
   documents: [OfferingDocument!]! @derivedFrom(field: "template") # Documents created from this template
   signatures: [OfferingDocumentSignature!]! @derivedFrom(field: "template") # All signatures on documents from this template
+  requiredSigners: [RequiredSigner!]! @derivedFrom(field: "template") # Explicit list of required signers (for EXPLICIT_LIST mode)
+}
+
+# Required signer for a template (for EXPLICIT_LIST eligibility mode)
+type RequiredSigner @entity {
+  id: ID! # template-signer (e.g., "0xtemplate-0xsigner")
+  template: OfferingTemplate!
+  signer: Bytes!
+  addedAt: BigInt!
+  addedTx: Bytes!
+  isActive: Boolean! # false if removed
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
 }
 
 # Document instance created from a template (stored in offering contract)

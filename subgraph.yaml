@@ -202,6 +202,7 @@ templates:
         - OfferingTemplate
         - OfferingDocument
         - OfferingDocumentSignature
+        - RequiredSigner
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -243,6 +244,12 @@ templates:
           handler: handleDocumentEligibilityModeSet
         - event: CustomEligibilityModuleSet(indexed address)
           handler: handleCustomEligibilityModuleSet
+        - event: RequiredSignersSet(indexed bytes32,address[])
+          handler: handleRequiredSignersSet
+        - event: RequiredSignerAdded(indexed bytes32,indexed address)
+          handler: handleRequiredSignerAdded
+        - event: RequiredSignerRemoved(indexed bytes32,indexed address)
+          handler: handleRequiredSignerRemoved
         - event: ComplianceInitialized(bool,bool)
           handler: handleComplianceInitialized
         - event: AllowsGeneralSolicitationUpdated(bool)

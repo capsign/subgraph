@@ -14,6 +14,9 @@ import {
   DocumentRequirementRemoved,
   DocumentEligibilityModeSet,
   CustomEligibilityModuleSet,
+  RequiredSignersSet,
+  RequiredSignerAdded,
+  RequiredSignerRemoved,
   OfferingDocuments,
 } from "../../generated/templates/OfferingDiamond/OfferingDocuments";
 import {
@@ -45,7 +48,7 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement, RequiredSigner } from "../../generated/schema";
 import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -918,5 +921,77 @@ export function handleCustomEligibilityModuleSet(event: CustomEligibilityModuleS
   if (offering) {
     offering.customEligibilityModule = event.params.module;
     offering.save();
+  }
+}
+
+/**
+ * Handle required signers set for a template (replaces all signers)
+ */
+export function handleRequiredSignersSet(event: RequiredSignersSet): void {
+  const templateId = event.params.templateId.toHexString();
+  const signers = event.params.signers;
+  
+  // First, mark all existing signers as inactive
+  // Note: In The Graph, we can't efficiently query and update, so we rely on isActive flag
+  // The UI should query by isActive=true
+  
+  // Add new signers
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    const requiredSignerId = `${templateId}-${signer.toHexString()}`;
+    
+    let requiredSigner = RequiredSigner.load(requiredSignerId);
+    if (!requiredSigner) {
+      requiredSigner = new RequiredSigner(requiredSignerId);
+      requiredSigner.template = templateId;
+      requiredSigner.signer = signer;
+      requiredSigner.addedAt = event.block.timestamp;
+      requiredSigner.addedTx = event.transaction.hash;
+    }
+    
+    requiredSigner.isActive = true;
+    requiredSigner.lastUpdatedAt = event.block.timestamp;
+    requiredSigner.lastUpdatedTx = event.transaction.hash;
+    requiredSigner.save();
+  }
+}
+
+/**
+ * Handle single required signer added
+ */
+export function handleRequiredSignerAdded(event: RequiredSignerAdded): void {
+  const templateId = event.params.templateId.toHexString();
+  const signer = event.params.signer;
+  const requiredSignerId = `${templateId}-${signer.toHexString()}`;
+  
+  let requiredSigner = RequiredSigner.load(requiredSignerId);
+  if (!requiredSigner) {
+    requiredSigner = new RequiredSigner(requiredSignerId);
+    requiredSigner.template = templateId;
+    requiredSigner.signer = signer;
+    requiredSigner.addedAt = event.block.timestamp;
+    requiredSigner.addedTx = event.transaction.hash;
+  }
+  
+  requiredSigner.isActive = true;
+  requiredSigner.lastUpdatedAt = event.block.timestamp;
+  requiredSigner.lastUpdatedTx = event.transaction.hash;
+  requiredSigner.save();
+}
+
+/**
+ * Handle required signer removed
+ */
+export function handleRequiredSignerRemoved(event: RequiredSignerRemoved): void {
+  const templateId = event.params.templateId.toHexString();
+  const signer = event.params.signer;
+  const requiredSignerId = `${templateId}-${signer.toHexString()}`;
+  
+  const requiredSigner = RequiredSigner.load(requiredSignerId);
+  if (requiredSigner) {
+    requiredSigner.isActive = false;
+    requiredSigner.lastUpdatedAt = event.block.timestamp;
+    requiredSigner.lastUpdatedTx = event.transaction.hash;
+    requiredSigner.save();
   }
 }
