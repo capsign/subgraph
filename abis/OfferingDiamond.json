@@ -3109,5 +3109,18 @@
       }
     ],
     "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DocumentEligibilityModeSet",
+    "inputs": [
+      {
+        "name": "mode",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      }
+    ],
+    "anonymous": false
   }
 ]
