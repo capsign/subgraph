@@ -262,36 +262,6 @@ dataSources:
           handler: handleUserRoleUpdated
       file: ./src/mappings/acquisition-factory.ts
 
-  # VehicleFactory - tracks SPV/vehicle creation (Permissionless)
-  - kind: ethereum/contract
-    name: VehicleFactory
-    network: base
-    source:
-      address: "0x6F865A49B60C634e716C881f27Fe5dD25590785B"
-      abi: VehicleFactory
-      startBlock: 39712238
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Vehicle
-        - Diamond
-        - UserRole
-      abis:
-        - name: VehicleFactory
-          file: ./abis/VehicleFactory.json
-        - name: VehicleFactoryCoreFacet
-          file: ./abis/VehicleFactoryCoreFacet.json
-        - name: AccessControl
-          file: ./abis/AccessControlFacet.json
-      eventHandlers:
-        - event: VehicleCreated(indexed address,indexed address,uint8,bytes32)
-          handler: handleVehicleCreated
-        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
-          handler: handleUserRoleUpdated
-      file: ./src/mappings/vehicle-factory.ts
-
   # CapSignPaymaster - tracks gas sponsorship
   - kind: ethereum/contract
     name: CapSignPaymaster
