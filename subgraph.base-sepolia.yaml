@@ -350,6 +350,16 @@ templates:
           handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: OfferingURIUpdated(string,string)
+          handler: handleOfferingURIUpdated
+        - event: PaymentRecipientUpdated(indexed address,indexed address)
+          handler: handlePaymentRecipientUpdated
+        - event: PricePerTokenUpdated(uint256,uint256)
+          handler: handlePricePerTokenUpdated
+        - event: DeadlineExtended(uint256,uint256)
+          handler: handleDeadlineExtended
+        - event: MinMaxInvestmentUpdated(uint256,uint256,uint256,uint256)
+          handler: handleMinMaxInvestmentUpdated
         - event: DocumentEligibilityModeSet(uint8)
           handler: handleDocumentEligibilityModeSet
         - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)

@@ -5,6 +5,11 @@ import {
   InvestmentRejected,
   OfferingStatusChanged,
   DocumentSignerRoleUpdated,
+  OfferingURIUpdated,
+  PaymentRecipientUpdated,
+  PricePerTokenUpdated,
+  DeadlineExtended,
+  MinMaxInvestmentUpdated,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import {
   DocumentSigned,
@@ -1028,4 +1033,142 @@ export function handleRequiredSignerRemoved(event: RequiredSignerRemoved): void 
     requiredSigner.lastUpdatedTx = event.transaction.hash;
     requiredSigner.save();
   }
+}
+
+// ============ Offering Configuration Event Handlers ============
+
+/**
+ * Handle offering URI updated
+ */
+export function handleOfferingURIUpdated(event: OfferingURIUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    log.warning("[OfferingURIUpdated] Offering {} not found", [offeringAddress]);
+    return;
+  }
+  
+  offering.uri = event.params.newURI;
+  offering.save();
+  
+  const activity = createActivity(
+    "offering-uri-updated-" + offeringAddress + "-" + event.logIndex.toString(),
+    "OFFERING_URI_UPDATED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offering = offeringAddress;
+  activity.save();
+}
+
+/**
+ * Handle payment recipient updated
+ */
+export function handlePaymentRecipientUpdated(event: PaymentRecipientUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    log.warning("[PaymentRecipientUpdated] Offering {} not found", [offeringAddress]);
+    return;
+  }
+  
+  offering.paymentRecipient = event.params.newRecipient;
+  offering.save();
+  
+  const activity = createActivity(
+    "payment-recipient-updated-" + offeringAddress + "-" + event.logIndex.toString(),
+    "PAYMENT_RECIPIENT_UPDATED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offering = offeringAddress;
+  activity.save();
+}
+
+/**
+ * Handle price per token updated
+ */
+export function handlePricePerTokenUpdated(event: PricePerTokenUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    log.warning("[PricePerTokenUpdated] Offering {} not found", [offeringAddress]);
+    return;
+  }
+  
+  offering.pricePerToken = event.params.newPrice;
+  offering.save();
+  
+  const activity = createActivity(
+    "price-per-token-updated-" + offeringAddress + "-" + event.logIndex.toString(),
+    "PRICE_PER_TOKEN_UPDATED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offering = offeringAddress;
+  activity.save();
+}
+
+/**
+ * Handle deadline extended
+ */
+export function handleDeadlineExtended(event: DeadlineExtended): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    log.warning("[DeadlineExtended] Offering {} not found", [offeringAddress]);
+    return;
+  }
+  
+  offering.deadline = event.params.newDeadline;
+  offering.save();
+  
+  const activity = createActivity(
+    "deadline-extended-" + offeringAddress + "-" + event.logIndex.toString(),
+    "DEADLINE_EXTENDED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offering = offeringAddress;
+  activity.save();
+}
+
+/**
+ * Handle min/max investment updated
+ */
+export function handleMinMaxInvestmentUpdated(event: MinMaxInvestmentUpdated): void {
+  const offeringAddress = event.address.toHexString();
+  const offering = Offering.load(offeringAddress);
+  
+  if (!offering) {
+    log.warning("[MinMaxInvestmentUpdated] Offering {} not found", [offeringAddress]);
+    return;
+  }
+  
+  offering.minInvestment = event.params.newMin;
+  offering.maxAmount = event.params.newMax;
+  offering.save();
+  
+  const activity = createActivity(
+    "min-max-investment-updated-" + offeringAddress + "-" + event.logIndex.toString(),
+    "MIN_MAX_INVESTMENT_UPDATED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.offering = offeringAddress;
+  activity.save();
 }
