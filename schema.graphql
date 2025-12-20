@@ -943,6 +943,7 @@ enum TokenAssetType {
   ShareClass
   UnitInterest # LLC/LP unit interests (for investment vehicles)
   Safe # Simple Agreement for Future Equity
+  PromissoryNote # Debt instrument (loans, bonds, notes)
   # Future token types (commented out until implemented):
   # EmployeeStockOption
   # Warrant
@@ -1012,6 +1013,98 @@ type SAFEConversion @entity {
   blockNumber: BigInt!
   logIndex: BigInt!
 }
+
+# ============ PROMISSORY NOTE TOKEN TYPE ============
+
+# Promissory Note Token Type (Debt Instrument)
+type PromissoryNote implements Token @entity {
+  # Token interface fields
+  id: ID! # Token address
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  creator: Bytes! # Kept for backwards compatibility
+  admin: Bytes!
+  deployer: Bytes!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  assetType: TokenAssetType!
+  
+  # Compliance
+  complianceConditions: [Bytes!]! # Compliance conditions used
+  
+  # Admin state
+  paused: Boolean!
+  frozenAccounts: [Bytes!]!
+  frozenLots: [Bytes!]!
+  retired: Boolean!
+  retiredAt: BigInt
+  transferController: Bytes
+  hasTransferConditions: Boolean!
+  complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
+  lots: [Lot!]! @derivedFrom(field: "token")
+  offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # Debt-specific fields
+  principalAmount: BigInt! # Original principal (same as totalSupply for debt)
+  interestRate: Int! # Annual rate in basis points (500 = 5%, 0 = no interest)
+  issuanceDate: BigInt! # When debt was issued
+  maturityDate: BigInt! # When repayment is due
+  paymentCurrency: Bytes! # Currency for payments (address(0) for ETH)
+  paymentType: DebtPaymentType! # BULLET, AMORTIZING, INTEREST_ONLY
+  isSubordinated: Boolean! # True if subordinated debt (e.g., founder notes)
+  gracePeriodDays: Int! # Days after maturity before default
+  
+  # Debtor tracking
+  debtor: Bytes! # Company/borrower wallet address
+  creditor: Bytes! # Token holder (lender) wallet address
+  
+  # Payment tracking
+  totalPaid: BigInt!
+  principalPaid: BigInt!
+  interestPaid: BigInt!
+  outstandingBalance: BigInt!
+  
+  # Status
+  status: DebtStatus!
+  isMatured: Boolean!
+  isDefaulted: Boolean!
+  defaultedAt: BigInt
+  
+  # Relationships
+  payments: [DebtPayment!]! @derivedFrom(field: "note")
+}
+
+enum DebtPaymentType {
+  BULLET # Single payment at maturity
+  AMORTIZING # Regular principal + interest payments
+  INTEREST_ONLY # Regular interest, principal at maturity
+}
+
+enum DebtStatus {
+  ACTIVE # Debt is active and accruing
+  PAID_OFF # Fully repaid
+  DEFAULTED # In default
+  EXTENDED # Maturity extended
+}
+
+# Debt Payment tracking
+type DebtPayment @entity {
+  id: ID! # tx-hash-logIndex
+  note: PromissoryNote!
+  payer: Bytes! # Who made the payment
+  amount: BigInt! # Total payment amount
+  principalPortion: BigInt! # Amount applied to principal
+  interestPortion: BigInt! # Amount applied to interest
+  remainingBalance: BigInt! # Outstanding balance after payment
+  paidAt: BigInt!
+  paidTx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
+}
+
+# ============ FUTURE TOKEN TYPES ============
 
 # FUTURE: ESO Grant tracking (uncomment when implementing ESO tokens)
 # type ESOGrant @entity {
