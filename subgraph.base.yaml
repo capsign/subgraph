@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base
     source:
-      address: "0x036478441d6673FE1215c62df08e68a8255974cA"
+      address: "0x11E15fA118826dc04aa9094B31f7dCf2F9406CD8"
       abi: DiamondFactory
-      startBlock: 36593031
+      startBlock: 39712238
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -19,9 +19,14 @@ dataSources:
         - Wallet
         - Offering
         - ShareClass
+        - UserRole
       abis:
         - name: DiamondFactory
           file: ./abis/DiamondFactory.json
+        - name: FactoryCoreFacet
+          file: ./abis/FactoryCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
         - name: TokenMetadata
@@ -31,41 +36,45 @@ dataSources:
       eventHandlers:
         - event: DiamondCreated(indexed address,indexed address,indexed bytes32)
           handler: handleDiamondCreated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+          receipt: false
       file: ./src/mappings/diamond-factory.ts
   
-  # EAS - tracks attestations
-  - kind: ethereum/contract
-    name: EAS
-    network: base
-    source:
-      address: "0x4200000000000000000000000000000000000021"
-      abi: EAS
-      startBlock: 36593031
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Attestation
-        - Wallet
-      abis:
-        - name: EAS
-          file: ./abis/EAS.json
-      eventHandlers:
-        - event: Attested(indexed address,indexed address,bytes32,indexed bytes32)
-          handler: handleAttested
-        - event: Revoked(indexed address,indexed address,bytes32,indexed bytes32)
-          handler: handleRevoked
-      file: ./src/mappings/attestations.ts
+  # EAS - tracks attestations (DEPRECATED - kept for backward compatibility)
+  # New compliance data is tracked via ComplianceAdminFacet events in offering diamonds
+  # - kind: ethereum/contract
+  #   name: EAS
+  #   network: base
+  #   source:
+  #     address: "0x4200000000000000000000000000000000000021"
+  #     abi: EAS
+  #     startBlock: 39712238
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Attestation
+  #       - Wallet
+  #     abis:
+  #       - name: EAS
+  #         file: ./abis/EAS.json
+  #     eventHandlers:
+  #       - event: Attested(indexed address,indexed address,bytes32,indexed bytes32)
+  #         handler: handleAttested
+  #       - event: Revoked(indexed address,indexed address,bytes32,indexed bytes32)
+  #         handler: handleRevoked
+  #     file: ./src/mappings/attestations.ts
 
   # FacetRegistry - tracks facet registration and deployment
   - kind: ethereum/contract
     name: FacetRegistry
     network: base
     source:
-      address: "0xAa020955929dDc6C1d3295E29B368488D020e4Ae"
+      address: "0x5F3e27fAcB9C5c30B3A75791e8004050604451B1"
       abi: FacetRegistry
-      startBlock: 37104829
+      startBlock: 39712238
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -77,9 +86,9 @@ dataSources:
         - name: FacetRegistry
           file: ./abis/FacetRegistry.json
       eventHandlers:
-        - event: FacetRegistered(indexed string,indexed string,address,uint256)
+        - event: FacetRegistered(string,indexed uint256,indexed address,uint256)
           handler: handleFacetRegistered
-        - event: FacetRemoved(indexed string,indexed string)
+        - event: FacetRemoved(string,indexed uint256)
           handler: handleFacetRemoved
       file: ./src/mappings/facet-registry.ts
 
@@ -88,9 +97,9 @@ dataSources:
     name: WalletFactory
     network: base
     source:
-      address: "0x1F2280Fa980a402eAA5c6c22A2764a804d3C778c"
+      address: "0x09018ebE4DA0A269E0a6F8342732BcE9154A5931"
       abi: WalletFactory
-      startBlock: 37231264
+      startBlock: 39712238
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -98,14 +107,21 @@ dataSources:
       entities:
         - Wallet
         - Diamond
+        - UserRole
       abis:
         - name: WalletFactory
           file: ./abis/WalletFactory.json
+        - name: WalletFactoryCoreFacet
+          file: ./abis/WalletFactoryCoreFacet.json
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: WalletCreated(indexed address,indexed address,uint8,indexed bytes32,address)
           handler: handleWalletCreated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/wallet-factory.ts
 
   # OfferingFactory - tracks offering creation (Permissionless)
@@ -113,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base
     source:
-      address: "0x7cb5E8c0bc83b5F6ADD4FC6ED4abe23150Ac0847"
+      address: "0xa78C40145F91deAA61f30fd5EAE103F6Be9F6058"
       abi: OfferingFactory
-      startBlock: 37149253
+      startBlock: 39712238
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -126,13 +142,18 @@ dataSources:
         - FactoryPaymentConfig
         - FactoryPaymentToken
         - FactoryPayment
+        - UserRole
       abis:
         - name: OfferingFactory
           file: ./abis/OfferingFactory.json
         - name: OfferingCore
           file: ./abis/OfferingCoreFacet.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
-        - event: OfferingCreated(indexed address,indexed address,indexed address,address)
+        - event: OfferingCreated(indexed address,indexed address,indexed address,address[])
           handler: handleOfferingCreated
         - event: PaymentModuleInitialized(indexed address)
           handler: handlePaymentModuleInitialized
@@ -144,6 +165,8 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/offering-factory.ts
 
   # TokenFactory - tracks token creation (Permissionless)
@@ -151,24 +174,32 @@ dataSources:
     name: TokenFactory
     network: base
     source:
-      address: "0x07578339207071f915371c3e17377e707C86a468"
+      address: "0xbb158d0A8d355582e398865655e0f6aF6f4Dd2e1"
       abi: TokenFactory
-      startBlock: 37136459
+      startBlock: 39712238
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ShareClass
+        - Safe
         - Diamond
         - FactoryPaymentConfig
         - FactoryPaymentToken
         - FactoryPayment
+        - UserRole
       abis:
         - name: TokenFactory
           file: ./abis/TokenFactory.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
+        - name: DiamondLoupe
+          file: ./abis/DiamondLoupe.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
@@ -182,7 +213,116 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
       file: ./src/mappings/token-factory.ts
+
+  # AcquisitionFactory - tracks acquisition/listing creation (Permissionless)
+  - kind: ethereum/contract
+    name: AcquisitionFactory
+    network: base
+    source:
+      address: "0x6534e90Ce15f6dD96F69BE2491aD840e2141206F"
+      abi: AcquisitionFactory
+      startBlock: 39712238
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Acquisition
+        - Diamond
+        - FactoryPaymentConfig
+        - FactoryPaymentToken
+        - FactoryPayment
+        - UserRole
+      abis:
+        - name: AcquisitionFactory
+          file: ./abis/AcquisitionFactory.json
+        - name: AcquisitionFactoryCoreFacet
+          file: ./abis/AcquisitionFactoryCoreFacet.json
+        - name: FactoryPaymentFacet
+          file: ./abis/FactoryPaymentFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
+      eventHandlers:
+        - event: AcquisitionCreated(indexed address,indexed address,uint256)
+          handler: handleAcquisitionCreated
+        - event: PaymentModuleInitialized(indexed address)
+          handler: handlePaymentModuleInitialized
+        - event: PaymentTokenConfigured(indexed address,uint256,bool)
+          handler: handlePaymentTokenConfigured
+        - event: PaymentCollected(indexed address,indexed address,uint256,string)
+          handler: handlePaymentCollected
+        - event: FeeRecipientUpdated(indexed address)
+          handler: handleFeeRecipientUpdated
+        - event: PaymentsStatusChanged(bool)
+          handler: handlePaymentsStatusChanged
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+      file: ./src/mappings/acquisition-factory.ts
+
+  # VehicleFactory - tracks SPV/vehicle creation (Permissionless)
+  - kind: ethereum/contract
+    name: VehicleFactory
+    network: base
+    source:
+      address: "0x6F865A49B60C634e716C881f27Fe5dD25590785B"
+      abi: VehicleFactory
+      startBlock: 39712238
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Vehicle
+        - Diamond
+        - UserRole
+      abis:
+        - name: VehicleFactory
+          file: ./abis/VehicleFactory.json
+        - name: VehicleFactoryCoreFacet
+          file: ./abis/VehicleFactoryCoreFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
+      eventHandlers:
+        - event: VehicleCreated(indexed address,indexed address,uint8,bytes32)
+          handler: handleVehicleCreated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleUserRoleUpdated
+      file: ./src/mappings/vehicle-factory.ts
+
+  # CapSignPaymaster - tracks gas sponsorship
+  - kind: ethereum/contract
+    name: CapSignPaymaster
+    network: base
+    source:
+      address: "0x12109F20880e1387C10F804EB8e3526D186eF728"
+      abi: CapSignPaymasterFacet
+      startBlock: 39712238
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PaymasterDeposit
+        - PaymasterWithdrawal
+        - SponsoredTransaction
+        - PolicyCheckFailure
+        - PaymasterPolicy
+      abis:
+        - name: CapSignPaymasterFacet
+          file: ./abis/CapSignPaymasterFacet.json
+      eventHandlers:
+        - event: Deposited(indexed address,uint256)
+          handler: handleDeposited
+        - event: Withdrawn(indexed address,indexed address,uint256)
+          handler: handleWithdrawn
+        - event: Sponsored(indexed address,indexed address,uint256,uint256)
+          handler: handleSponsored
+        - event: PolicyCheckFailed(indexed address,indexed address,string)
+          handler: handlePolicyCheckFailed
+      file: ./src/mappings/paymaster.ts
 
 templates:
   # Offering Diamond Template
@@ -198,7 +338,16 @@ templates:
       entities:
         - Offering
         - Investment
+        - OffchainInvestment
         - DocumentSignature
+        - OfferingTemplate
+        - OfferingDocument
+        - OfferingDocumentSignature
+        - KYCStatus
+        - InvestorClassification
+        - Wallet
+        - SafePreApprovedTerms
+        - AuthorityDelegation
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -208,7 +357,17 @@ templates:
           file: ./abis/OfferingDocumentsFacet.json
         - name: OfferingCompliance
           file: ./abis/OfferingComplianceFacet.json
+        - name: OfferingOffchain
+          file: ./abis/OfferingOffchainFacet.json
+        - name: OfferingTerms
+          file: ./abis/OfferingTermsFacet.json
+        - name: ComplianceAdmin
+          file: ./abis/ComplianceAdminFacet.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
+        - event: AuthorityUpdated(indexed address,indexed address)
+          handler: handleOfferingAuthorityUpdated
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
           handler: handleOfferingInitialized
         - event: FundsDeposited(indexed address,indexed uint256,uint256,uint256,bytes32,bytes32)
@@ -217,10 +376,38 @@ templates:
           handler: handleInvestmentAccepted
         - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentRejected
+        - event: DocumentSignerRoleUpdated(uint8)
+          handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
           handler: handleOfferingStatusChanged
+        - event: OfferingURIUpdated(string,string)
+          handler: handleOfferingURIUpdated
+        - event: PaymentRecipientUpdated(indexed address,indexed address)
+          handler: handlePaymentRecipientUpdated
+        - event: PricePerTokenUpdated(uint256,uint256)
+          handler: handlePricePerTokenUpdated
+        - event: DeadlineExtended(uint256,uint256)
+          handler: handleDeadlineExtended
+        - event: MinMaxInvestmentUpdated(uint256,uint256,uint256,uint256)
+          handler: handleMinMaxInvestmentUpdated
+        - event: DocumentEligibilityModeSet(uint8)
+          handler: handleDocumentEligibilityModeSet
+        - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
+          handler: handleTemplateRegistered
+          receipt: true
+        - event: RequiredDocumentSet(indexed bytes32,uint8)
+          handler: handleRequiredDocumentSet
+        - event: DocumentCreated(indexed bytes32,indexed bytes32,indexed address,string)
+          handler: handleDocumentCreated
+          receipt: true
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleOfferingDocumentSigned
+        - event: DocumentRequirementAdded(indexed uint256,string,uint8,uint8)
+          handler: handleDocumentRequirementAdded
+        - event: DocumentRequirementUpdated(indexed uint256,string,uint8,uint8,uint8)
+          handler: handleDocumentRequirementUpdated
+        - event: DocumentRequirementRemoved(indexed uint256)
+          handler: handleDocumentRequirementRemoved
           receipt: true
         - event: ComplianceInitialized(bool,bool)
           handler: handleComplianceInitialized
@@ -228,6 +415,33 @@ templates:
           handler: handleAllowsGeneralSolicitationUpdated
         - event: AllowsSelfCertificationUpdated(bool)
           handler: handleAllowsSelfCertificationUpdated
+        - event: ComplianceModuleRegistered(indexed string,indexed address,uint256)
+          handler: handleComplianceModuleRegistered
+        - event: ComplianceModuleEnabled(indexed string,bool)
+          handler: handleComplianceModuleEnabled
+        - event: KYCStatusUpdated(indexed address,bool,uint64,indexed address)
+          handler: handleKYCStatusUpdated
+        - event: KYCRevoked(indexed address,indexed address)
+          handler: handleKYCRevoked
+        - event: ClassificationUpdated(indexed address,bytes32[],uint64,indexed address)
+          handler: handleClassificationUpdated
+        - event: ClassificationRevoked(indexed address,indexed address)
+          handler: handleClassificationRevoked
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleOfferingUserRoleUpdated
+        - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
+          handler: handleOfferingFunctionAccessChanged
+        - event: CustomTermsSet(indexed uint256,indexed address,bytes)
+          handler: handleCustomTermsSet
+        - event: OffchainInvestmentRecorded(indexed uint256,indexed address,uint256,uint256,string)
+          handler: handleOffchainInvestmentRecorded
+          receipt: false
+        - event: OffchainInvestmentConfirmed(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentConfirmed
+          receipt: false
+        - event: OffchainInvestmentCancelled(indexed uint256,indexed address)
+          handler: handleOffchainInvestmentCancelled
+          receipt: false
       file: ./src/mappings/offerings.ts
   
   # Token Diamond Template
@@ -243,6 +457,9 @@ templates:
       entities:
         - ShareClass
         - Lot
+        - Token
+        - TokenClaim
+        - AuthorityDelegation
       abis:
         - name: TokenDiamond
           file: ./abis/TokenDiamond.json
@@ -250,24 +467,28 @@ templates:
           file: ./abis/TokenBalancesFacet.json
         - name: TokenLots
           file: ./abis/TokenLotsFacet.json
+        - name: TokenMetadata
+          file: ./abis/TokenMetadataFacet.json
+        - name: TokenCompliance
+          file: ./abis/TokenComplianceFacet.json
+        - name: TokenClaims
+          file: ./abis/TokenClaimsFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: AccessControl
+          file: ./abis/AccessControlFacet.json
       eventHandlers:
-        - event: TokenInitialized(string,string,uint8)
-          handler: handleTokenInitialized
-        - event: LotCreated(indexed address,indexed bytes32,indexed uint256,uint256,uint256,address,uint256,uint256,string,bytes,uint8)
+        - event: AuthorityUpdated(indexed address,indexed address)
+          handler: handleTokenAuthorityUpdated
+        - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
           handler: handleLotCreated
-        - event: LotAdjusted(indexed bytes32,indexed bytes32,indexed address,address,uint256,uint256,address,uint256,string,bytes,string,uint8,uint256)
-          handler: handleLotAdjusted
-        - event: CustomIdUpdated(indexed bytes32,uint256,uint256)
-          handler: handleCustomIdUpdated
+        - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256,string,bytes,uint8,uint256)
+          handler: handleLotTransferred
         - event: LotInvalidated(indexed bytes32)
           handler: handleLotInvalidated
-        - event: MaxSupplyUpdated(uint256)
-          handler: handleMaxSupplyUpdated
-        - event: Paused(address)
+        - event: Paused(indexed address)
           handler: handlePaused
-        - event: Unpaused(address)
+        - event: Unpaused(indexed address)
           handler: handleUnpaused
         - event: AccountFrozen(indexed address)
           handler: handleAccountFrozen
@@ -277,14 +498,44 @@ templates:
           handler: handleLotFrozen
         - event: LotUnfrozen(indexed bytes32)
           handler: handleLotUnfrozen
-        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
-          handler: handleUserRoleUpdated
+        - event: TokenRetired(uint256)
+          handler: handleTokenRetired
+        - event: TokenUnretired(uint256)
+          handler: handleTokenUnretired
+        - event: DefaultTermsSet(uint256,uint256,address,bool,bool)
+          handler: handleDefaultTermsSet
+        - event: LotTermsSet(indexed bytes32,uint256,uint256,address,bool)
+          handler: handleLotTermsSet
+        - event: SAFEConverted(indexed bytes32,indexed address,indexed bytes32,uint256,uint256,uint256,address,string)
+          handler: handleSAFEConverted
+        - event: MaxSupplyUpdated(uint256)
+          handler: handleMaxSupplyUpdated
+        - event: BaseURIUpdated(string)
+          handler: handleBaseURIUpdated
         - event: StockSplitApplied(uint256,uint256)
           handler: handleStockSplitApplied
         - event: StockDividendApplied(uint256,uint256,bool)
           handler: handleStockDividendApplied
-        - event: EntityPublicStatusUpdated(bool)
-          handler: handleEntityPublicStatusUpdated
+        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
+          handler: handleTokenUserRoleUpdated
+        - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
+          handler: handleTokenFunctionAccessChanged
+        - event: LotModuleAdded(indexed bytes32,indexed address)
+          handler: handleLotModuleAdded
+        - event: ClaimCreated(indexed bytes32,indexed bytes32,uint256,indexed address)
+          handler: handleClaimCreated
+          receipt: false
+        - event: ClaimRedeemed(indexed bytes32,indexed address,indexed bytes32)
+          handler: handleClaimRedeemed
+          receipt: false
+        - event: ClaimCancelled(indexed bytes32,indexed address)
+          handler: handleClaimCancelled
+        - event: ComplianceModuleAdded(indexed address,string)
+          handler: handleComplianceModuleAdded
+        - event: ComplianceModuleRemoved(indexed address,string)
+          handler: handleComplianceModuleRemoved
+        - event: LotModuleAdded(indexed bytes32,indexed address)
+          handler: handleLotModuleAdded
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
@@ -292,7 +543,7 @@ templates:
     name: WalletDiamond
     network: base
     source:
-      abi: WalletCore
+      abi: WalletDiamond
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -304,11 +555,30 @@ templates:
         - UserRole
         - Document
         - DocumentSignature
+        - Attestation
+        - Vehicle
+        - VehicleMember
+        - CapitalContribution
+        - Distribution
+        - DistributionClaim
+        - VehicleInvestment
+        - AuthorityDelegation
+        - TargetFunctionPermission
       abis:
+        - name: WalletDiamond
+          file: ./abis/WalletDiamond.json
         - name: WalletCore
           file: ./abis/WalletCoreFacet.json
         - name: WalletDocuments
           file: ./abis/WalletDocumentsFacet.json
+        - name: VehicleMembers
+          file: ./abis/VehicleMembersFacet.json
+        - name: SPVDistribution
+          file: ./abis/SPVDistributionFacet.json
+        - name: WalletPaymasterPolicyFacet
+          file: ./abis/WalletPaymasterPolicyFacet.json
+        - name: WalletAccessManager
+          file: ./abis/WalletAccessManagerFacet.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
@@ -318,6 +588,8 @@ templates:
         - event: FunctionAccessChanged(indexed bytes4,indexed uint8,bool)
           handler: handleWalletFunctionAccessChanged
           receipt: false
+        - event: WalletTargetFunctionRoleSet(indexed address,indexed bytes4,uint8)
+          handler: handleWalletTargetFunctionRoleSet
         - event: WalletInitialized(indexed address,string)
           handler: handleWalletInitialized
         - event: DocumentUploaded(indexed bytes32,indexed bytes32,indexed address)
@@ -329,9 +601,51 @@ templates:
         - event: DocumentSigned(indexed bytes32,indexed address,uint256)
           handler: handleDocumentSigned
           receipt: true
-        - event: DocumentDeleted(indexed bytes32,indexed address)
-          handler: handleDocumentDeleted
-          receipt: true
+        - event: AttestationAdded(indexed bytes32,indexed string,uint256)
+          handler: handleAttestationAdded
+        - event: AttestationRevoked(indexed bytes32,uint256)
+          handler: handleAttestationRevoked
+        # Vehicle events (from VehicleMembers ABI)
+        - event: CapitalContributed(indexed address,uint256,uint256)
+          handler: handleCapitalContributed
+          receipt: false
+        - event: DistributionExecuted(indexed uint256,uint256,uint256)
+          handler: handleDistributionExecuted
+          receipt: false
+        - event: DistributionClaimed(indexed uint256,indexed address,uint256,uint256)
+          handler: handleDistributionClaimed
+          receipt: false
+        - event: MemberAdded(indexed address,uint256)
+          handler: handleMemberAdded
+          receipt: false
+        - event: MemberRemoved(indexed address)
+          handler: handleMemberRemoved
+          receipt: false
+        - event: InvestmentMade(indexed uint256,indexed address,uint8,uint256,uint256)
+          handler: handleInvestmentMade
+          receipt: false
+        - event: ValuationUpdated(indexed uint256,uint256,uint256,uint256)
+          handler: handleValuationUpdated
+          receipt: false
+        - event: InvestmentExited(indexed uint256,uint256,uint256)
+          handler: handleInvestmentExited
+          receipt: false
+        # Paymaster policy events (from WalletPaymasterPolicyFacet ABI)
+        - event: PaymasterEnabled(bool)
+          handler: handlePaymasterEnabled
+          receipt: false
+        - event: DailyBudgetSet(uint256)
+          handler: handleDailyBudgetSet
+          receipt: false
+        - event: PaymasterAddressSet(indexed address)
+          handler: handlePaymasterAddressSet
+          receipt: false
+        - event: RolePolicySet(indexed uint8,bool,uint256)
+          handler: handleRolePolicySet
+          receipt: false
+        - event: SpendingRecorded(indexed address,uint256)
+          handler: handleSpendingRecorded
+          receipt: false
       file: ./src/mappings/wallets.ts
 
   # Acquisition Diamond Template
@@ -361,4 +675,131 @@ templates:
         - event: DisputeRaised(indexed address)
           handler: handleDisputeRaised
       file: ./src/mappings/acquisitions.ts
+
+  # NOTE: Rule144ComplianceModule template removed - replaced by modular HoldingPeriodModule, VolumeLimitModule, AffiliateStatusModule
+
+  # Holding Period Module Template
+  - kind: ethereum/contract
+    name: HoldingPeriodModule
+    network: base
+    source:
+      abi: HoldingPeriodModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - HoldingPeriodConfig
+        - Token
+      abis:
+        - name: HoldingPeriodModule
+          file: ./abis/HoldingPeriodModule.json
+      eventHandlers:
+        - event: HoldingPeriodSet(indexed address,uint256)
+          handler: handleHoldingPeriodSet
+        - event: AcquisitionDateSet(indexed address,indexed bytes32,indexed address,uint256)
+          handler: handleAcquisitionDateSet
+        - event: AcquisitionDateUpdated(indexed address,indexed bytes32,indexed address,uint256)
+          handler: handleAcquisitionDateUpdated
+      file: ./src/mappings/holding-period-module.ts
+
+  # Volume Limit Module Template
+  - kind: ethereum/contract
+    name: VolumeLimitModule
+    network: base
+    source:
+      abi: VolumeLimitModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - VolumeLimitConfig
+        - Token
+      abis:
+        - name: VolumeLimitModule
+          file: ./abis/VolumeLimitModule.json
+      eventHandlers:
+        - event: VolumeConfigSet(indexed address,uint256,uint256,bool)
+          handler: handleVolumeConfigSet
+        - event: VolumeRecorded(indexed address,indexed address,uint256,uint256)
+          handler: handleVolumeRecorded
+        - event: WindowReset(indexed address,indexed address,uint256)
+          handler: handleWindowReset
+      file: ./src/mappings/volume-limit-module.ts
+
+  # Affiliate Status Module Template
+  - kind: ethereum/contract
+    name: AffiliateStatusModule
+    network: base
+    source:
+      abi: AffiliateStatusModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ComplianceModule
+        - AffiliateStatus
+        - AffiliateStatusChange
+        - Token
+      abis:
+        - name: AffiliateStatusModule
+          file: ./abis/AffiliateStatusModule.json
+      eventHandlers:
+        - event: AffiliateStatusSet(indexed address,indexed address,bool)
+          handler: handleAffiliateStatusSet
+        - event: AffiliateStatusBatchSet(indexed address,uint256)
+          handler: handleAffiliateStatusBatchSet
+      file: ./src/mappings/affiliate-status-module.ts
+
+  # Lockup Compliance Module Template (Lot-level)
+  - kind: ethereum/contract
+    name: LockupComplianceModule
+    network: base
+    source:
+      abi: LockupComplianceModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LockupConfig
+      abis:
+        - name: LockupComplianceModule
+          file: ./abis/LockupComplianceModule.json
+      eventHandlers:
+        - event: LockupSet(indexed bytes32,uint256)
+          handler: handleLockupSet
+        - event: LockupExtended(indexed bytes32,uint256,uint256)
+          handler: handleLockupExtended
+        - event: LockupRemoved(indexed bytes32)
+          handler: handleLockupRemoved
+      file: ./src/mappings/lockup-module.ts
+
+  # Vesting Compliance Module Template (Lot-level)
+  - kind: ethereum/contract
+    name: VestingComplianceModule
+    network: base
+    source:
+      abi: VestingComplianceModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - VestingConfig
+      abis:
+        - name: VestingComplianceModule
+          file: ./abis/VestingComplianceModule.json
+      eventHandlers:
+        - event: VestingScheduleCreated(indexed address,indexed bytes32,uint256,uint256,uint256,uint256,bool)
+          handler: handleVestingScheduleCreated
+        - event: TokensReleased(indexed address,indexed bytes32,uint256)
+          handler: handleTokensReleased
+        - event: VestingScheduleRevoked(indexed address,indexed bytes32)
+          handler: handleVestingScheduleRevoked
+      file: ./src/mappings/vesting-module.ts
 
