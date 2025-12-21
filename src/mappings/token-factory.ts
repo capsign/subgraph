@@ -206,8 +206,8 @@ function detectTokenType(tokenAddress: Address): string {
   // Check each facet for type-specific function selectors
   // TokenSAFEFacet implements: defaultTerms(): 0x43e30c7f
   const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
-  // TokenDebtFacet implements: getDebtRecord(uint256): 0x5f3d80bb
-  const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x5f3d80bb");
+  // TokenDebtFacet implements: applyLotTerms(bytes32,bytes): 0x510b2d24
+  const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
   
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
