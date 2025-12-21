@@ -7,7 +7,7 @@ import {
   PaymentsStatusChanged,
   UserRoleUpdated
 } from "../../generated/TokenFactory/TokenFactory";
-import { Diamond, ShareClass, Safe, UserRole } from "../../generated/schema";
+import { Diamond, ShareClass, Safe, PromissoryNote, UserRole } from "../../generated/schema";
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
 import { DiamondLoupe } from "../../generated/TokenFactory/DiamondLoupe";
@@ -88,6 +88,56 @@ export function handleTokenCreated(event: TokenCreated): void {
     // Link token to diamond
     diamond.token = tokenAddress;
     diamond.save();
+  } else if (tokenType === "PromissoryNote") {
+    // Create PromissoryNote entity
+    let note = new PromissoryNote(tokenAddress);
+    note.name = event.params.name;
+    note.symbol = event.params.symbol;
+    note.decimals = decimals;
+    note.totalSupply = BigInt.fromI32(0);
+    note.creator = event.params.admin;
+    note.admin = event.params.admin;
+    note.deployer = event.params.admin;
+    note.createdAt = event.block.timestamp;
+    note.createdTx = event.transaction.hash;
+    note.assetType = "PromissoryNote";
+    
+    // Initialize compliance
+    note.complianceConditions = new Array<Bytes>();
+    
+    // Initialize admin state
+    note.paused = false;
+    note.frozenAccounts = new Array<Bytes>();
+    note.frozenLots = new Array<Bytes>();
+    note.retired = false;
+    note.retiredAt = null;
+    note.transferController = null;
+    note.hasTransferConditions = false;
+    
+    // Initialize PromissoryNote-specific fields with defaults
+    // These will be updated when debt terms are set
+    note.principalAmount = BigInt.fromI32(0);
+    note.interestRate = 0;
+    note.issuanceDate = event.block.timestamp;
+    note.maturityDate = event.block.timestamp;
+    note.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    note.paymentType = "BULLET";
+    note.isSubordinated = false;
+    note.debtor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    note.creditor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    note.totalPaid = BigInt.fromI32(0);
+    note.interestPaid = BigInt.fromI32(0);
+    note.principalPaid = BigInt.fromI32(0);
+    note.outstandingBalance = BigInt.fromI32(0);
+    note.isMatured = false;
+    note.isDefaulted = false;
+    note.isPaidOff = false;
+    
+    note.save();
+    
+    // Link token to diamond
+    diamond.token = tokenAddress;
+    diamond.save();
   } else {
     // Create ShareClass entity (default for equity tokens)
     let shareClass = new ShareClass(tokenAddress);
@@ -136,7 +186,7 @@ export function handleTokenCreated(event: TokenCreated): void {
 /**
  * Detect token type by checking which facets are installed
  * @param tokenAddress - Address of the token diamond
- * @returns Token type string ("Safe" or "ShareClass")
+ * @returns Token type string ("Safe", "PromissoryNote", or "ShareClass")
  */
 function detectTokenType(tokenAddress: Address): string {
   // Create a DiamondLoupe binding to query facets
@@ -151,22 +201,27 @@ function detectTokenType(tokenAddress: Address): string {
   
   let facets = facetsResult.value;
   
-  // Check each facet for SAFE-specific function selectors
-  // TokenSAFEFacet implements: defaultTerms(), lotTerms(bytes32), etc.
-  // Selector for defaultTerms(): 0x43e30c7f
+  // Check each facet for type-specific function selectors
+  // TokenSAFEFacet implements: defaultTerms(): 0x43e30c7f
   const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
+  // TokenDebtFacet implements: getDebtRecord(uint256): 0x5f3d80bb
+  const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x5f3d80bb");
   
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
     for (let j = 0; j < facetSelectors.length; j++) {
-      // Use equals() method for Bytes comparison in AssemblyScript
+      // Check for SAFE facet
       if (facetSelectors[j].equals(SAFE_FACET_SELECTOR)) {
         return "Safe";
+      }
+      // Check for Debt facet (Promissory Note)
+      if (facetSelectors[j].equals(DEBT_FACET_SELECTOR)) {
+        return "PromissoryNote";
       }
     }
   }
   
-  // Default to ShareClass if no SAFE facet found
+  // Default to ShareClass if no specific facet found
   return "ShareClass";
 }
 
