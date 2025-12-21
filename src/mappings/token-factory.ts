@@ -123,15 +123,17 @@ export function handleTokenCreated(event: TokenCreated): void {
     note.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
     note.paymentType = "BULLET";
     note.isSubordinated = false;
+    note.gracePeriodDays = 0;
     note.debtor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
     note.creditor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
     note.totalPaid = BigInt.fromI32(0);
     note.interestPaid = BigInt.fromI32(0);
     note.principalPaid = BigInt.fromI32(0);
     note.outstandingBalance = BigInt.fromI32(0);
+    note.status = "ACTIVE";
     note.isMatured = false;
     note.isDefaulted = false;
-    note.isPaidOff = false;
+    note.defaultedAt = null;
     
     note.save();
     
@@ -147,36 +149,36 @@ export function handleTokenCreated(event: TokenCreated): void {
     shareClass.createdAt = event.block.timestamp;
     shareClass.createdTx = event.transaction.hash;
     shareClass.decimals = decimals;
-  shareClass.totalSupply = BigInt.fromI32(0);
-  shareClass.assetType = "ShareClass";
+    shareClass.totalSupply = BigInt.fromI32(0);
+    shareClass.assetType = "ShareClass";
   
-  // Initialize compliance
+    // Initialize compliance
     shareClass.complianceConditions = new Array<Bytes>();
   
-  // Initialize admin state
-  shareClass.paused = false;
+    // Initialize admin state
+    shareClass.paused = false;
     shareClass.frozenAccounts = new Array<Bytes>();
     shareClass.frozenLots = new Array<Bytes>();
     shareClass.retired = false;
     shareClass.retiredAt = null;
-  shareClass.transferController = null;
-  shareClass.hasTransferConditions = false;
+    shareClass.transferController = null;
+    shareClass.hasTransferConditions = false;
   
-  // Initialize ShareClass-specific fields
+    // Initialize ShareClass-specific fields
     shareClass.maxSupply = BigInt.fromI32(0); // 0 = unlimited
-  shareClass.splitNum = BigInt.fromI32(1);
-  shareClass.splitDen = BigInt.fromI32(1);
-  shareClass.divNum = BigInt.fromI32(1);
-  shareClass.divDen = BigInt.fromI32(1);
-  shareClass.totalSplits = 0;
-  shareClass.totalDividends = 0;
-  shareClass.isPublic = false;
+    shareClass.splitNum = BigInt.fromI32(1);
+    shareClass.splitDen = BigInt.fromI32(1);
+    shareClass.divNum = BigInt.fromI32(1);
+    shareClass.divDen = BigInt.fromI32(1);
+    shareClass.totalSplits = 0;
+    shareClass.totalDividends = 0;
+    shareClass.isPublic = false;
 
-  shareClass.save();
+    shareClass.save();
 
-  // Link token to diamond
-  diamond.token = tokenAddress;
-  diamond.save();
+    // Link token to diamond
+    diamond.token = tokenAddress;
+    diamond.save();
   }
 
   // Start tracking token diamond for events
