@@ -382,7 +382,7 @@ enum VehicleAssetType {
   EQUITY        # Equity investment in a company
   DEBT          # Debt instrument
   CRYPTO        # Cryptocurrency holding
-  DEFI          # DeFi protocol position (e.g., Morpho)
+  DEFI          # DeFi protocol position
   REAL_ESTATE   # Real estate holding
   OTHER         # Other asset types
 }
@@ -723,6 +723,7 @@ interface Token {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  tokenCategory: TokenCategory! # High-level category (EQUITY, DEBT, CONVERTIBLE, DERIVATIVE)
   complianceConditions: [Bytes!]! # Compliance conditions used
   
   # Admin state (from TokenAdminFacet)
@@ -744,6 +745,13 @@ interface Token {
   offerings: [Offering!]!
 }
 
+enum TokenCategory {
+  EQUITY      # Represents ownership: ShareClass, MembershipUnit, FundUnit, SPVUnit
+  DEBT        # Represents liability: PromissoryNote, Bond, ConvertibleNote
+  CONVERTIBLE # Hybrid instruments: SAFE (converts to equity)
+  DERIVATIVE  # Options and warrants: EmployeeStockOption, Warrant, StockAppreciationRight
+}
+
 # ShareClass tokens (equity shares)
 type ShareClass implements Token @entity {
   id: ID!
@@ -755,6 +763,7 @@ type ShareClass implements Token @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  tokenCategory: TokenCategory!
   complianceConditions: [Bytes!]!
   paused: Boolean!
   frozenAccounts: [Bytes!]!
@@ -766,6 +775,9 @@ type ShareClass implements Token @entity {
   complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
   lots: [Lot!]! @derivedFrom(field: "token")
   offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # Metadata URI (from TokenMetadataFacet)
+  baseURI: String # Base URI for token metadata
   
   # ShareClass-specific fields (from TokenAdminFacet)
   maxSupply: BigInt! # 0 = unlimited (from TokenAdminFacet)
@@ -964,6 +976,7 @@ type Safe implements Token @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  tokenCategory: TokenCategory!
   
   # Compliance
   complianceConditions: [Bytes!]! # Compliance conditions used
@@ -979,6 +992,9 @@ type Safe implements Token @entity {
   complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
   lots: [Lot!]! @derivedFrom(field: "token")
   offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # Metadata URI (from TokenMetadataFacet)
+  baseURI: String # Base URI for token metadata
   
   # SAFE-specific fields
   defaultValuationCap: BigInt! # Default valuation cap (0 = uncapped)
@@ -1030,6 +1046,7 @@ type PromissoryNote implements Token @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  tokenCategory: TokenCategory!
   
   # Compliance
   complianceConditions: [Bytes!]! # Compliance conditions used
@@ -1045,6 +1062,10 @@ type PromissoryNote implements Token @entity {
   complianceModules: [TokenComplianceConfig!]! @derivedFrom(field: "token")
   lots: [Lot!]! @derivedFrom(field: "token")
   offerings: [Offering!]! @derivedFrom(field: "token")
+  
+  # Metadata URI (from TokenMetadataFacet)
+  baseURI: String # Base URI for token metadata
+  uri: String # Deprecated: use baseURI instead
   
   # Debt-specific fields
   principalAmount: BigInt! # Original principal (same as totalSupply for debt)
@@ -1573,74 +1594,4 @@ enum FactoryType {
   TOKEN
   OFFERING
   WALLET
-}
-
-# ============ MORPHO VAULT INTEGRATION ============
-
-type MorphoVault @entity {
-  id: ID! # Vault contract address
-  name: String!
-  symbol: String!
-  decimals: Int!
-  asset: Bytes! # Underlying asset address (USDC, WETH, etc.)
-  assetSymbol: String! # For display purposes
-  assetDecimals: Int!
-  
-  # Vault metrics (updated periodically)
-  totalAssets: BigInt!
-  totalSupply: BigInt!
-  
-  # User positions
-  positions: [MorphoPosition!]! @derivedFrom(field: "vault")
-  
-  # Transaction history
-  deposits: [MorphoDeposit!]! @derivedFrom(field: "vault")
-  withdrawals: [MorphoWithdrawal!]! @derivedFrom(field: "vault")
-  
-  # Metadata
-  createdAt: BigInt!
-  createdTx: Bytes!
-  lastUpdatedAt: BigInt!
-}
-
-type MorphoPosition @entity {
-  id: ID! # vault-user
-  vault: MorphoVault!
-  user: Bytes! # User wallet address
-  shares: BigInt! # Vault shares held
-  
-  # Computed values (updated on Transfer events)
-  assetValue: BigInt! # Current value in underlying assets
-  
-  # Timestamps
-  firstDepositAt: BigInt!
-  lastUpdatedAt: BigInt!
-  lastUpdatedTx: Bytes!
-}
-
-type MorphoDeposit @entity {
-  id: ID! # tx-logIndex
-  vault: MorphoVault!
-  sender: Bytes! # Who initiated the deposit
-  owner: Bytes! # Who receives the shares
-  assets: BigInt! # Amount deposited
-  shares: BigInt! # Shares minted
-  
-  timestamp: BigInt!
-  tx: Bytes!
-  blockNumber: BigInt!
-}
-
-type MorphoWithdrawal @entity {
-  id: ID! # tx-logIndex
-  vault: MorphoVault!
-  sender: Bytes! # Who initiated the withdrawal
-  receiver: Bytes! # Who receives the assets
-  owner: Bytes! # Whose shares were burned
-  assets: BigInt! # Amount withdrawn
-  shares: BigInt! # Shares burned
-  
-  timestamp: BigInt!
-  tx: Bytes!
-  blockNumber: BigInt!
 }

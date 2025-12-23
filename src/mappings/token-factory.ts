@@ -59,6 +59,11 @@ export function handleTokenCreated(event: TokenCreated): void {
     safe.createdAt = event.block.timestamp;
     safe.createdTx = event.transaction.hash;
     safe.assetType = "Safe";
+    safe.tokenCategory = "CONVERTIBLE"; // SAFEs are convertible instruments
+    
+    // Read baseURI for metadata
+    let safeBaseURIResult = tokenContract.try_baseURI();
+    safe.baseURI = safeBaseURIResult.reverted ? null : safeBaseURIResult.value;
     
     // Initialize compliance (AssemblyScript empty array)
     safe.complianceConditions = new Array<Bytes>();
@@ -101,6 +106,12 @@ export function handleTokenCreated(event: TokenCreated): void {
     note.createdAt = event.block.timestamp;
     note.createdTx = event.transaction.hash;
     note.assetType = "PromissoryNote";
+    note.tokenCategory = "DEBT"; // Promissory notes are debt instruments
+    
+    // Read baseURI for metadata/legal document
+    let baseURIResult = tokenContract.try_baseURI();
+    note.baseURI = baseURIResult.reverted ? null : baseURIResult.value;
+    note.uri = baseURIResult.reverted ? null : baseURIResult.value; // Keep for backwards compat
     
     // Initialize compliance
     note.complianceConditions = new Array<Bytes>();
@@ -147,38 +158,43 @@ export function handleTokenCreated(event: TokenCreated): void {
     shareClass.symbol = event.params.symbol;
     shareClass.admin = event.params.admin;
     shareClass.createdAt = event.block.timestamp;
-    shareClass.createdTx = event.transaction.hash;
-    shareClass.decimals = decimals;
-    shareClass.totalSupply = BigInt.fromI32(0);
-    shareClass.assetType = "ShareClass";
+  shareClass.createdTx = event.transaction.hash;
+  shareClass.decimals = decimals;
+  shareClass.totalSupply = BigInt.fromI32(0);
+  shareClass.assetType = "ShareClass";
+  shareClass.tokenCategory = "EQUITY"; // Share classes are equity instruments
   
-    // Initialize compliance
-    shareClass.complianceConditions = new Array<Bytes>();
+  // Read baseURI for metadata
+  let shareClassBaseURIResult = tokenContract.try_baseURI();
+  shareClass.baseURI = shareClassBaseURIResult.reverted ? null : shareClassBaseURIResult.value;
   
-    // Initialize admin state
-    shareClass.paused = false;
+  // Initialize compliance
+  shareClass.complianceConditions = new Array<Bytes>();
+  
+  // Initialize admin state
+  shareClass.paused = false;
     shareClass.frozenAccounts = new Array<Bytes>();
     shareClass.frozenLots = new Array<Bytes>();
     shareClass.retired = false;
     shareClass.retiredAt = null;
-    shareClass.transferController = null;
-    shareClass.hasTransferConditions = false;
+  shareClass.transferController = null;
+  shareClass.hasTransferConditions = false;
   
-    // Initialize ShareClass-specific fields
+  // Initialize ShareClass-specific fields
     shareClass.maxSupply = BigInt.fromI32(0); // 0 = unlimited
-    shareClass.splitNum = BigInt.fromI32(1);
-    shareClass.splitDen = BigInt.fromI32(1);
-    shareClass.divNum = BigInt.fromI32(1);
-    shareClass.divDen = BigInt.fromI32(1);
-    shareClass.totalSplits = 0;
-    shareClass.totalDividends = 0;
-    shareClass.isPublic = false;
+  shareClass.splitNum = BigInt.fromI32(1);
+  shareClass.splitDen = BigInt.fromI32(1);
+  shareClass.divNum = BigInt.fromI32(1);
+  shareClass.divDen = BigInt.fromI32(1);
+  shareClass.totalSplits = 0;
+  shareClass.totalDividends = 0;
+  shareClass.isPublic = false;
 
-    shareClass.save();
+  shareClass.save();
 
-    // Link token to diamond
-    diamond.token = tokenAddress;
-    diamond.save();
+  // Link token to diamond
+  diamond.token = tokenAddress;
+  diamond.save();
   }
 
   // Start tracking token diamond for events
@@ -209,14 +225,21 @@ function detectTokenType(tokenAddress: Address): string {
   // TokenDebtFacet implements: applyLotTerms(bytes32,bytes): 0x510b2d24
   const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
   
+  // First pass: Check for SAFE facet (highest priority)
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
     for (let j = 0; j < facetSelectors.length; j++) {
-      // Check for SAFE facet
       if (facetSelectors[j].equals(SAFE_FACET_SELECTOR)) {
         return "Safe";
       }
-      // Check for Debt facet (Promissory Note)
+    }
+  }
+  
+  // Second pass: Check for Debt facet (Promissory Note)
+  // Note: applyLotTerms is also in TokenSAFEFacet, but we already checked for SAFE above
+  for (let i = 0; i < facets.length; i++) {
+    let facetSelectors = facets[i].functionSelectors;
+    for (let j = 0; j < facetSelectors.length; j++) {
       if (facetSelectors[j].equals(DEBT_FACET_SELECTOR)) {
         return "PromissoryNote";
       }

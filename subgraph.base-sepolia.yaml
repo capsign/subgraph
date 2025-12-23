@@ -243,6 +243,8 @@ dataSources:
           file: ./abis/AcquisitionFactoryCoreFacet.json
         - name: FactoryPaymentFacet
           file: ./abis/FactoryPaymentFacet.json
+        - name: ERC20
+          file: ./abis/ERC20.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:

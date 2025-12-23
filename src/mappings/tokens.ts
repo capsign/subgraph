@@ -14,6 +14,7 @@ import {
   LotCreated,
   LotTransferred,
   LotInvalidated,
+  LotURIUpdated,
   DefaultTermsSet,
   LotTermsSet,
   SAFEConverted,
@@ -25,12 +26,13 @@ import {
   ClaimCancelled,
   ComplianceModuleAdded,
   ComplianceModuleRemoved,
-  AuthorityUpdated
+  AuthorityUpdated,
+  DebtTermsSet
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -119,8 +121,9 @@ export function handleLotCreated(event: LotCreated): void {
   // Check if token entity exists - skip lots from tokens not created via factory
   const tokenShareClass = ShareClass.load(tokenAddress);
   const tokenSafe = Safe.load(tokenAddress);
+  const tokenPromissoryNote = PromissoryNote.load(tokenAddress);
   
-  if (!tokenShareClass && !tokenSafe) {
+  if (!tokenShareClass && !tokenSafe && !tokenPromissoryNote) {
     // Token entity doesn't exist - skip creating orphaned lot
     return;
   }
@@ -177,7 +180,7 @@ export function handleLotCreated(event: LotCreated): void {
   lot.transferType = "INTERNAL";
   lot.save();
   
-  // Update total supply for both ShareClass and Safe tokens
+  // Update total supply for ShareClass, Safe, and PromissoryNote tokens
   const shareClass = ShareClass.load(tokenAddress);
   if (shareClass) {
     shareClass.totalSupply = shareClass.totalSupply.plus(event.params.quantity);
@@ -187,7 +190,17 @@ export function handleLotCreated(event: LotCreated): void {
   const safe = Safe.load(tokenAddress);
   if (safe) {
     safe.totalSupply = safe.totalSupply.plus(event.params.quantity);
+    // For SAFEs, totalInvested = sum of all lot cost bases (investment amounts)
+    if (!lotDetails.reverted) {
+      safe.totalInvested = safe.totalInvested.plus(lotDetails.value.costBasis);
+    }
     safe.save();
+  }
+  
+  const promissoryNote = PromissoryNote.load(tokenAddress);
+  if (promissoryNote) {
+    promissoryNote.totalSupply = promissoryNote.totalSupply.plus(event.params.quantity);
+    promissoryNote.save();
   }
   
   // Create activity
@@ -247,6 +260,7 @@ export function handleLotInvalidated(event: LotInvalidated): void {
   if (lot) {
     const tokenAddress = lot.token;
     const quantity = lot.quantity;
+    const costBasis = lot.costBasis;
     
     lot.isValid = false;
     lot.save();
@@ -261,7 +275,18 @@ export function handleLotInvalidated(event: LotInvalidated): void {
     const safe = Safe.load(tokenAddress);
     if (safe) {
       safe.totalSupply = safe.totalSupply.minus(quantity);
+      // Also subtract from totalInvested (cost basis = investment amount)
+      safe.totalInvested = safe.totalInvested.minus(costBasis);
       safe.save();
+    }
+    
+    const promissoryNote = PromissoryNote.load(tokenAddress);
+    if (promissoryNote) {
+      promissoryNote.totalSupply = promissoryNote.totalSupply.minus(quantity);
+      // For promissory notes, also subtract from outstandingBalance
+      // (assuming the debt is being cancelled/forgiven)
+      promissoryNote.outstandingBalance = promissoryNote.outstandingBalance.minus(quantity);
+      promissoryNote.save();
     }
   }
 }
@@ -283,8 +308,54 @@ export function handleMaxSupplyUpdated(event: MaxSupplyUpdated): void {
  * Handle BaseURIUpdated event
  */
 export function handleBaseURIUpdated(event: BaseURIUpdated): void {
-  // TODO: Store base URI if needed
-  log.info("BaseURIUpdated: {}", [event.params.newBaseURI]);
+  const tokenAddress = event.address.toHexString();
+  const newBaseURI = event.params.newBaseURI;
+  
+  // Try loading as ShareClass first
+  let shareClass = ShareClass.load(tokenAddress);
+  if (shareClass != null) {
+    shareClass.baseURI = newBaseURI;
+    shareClass.save();
+    return;
+  }
+  
+  // Try loading as Safe
+  let safe = Safe.load(tokenAddress);
+  if (safe != null) {
+    safe.baseURI = newBaseURI;
+    safe.save();
+    return;
+  }
+  
+  // Try loading as PromissoryNote
+  let note = PromissoryNote.load(tokenAddress);
+  if (note != null) {
+    note.baseURI = newBaseURI;
+    note.uri = newBaseURI; // Keep for backwards compat
+    note.save();
+    return;
+  }
+}
+
+/**
+ * Handle LotURIUpdated event
+ */
+export function handleLotURIUpdated(event: LotURIUpdated): void {
+  const tokenAddress = event.address.toHexString();
+  const lotId = event.params.lotId;
+  const newUri = event.params.newUri;
+  
+  // Construct lot entity ID (token-lotId)
+  const lotEntityId = tokenAddress + "-" + lotId.toHexString();
+  
+  // Load lot
+  let lot = Lot.load(lotEntityId);
+  if (lot != null) {
+    lot.uri = newUri;
+    lot.save();
+  } else {
+    log.warning("LotURIUpdated event for unknown lot: {} (token: {})", [lotEntityId, tokenAddress]);
+  }
 }
 
 /**
@@ -453,6 +524,15 @@ export function handleTokenRetired(event: TokenRetired): void {
     safe.save();
     return;
   }
+
+  // Try loading as PromissoryNote
+  let note = PromissoryNote.load(tokenAddress);
+  if (note != null) {
+    note.retired = true;
+    note.retiredAt = event.params.timestamp;
+    note.save();
+    return;
+  }
 }
 
 /**
@@ -476,6 +556,15 @@ export function handleTokenUnretired(event: TokenUnretired): void {
     safe.retired = false;
     safe.retiredAt = null;
     safe.save();
+    return;
+  }
+
+  // Try loading as PromissoryNote
+  let note = PromissoryNote.load(tokenAddress);
+  if (note != null) {
+    note.retired = false;
+    note.retiredAt = null;
+    note.save();
     return;
   }
 }
@@ -796,3 +885,46 @@ export {
   handleComplianceModuleAdded,
   handleComplianceModuleRemoved
 } from "./token-compliance";
+
+/**
+ * Handle DebtTermsSet event for promissory notes
+ * Event: DebtTermsSet(uint256 principalAmount, uint256 interestRate, uint256 issuanceDate, uint256 maturityDate, address paymentCurrency, uint8 paymentType, bool isSubordinated)
+ */
+export function handleDebtTermsSet(event: DebtTermsSet): void {
+  const tokenAddress = event.address.toHexString();
+  
+  let note = PromissoryNote.load(tokenAddress);
+  if (!note) {
+    log.warning("DebtTermsSet event for unknown PromissoryNote: {}", [tokenAddress]);
+    return;
+  }
+  
+  // Update debt terms
+  note.principalAmount = event.params.principalAmount;
+  note.interestRate = event.params.interestRate.toI32(); // Convert BigInt to i32
+  note.issuanceDate = event.params.issuanceDate;
+  note.maturityDate = event.params.maturityDate;
+  note.paymentCurrency = event.params.paymentCurrency;
+  
+  // Map payment type enum (0=BULLET, 1=AMORTIZING, 2=INTEREST_ONLY)
+  if (event.params.paymentType == 0) {
+    note.paymentType = "BULLET";
+  } else if (event.params.paymentType == 1) {
+    note.paymentType = "AMORTIZING";
+  } else {
+    note.paymentType = "INTEREST_ONLY";
+  }
+  
+  note.isSubordinated = event.params.isSubordinated;
+  
+  // Initialize outstanding balance to principal amount
+  note.outstandingBalance = event.params.principalAmount;
+  
+  note.save();
+  
+  log.info("Debt terms set for PromissoryNote: token={}, principal={}, rate={}", [
+    tokenAddress,
+    event.params.principalAmount.toString(),
+    event.params.interestRate.toString()
+  ]);
+}
