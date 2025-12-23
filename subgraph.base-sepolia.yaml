@@ -131,7 +131,7 @@ dataSources:
     source:
       address: "0xa78C40145F91deAA61f30fd5EAE103F6Be9F6058"
       abi: OfferingFactory
-      startBlock: 35179200 # Skip the problematic block temporarily
+      startBlock: 35375964 # Updated 2024-12-23 - Skip old offerings with v1 TokenFactory tokens
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xbb158d0A8d355582e398865655e0f6aF6f4Dd2e1"
+      address: "0xe2C65b5731880928E3FD75a28c0FFd2e0fDF12Cf"
       abi: TokenFactory
-      startBlock: 35120181
+      startBlock: 35375964 # v2 deployment with updated TokenLotsFacet (2024-12-23)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -454,6 +454,8 @@ templates:
           handler: handleLotCreated
         - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256,string,bytes,uint8,uint256)
           handler: handleLotTransferred
+        - event: LotURIUpdated(indexed bytes32,string,string)
+          handler: handleLotURIUpdated
         - event: LotInvalidated(indexed bytes32)
           handler: handleLotInvalidated
         - event: Paused(indexed address)
@@ -506,6 +508,8 @@ templates:
           handler: handleComplianceModuleRemoved
         - event: LotModuleAdded(indexed bytes32,indexed address)
           handler: handleLotModuleAdded
+        - event: DebtTermsSet(uint256,uint256,uint256,uint256,address,uint8,bool)
+          handler: handleDebtTermsSet
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
