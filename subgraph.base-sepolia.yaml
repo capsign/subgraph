@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0x11E15fA118826dc04aa9094B31f7dCf2F9406CD8"
       abi: DiamondFactory
-      startBlock: 35119881
+      startBlock: 35375964 # Updated 2024-12-23 - Align with TokenFactory v2 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
