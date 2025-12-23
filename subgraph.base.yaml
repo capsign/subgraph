@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base
     source:
-      address: "0xbb158d0A8d355582e398865655e0f6aF6f4Dd2e1"
+      address: "0x26F9be7EeC345ce1a8ef32bC00789659d1aFcdE8"
       abi: TokenFactory
-      startBlock: 39712238
+      startBlock: 39867343 # v2 deployment with updated facets (2024-12-23)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
