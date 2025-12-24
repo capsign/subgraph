@@ -174,9 +174,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0xe2C65b5731880928E3FD75a28c0FFd2e0fDF12Cf"
+      address: "0x26F9be7EeC345ce1a8ef32bC00789659d1aFcdE8"
       abi: TokenFactory
-      startBlock: 35375964 # v2 deployment with updated TokenLotsFacet (2024-12-23)
+      startBlock: 35392141 # v2 deployment - Working createToken with correct ABI (2024-12-23)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
