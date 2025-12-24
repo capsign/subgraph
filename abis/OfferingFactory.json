@@ -1408,6 +1408,25 @@
           "internalType": "uint256"
         }
       ]
+    },
+    {
+      "type": "event",
+      "name": "DiscountSet",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "discountBasisPoints",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
     }
   ]
 }

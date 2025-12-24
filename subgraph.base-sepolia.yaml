@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x11E15fA118826dc04aa9094B31f7dCf2F9406CD8"
+      address: "0xC0315C905984013088738916fB659e58b0dE6ffB"
       abi: DiamondFactory
-      startBlock: 35375964 # Updated 2024-12-23 - Align with TokenFactory v2 deployment
+      startBlock: 35412565 # Updated 2025-12-24 - CREATE2 _V0 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -72,9 +72,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x5F3e27fAcB9C5c30B3A75791e8004050604451B1"
+      address: "0xABe95B54B92D18BE5769F3Ac03a5e234D4dfb7a6"
       abi: FacetRegistry
-      startBlock: 35119881
+      startBlock: 35414997 # Updated 2025-12-24 - CREATE2 _V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -97,9 +97,9 @@ dataSources:
     name: WalletFactory
     network: base-sepolia
     source:
-      address: "0x09018ebE4DA0A269E0a6F8342732BcE9154A5931"
+      address: "0xC8528af35a995be186B38f76Bf9Fa7Bcd27f9DC0"
       abi: WalletFactory
-      startBlock: 35043961
+      startBlock: 35414997
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -129,9 +129,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xa78C40145F91deAA61f30fd5EAE103F6Be9F6058"
+      address: "0xf42904CbCf95707CD42E1cBA1CF59f10d8B4a966"
       abi: OfferingFactory
-      startBlock: 35375964 # Updated 2024-12-23 - Skip old offerings with v1 TokenFactory tokens
+      startBlock: 35414997 # v0.1 deployment with updated salts (2025-12-24)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -165,6 +165,8 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: DiscountSet(indexed address,uint256)
+          handler: handleDiscountSet
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated
       file: ./src/mappings/offering-factory.ts
@@ -174,9 +176,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0x26F9be7EeC345ce1a8ef32bC00789659d1aFcdE8"
+      address: "0x1bcE01F79Fdf62EA681e1Db2Fa28EA51053eE635"
       abi: TokenFactory
-      startBlock: 35392141 # v2 deployment - Working createToken with correct ABI (2024-12-23)
+      startBlock: 35414997 # v0.1 deployment with updated salts (2025-12-24)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -213,6 +215,8 @@ dataSources:
           handler: handleFeeRecipientUpdated
         - event: PaymentsStatusChanged(bool)
           handler: handlePaymentsStatusChanged
+        - event: DiscountSet(indexed address,uint256)
+          handler: handleDiscountSet
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated
       file: ./src/mappings/token-factory.ts

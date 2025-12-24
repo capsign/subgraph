@@ -1590,6 +1590,18 @@ type FactoryPayment @entity {
   blockNumber: BigInt!
 }
 
+# Factory payment discount tracking
+type FactoryPaymentDiscount @entity {
+  id: ID! # factory-user
+  factory: Bytes!
+  user: Bytes!
+  discountBasisPoints: BigInt! # 10000 = 100% discount (free)
+  setAt: BigInt!
+  setTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 enum FactoryType {
   TOKEN
   OFFERING

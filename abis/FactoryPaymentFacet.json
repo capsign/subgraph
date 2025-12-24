@@ -1,1 +1,382 @@
-{"abi":[{"type":"function","name":"FactoryPayment_init","inputs":[{"name":"feeRecipient","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"configurePaymentToken","inputs":[{"name":"paymentToken","type":"address","internalType":"address"},{"name":"feeAmount","type":"uint256","internalType":"uint256"},{"name":"isActive","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"getAcceptedTokens","inputs":[],"outputs":[{"name":"tokens","type":"address[]","internalType":"address[]"}],"stateMutability":"view"},{"type":"function","name":"getFeeRecipient","inputs":[],"outputs":[{"name":"recipient","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"getPaymentStats","inputs":[],"outputs":[{"name":"paymentsEnabled","type":"bool","internalType":"bool"},{"name":"deploymentCount","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"function","name":"getPaymentTokenConfig","inputs":[{"name":"paymentToken","type":"address","internalType":"address"}],"outputs":[{"name":"config","type":"tuple","internalType":"struct IFactoryPayment.PaymentTokenConfig","components":[{"name":"isActive","type":"bool","internalType":"bool"},{"name":"feeAmount","type":"uint256","internalType":"uint256"},{"name":"totalCollected","type":"uint256","internalType":"uint256"}]}],"stateMutability":"view"},{"type":"function","name":"isPaymentInitialized","inputs":[],"outputs":[{"name":"initialized","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"setFeeRecipient","inputs":[{"name":"feeRecipient","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"setPaymentsEnabled","inputs":[{"name":"enabled","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"event","name":"FeeRecipientUpdated","inputs":[{"name":"feeRecipient","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"event","name":"PaymentCollected","inputs":[{"name":"payer","type":"address","indexed":true,"internalType":"address"},{"name":"paymentToken","type":"address","indexed":true,"internalType":"address"},{"name":"amount","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"deploymentType","type":"string","indexed":false,"internalType":"string"}],"anonymous":false},{"type":"event","name":"PaymentModuleInitialized","inputs":[{"name":"feeRecipient","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"type":"event","name":"PaymentTokenConfigured","inputs":[{"name":"paymentToken","type":"address","indexed":true,"internalType":"address"},{"name":"feeAmount","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"isActive","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"type":"event","name":"PaymentsStatusChanged","inputs":[{"name":"enabled","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"type":"error","name":"AccessControl_CallerIsNotAuthorized","inputs":[{"name":"caller","type":"address","internalType":"address"},{"name":"functionSig","type":"bytes4","internalType":"bytes4"}]},{"type":"error","name":"FactoryPayment_AlreadyInitialized","inputs":[]},{"type":"error","name":"FactoryPayment_InsufficientAllowance","inputs":[]},{"type":"error","name":"FactoryPayment_InvalidFeeRecipient","inputs":[]},{"type":"error","name":"FactoryPayment_InvalidPaymentToken","inputs":[]},{"type":"error","name":"FactoryPayment_NotInitialized","inputs":[]},{"type":"error","name":"FactoryPayment_PaymentTokenNotAccepted","inputs":[]},{"type":"error","name":"FactoryPayment_TransferFailed","inputs":[]}],"bytecode":{"object":"0x6080806040523460155761085d908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f358060e01c91826315984f11146105e7575081632f757006146104ff5781634ccb20c0146104c75781638d6ec0561461042d578163b2c3e6d9146103ff578163c6a00f2514610239578163d4389ad81461017d578163e74b981b146100dc575063f6b7d31d14610081575f80fd5b346100d8575f3660031901126100d857604060ff5f5160206107e85f395f51905f525460081c167f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4eb54825191151582526020820152f35b5f80fd5b346100d85760203660031901126100d8576100f5610697565b906001600160e01b03191661010a81336106fe565b1561016757506101186107bf565b6001600160a01b03811690811561015857610132906106c9565b7f7a7b5a0a132f9e0581eb8527f66eae9ee89c2a3e79d4ac7e41a1f1f4d48a7fc25f80a2005b637de34c5d60e11b5f5260045ffd5b631d64bc3360e11b5f523360045260245260445ffd5b346100d85760203660031901126100d857610196610697565b5f5160206107e85f395f51905f525460ff811661022a576001600160a01b0382169182156101585760016101dd9260ff1916175f5160206107e85f395f51905f52556106c9565b61010061ff00195f5160206107e85f395f51905f525416175f5160206107e85f395f51905f52557fd442eec8b9f2b512ec96d13fd9eb625103cf47323cf49bf675a68dabac842e185f80a2005b637a5fbb0b60e11b5f5260045ffd5b346100d85760603660031901126100d857610252610697565b9060243590604435801515918282036100d8576001600160e01b03191661027981336106fe565b1561016757506102876107bf565b6001600160a01b0384169384156103f0576001600160a01b03165f9081527f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e9602052604090209060ff8254161590816103e3575b816103db575b5061032c575b916040918160017ff063555f7bb11f1cfc7d1ddbb4d09a2bd5b68aa7203c74ba7b5faf22dda0e95f9560ff1981541660ff8516178155015582519182526020820152a2005b915f5160206108085f395f51905f525491680100000000000000008310156103c75760018301805f5160206108085f395f51905f52558310156103b3575f5160206108085f395f51905f525f527fb8f9092f82206b04c6e4d6b4bcb3cab382f2b5396514e3f383d904c55354aadf90920180546001600160a01b03191685179055916102e7565b634e487b7160e01b5f52603260045260245ffd5b634e487b7160e01b5f52604160045260245ffd5b9050856102e1565b60018301541591506102db565b63b76a099d60e01b5f5260045ffd5b346100d8575f3660031901126100d857602060ff5f5160206107e85f395f51905f5254166040519015158152f35b346100d85760203660031901126100d857600435908115158092036100d8576001600160e01b03191661046081336106fe565b15610167577f2cbc8a6edddf44b1e26cac204981bb42247897a4d5f7051fceb95833cecfb6516020836104916107bf565b5f5160206107e85f395f51905f525461ff008260081b169061ff001916175f5160206107e85f395f51905f5255604051908152a1005b346100d8575f3660031901126100d8575f5160206107e85f395f51905f525460405160109190911c6001600160a01b03168152602090f35b346100d8575f3660031901126100d8576040515f5160206108085f395f51905f5280548083525f918252602083019182917fb8f9092f82206b04c6e4d6b4bcb3cab382f2b5396514e3f383d904c55354aadf915b8181106105c857505050829003601f01601f1916820167ffffffffffffffff8111838210176103c75760408181526020808352845190830181905291928392918301915f5b8181106105a6575050500390f35b82516001600160a01b0316845285945060209384019390920191600101610598565b82546001600160a01b0316845260209093019260019283019201610553565b346100d85760203660031901126100d8576106536060915f6040610609610697565b92610613816106ad565b828152826020820152015260018060a01b03165f527f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e960205260405f2090565b60ff8154169060026001820154910154906040805193610672856106ad565b1515938481526020810192835201918252604051928352516020830152516040820152f35b600435906001600160a01b03821682036100d857565b6060810190811067ffffffffffffffff8211176103c757604052565b5f5160206107e85f395f51905f52805462010000600160b01b03191660109290921b62010000600160b01b0316919091179055565b6001600160a01b03165f8181527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d960209081526040808320546001600160e01b031990951683527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91da9091529020549081156107b7575f527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d9602052600160405f20541615918215926107af57505090565b161515919050565b505050600190565b60ff5f5160206107e85f395f51905f525416156107d857565b635ae3d3fb60e01b5f5260045ffdfe1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e81cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4eaa2646970667358221220c89e9cb36fd735ab0f7d135c880f7534461441f82f2bd9958ed0ff6ac31bf71a64736f6c634300081e0033","sourceMap":"580:5495:46:-:0;;;;;;;;;;;;;;;;;","linkReferences":{}},"deployedBytecode":{"object":"0x6080806040526004361015610012575f80fd5b5f358060e01c91826315984f11146105e7575081632f757006146104ff5781634ccb20c0146104c75781638d6ec0561461042d578163b2c3e6d9146103ff578163c6a00f2514610239578163d4389ad81461017d578163e74b981b146100dc575063f6b7d31d14610081575f80fd5b346100d8575f3660031901126100d857604060ff5f5160206107e85f395f51905f525460081c167f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4eb54825191151582526020820152f35b5f80fd5b346100d85760203660031901126100d8576100f5610697565b906001600160e01b03191661010a81336106fe565b1561016757506101186107bf565b6001600160a01b03811690811561015857610132906106c9565b7f7a7b5a0a132f9e0581eb8527f66eae9ee89c2a3e79d4ac7e41a1f1f4d48a7fc25f80a2005b637de34c5d60e11b5f5260045ffd5b631d64bc3360e11b5f523360045260245260445ffd5b346100d85760203660031901126100d857610196610697565b5f5160206107e85f395f51905f525460ff811661022a576001600160a01b0382169182156101585760016101dd9260ff1916175f5160206107e85f395f51905f52556106c9565b61010061ff00195f5160206107e85f395f51905f525416175f5160206107e85f395f51905f52557fd442eec8b9f2b512ec96d13fd9eb625103cf47323cf49bf675a68dabac842e185f80a2005b637a5fbb0b60e11b5f5260045ffd5b346100d85760603660031901126100d857610252610697565b9060243590604435801515918282036100d8576001600160e01b03191661027981336106fe565b1561016757506102876107bf565b6001600160a01b0384169384156103f0576001600160a01b03165f9081527f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e9602052604090209060ff8254161590816103e3575b816103db575b5061032c575b916040918160017ff063555f7bb11f1cfc7d1ddbb4d09a2bd5b68aa7203c74ba7b5faf22dda0e95f9560ff1981541660ff8516178155015582519182526020820152a2005b915f5160206108085f395f51905f525491680100000000000000008310156103c75760018301805f5160206108085f395f51905f52558310156103b3575f5160206108085f395f51905f525f527fb8f9092f82206b04c6e4d6b4bcb3cab382f2b5396514e3f383d904c55354aadf90920180546001600160a01b03191685179055916102e7565b634e487b7160e01b5f52603260045260245ffd5b634e487b7160e01b5f52604160045260245ffd5b9050856102e1565b60018301541591506102db565b63b76a099d60e01b5f5260045ffd5b346100d8575f3660031901126100d857602060ff5f5160206107e85f395f51905f5254166040519015158152f35b346100d85760203660031901126100d857600435908115158092036100d8576001600160e01b03191661046081336106fe565b15610167577f2cbc8a6edddf44b1e26cac204981bb42247897a4d5f7051fceb95833cecfb6516020836104916107bf565b5f5160206107e85f395f51905f525461ff008260081b169061ff001916175f5160206107e85f395f51905f5255604051908152a1005b346100d8575f3660031901126100d8575f5160206107e85f395f51905f525460405160109190911c6001600160a01b03168152602090f35b346100d8575f3660031901126100d8576040515f5160206108085f395f51905f5280548083525f918252602083019182917fb8f9092f82206b04c6e4d6b4bcb3cab382f2b5396514e3f383d904c55354aadf915b8181106105c857505050829003601f01601f1916820167ffffffffffffffff8111838210176103c75760408181526020808352845190830181905291928392918301915f5b8181106105a6575050500390f35b82516001600160a01b0316845285945060209384019390920191600101610598565b82546001600160a01b0316845260209093019260019283019201610553565b346100d85760203660031901126100d8576106536060915f6040610609610697565b92610613816106ad565b828152826020820152015260018060a01b03165f527f1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e960205260405f2090565b60ff8154169060026001820154910154906040805193610672856106ad565b1515938481526020810192835201918252604051928352516020830152516040820152f35b600435906001600160a01b03821682036100d857565b6060810190811067ffffffffffffffff8211176103c757604052565b5f5160206107e85f395f51905f52805462010000600160b01b03191660109290921b62010000600160b01b0316919091179055565b6001600160a01b03165f8181527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d960209081526040808320546001600160e01b031990951683527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91da9091529020549081156107b7575f527f35edad4c931e57ec40cedc90b9e3e052832d1b49c07eb789b019aea9b39c91d9602052600160405f20541615918215926107af57505090565b161515919050565b505050600190565b60ff5f5160206107e85f395f51905f525416156107d857565b635ae3d3fb60e01b5f5260045ffdfe1cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4e81cdc7cbe128cc8c11e8f2c138fe66ea4623b4a9d99bef16ab15912686af3f4eaa2646970667358221220c89e9cb36fd735ab0f7d135c880f7534461441f82f2bd9958ed0ff6ac31bf71a64736f6c634300081e0033","sourceMap":"580:5495:46:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;580:5495:46;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;5867:17;580:5495;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;580:5495:46;;;;;;:::i;:::-;1406:7:36;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;693:73:46;;;:::i;:::-;-1:-1:-1;;;;;580:5495:46;;;2604:26;;2600:75;;2767:29;;;:::i;:::-;2812:33;580:5495;2812:33;;580:5495;2600:75;1386:36;;;580:5495;2639:36;580:5495;;2639:36;1380:139:36;1437:71;;;580:5495:46;1437:71:36;1394:10;580:5495:46;;;;;;1437:71:36;580:5495:46;;;;;;-1:-1:-1;;580:5495:46;;;;;;:::i;:::-;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;1276:61;;-1:-1:-1;;;;;580:5495:46;;;1351:26;;1347:75;;1449:4;1463:29;580:5495;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;1463:29;:::i;:::-;580:5495;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;-1:-1:-1;;;;;;;;;;;580:5495:46;1542:38;580:5495;1542:38;;580:5495;1276:61;1302:35;;;580:5495;1302:35;580:5495;;1302:35;580:5495;;;;;;-1:-1:-1;;580:5495:46;;;;;;:::i;:::-;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;693:73:46;;;:::i;:::-;-1:-1:-1;;;;;580:5495:46;;;1845:26;;1841:75;;-1:-1:-1;;;;;580:5495:46;;;;;5010:44;580:5495;;;;;;;;;;2163:21;:51;;;;580:5495;2163:63;;;580:5495;2159:129;;;580:5495;;;;;;2388:57;580:5495;;;;;;;;;;;;2339:21;580:5495;;;;;;;;;;2388:57;580:5495;2159:129;580:5495;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;-1:-1:-1;;;;;;580:5495:46;;;;;;2159:129;;580:5495;;;;;;;;;;;;;;;;;;;;;;;;2163:63;;;;;;:51;580:5495;2188:21;;580:5495;2188:26;;-1:-1:-1;2163:51:46;;1841:75;1880:36;;;580:5495;1880:36;580:5495;;1880:36;580:5495;;;;;;-1:-1:-1;;580:5495:46;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;;;;;;;;;-1:-1:-1;;580:5495:46;;;;;;;;;;;;;;;-1:-1:-1;;;;;;1406:7:36;1385:29;1406:7;1394:10;1385:29;:::i;:::-;1384:30;1380:139;;3119:30:46;580:5495;693:73;;;:::i;:::-;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;3119:30;580:5495;;;;;;;-1:-1:-1;;580:5495:46;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;-1:-1:-1;;;;;580:5495:46;;;;;;;;;;;;-1:-1:-1;;580:5495:46;;;;;;-1:-1:-1;;;;;;;;;;;580:5495:46;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;580:5495:46;;;;;-1:-1:-1;;580:5495:46;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;580:5495:46;;;;;;;;;;;;;;;-1:-1:-1;;;;;580:5495:46;;;;;-1:-1:-1;580:5495:46;;;;;;;;;;;;;;;;-1:-1:-1;;;;;580:5495:46;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;580:5495:46;;;;5010:58;580:5495;;;;;;:::i;:::-;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;5010:44;580:5495;;;;;;;5010:58;580:5495;;;;5161:21;5200:26;5010:44;5161:21;;580:5495;5200:26;;580:5495;;;;;;;;;:::i;:::-;;;;;;;;5085:152;;580:5495;;;5085:152;580:5495;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;580:5495:46;;;;;;:::o;:::-;;;;;;;;;;;;;;;:::o;:::-;-1:-1:-1;;;;;;;;;;;580:5495:46;;-1:-1:-1;;;;;;580:5495:46;;;;;;-1:-1:-1;;;;;580:5495:46;;;;;;;:::o;3806:615:36:-;-1:-1:-1;;;;;580:5495:46;;;;;869:43:36;580:5495:46;;;;;;;;;-1:-1:-1;;;;;;580:5495:46;;;;;4066:15:36;580:5495:46;;;;;;;4162:31:36;;4158:73;;580:5495:46;;869:43:36;580:5495:46;;4066:15:36;580:5495:46;;;;4780:47:36;:61;;;;4327:87;;;4320:94;;3806:615;:::o;4327:87::-;4366:33;:47;;;3806:615;-1:-1:-1;3806:615:36:o;4158:73::-;4209:11;;;4066:15;4209:11;:::o;849:170:46:-;580:5495;-1:-1:-1;;;;;;;;;;;580:5495:46;;905:43;901:112;;849:170::o;901:112::-;971:31;;;-1:-1:-1;971:31:46;;-1:-1:-1;971:31:46","linkReferences":{}},"methodIdentifiers":{"FactoryPayment_init(address)":"d4389ad8","configurePaymentToken(address,uint256,bool)":"c6a00f25","getAcceptedTokens()":"2f757006","getFeeRecipient()":"4ccb20c0","getPaymentStats()":"f6b7d31d","getPaymentTokenConfig(address)":"15984f11","isPaymentInitialized()":"b2c3e6d9","setFeeRecipient(address)":"e74b981b","setPaymentsEnabled(bool)":"8d6ec056"},"rawMetadata":"{\"compiler\":{\"version\":\"0.8.30+commit.73712a01\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"functionSig\",\"type\":\"bytes4\"}],\"name\":\"AccessControl_CallerIsNotAuthorized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_AlreadyInitialized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_InsufficientAllowance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_InvalidFeeRecipient\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_InvalidPaymentToken\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_NotInitialized\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_PaymentTokenNotAccepted\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FactoryPayment_TransferFailed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"feeRecipient\",\"type\":\"address\"}],\"name\":\"FeeRecipientUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"payer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"paymentToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"deploymentType\",\"type\":\"string\"}],\"name\":\"PaymentCollected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"feeRecipient\",\"type\":\"address\"}],\"name\":\"PaymentModuleInitialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"paymentToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"feeAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"PaymentTokenConfigured\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"PaymentsStatusChanged\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"feeRecipient\",\"type\":\"address\"}],\"name\":\"FactoryPayment_init\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"paymentToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"feeAmount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"name\":\"configurePaymentToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAcceptedTokens\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"tokens\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFeeRecipient\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPaymentStats\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"paymentsEnabled\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"deploymentCount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"paymentToken\",\"type\":\"address\"}],\"name\":\"getPaymentTokenConfig\",\"outputs\":[{\"components\":[{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"feeAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalCollected\",\"type\":\"uint256\"}],\"internalType\":\"struct IFactoryPayment.PaymentTokenConfig\",\"name\":\"config\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isPaymentInitialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"initialized\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"feeRecipient\",\"type\":\"address\"}],\"name\":\"setFeeRecipient\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"enabled\",\"type\":\"bool\"}],\"name\":\"setPaymentsEnabled\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Handles payment configuration and collection for factory diamonds\",\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"params\":{\"caller\":\"Address attempting the call\",\"functionSig\":\"Function selector that was called\"}}]},\"events\":{\"FeeRecipientUpdated(address)\":{\"params\":{\"feeRecipient\":\"New fee recipient\"}},\"PaymentCollected(address,address,uint256,string)\":{\"params\":{\"amount\":\"Amount paid\",\"deploymentType\":\"Type of deployment (e.g., \\\"Token\\\", \\\"Offering\\\")\",\"payer\":\"Address that paid\",\"paymentToken\":\"Token used for payment\"}},\"PaymentModuleInitialized(address)\":{\"params\":{\"feeRecipient\":\"Address receiving fees\"}},\"PaymentTokenConfigured(address,uint256,bool)\":{\"params\":{\"feeAmount\":\"Fee amount for this token\",\"isActive\":\"Whether the token is active\",\"paymentToken\":\"Address of the payment token\"}},\"PaymentsStatusChanged(bool)\":{\"params\":{\"enabled\":\"New payment status\"}}},\"kind\":\"dev\",\"methods\":{\"FactoryPayment_init(address)\":{\"params\":{\"feeRecipient\":\"Address to receive fees\"}},\"configurePaymentToken(address,uint256,bool)\":{\"params\":{\"feeAmount\":\"Fee amount in token's smallest unit\",\"isActive\":\"Whether token is accepted\",\"paymentToken\":\"Token address\"}},\"getAcceptedTokens()\":{\"returns\":{\"tokens\":\"Array of accepted token addresses\"}},\"getFeeRecipient()\":{\"returns\":{\"recipient\":\"Fee recipient address\"}},\"getPaymentStats()\":{\"returns\":{\"deploymentCount\":\"Total number of paid deployments\",\"paymentsEnabled\":\"Whether payments are enabled\"}},\"getPaymentTokenConfig(address)\":{\"params\":{\"paymentToken\":\"Token address\"},\"returns\":{\"config\":\"Payment token configuration\"}},\"isPaymentInitialized()\":{\"returns\":{\"initialized\":\"Whether payments are initialized\"}},\"setFeeRecipient(address)\":{\"params\":{\"feeRecipient\":\"New recipient address\"}},\"setPaymentsEnabled(bool)\":{\"params\":{\"enabled\":\"Payment status\"}}},\"title\":\"FactoryPaymentFacet\",\"version\":1},\"userdoc\":{\"errors\":{\"AccessControl_CallerIsNotAuthorized(address,bytes4)\":[{\"notice\":\"Thrown when caller lacks required permissions\"}]},\"events\":{\"FeeRecipientUpdated(address)\":{\"notice\":\"Emitted when fee recipient is updated\"},\"PaymentCollected(address,address,uint256,string)\":{\"notice\":\"Emitted when payment is collected\"},\"PaymentModuleInitialized(address)\":{\"notice\":\"Emitted when payment module is initialized\"},\"PaymentTokenConfigured(address,uint256,bool)\":{\"notice\":\"Emitted when a payment token is added or updated\"},\"PaymentsStatusChanged(bool)\":{\"notice\":\"Emitted when payments are enabled or disabled\"}},\"kind\":\"user\",\"methods\":{\"FactoryPayment_init(address)\":{\"notice\":\"Initialize payment module\"},\"configurePaymentToken(address,uint256,bool)\":{\"notice\":\"Configure payment token\"},\"getAcceptedTokens()\":{\"notice\":\"Get all accepted payment tokens\"},\"getFeeRecipient()\":{\"notice\":\"Get fee recipient\"},\"getPaymentStats()\":{\"notice\":\"Get payment statistics\"},\"getPaymentTokenConfig(address)\":{\"notice\":\"Get payment token configuration\"},\"isPaymentInitialized()\":{\"notice\":\"Check if payment module is initialized\"},\"setFeeRecipient(address)\":{\"notice\":\"Update fee recipient\"},\"setPaymentsEnabled(bool)\":{\"notice\":\"Enable or disable payments globally\"}},\"notice\":\"Facet for factory ERC20 payment collection\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"packages/diamonds/src/factory/facets/FactoryPaymentFacet.sol\":\"FactoryPaymentFacet\"},\"evmVersion\":\"prague\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@diamonds/=packages/diamonds/\",\":@offerings/=packages/offerings/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@tokens/=packages/tokens/\",\":@vehicles/=packages/vehicles/\",\":@wallets/=packages/wallets/\",\":FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/\",\":diamonds-src/=packages/diamonds/src/\",\":diamonds/=packages/diamonds/interfaces/\",\":ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":offerings-src/=packages/offerings/src/\",\":offerings/=packages/offerings/interfaces/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/solady/src/\",\":tokens-src/=packages/tokens/src/\",\":tokens/=packages/tokens/interfaces/\",\":vehicles-src/=packages/vehicles/src/\",\":vehicles/=packages/vehicles/interfaces/\",\":wallets-src/=packages/wallets/src/\",\":wallets/=packages/wallets/interfaces/\",\":webauthn-sol/=lib/webauthn-sol/src/\"],\"viaIR\":true},\"sources\":{\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db\",\"dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9\"]},\"lib/solady/src/utils/SafeTransferLib.sol\":{\"keccak256\":\"0xf53a25143307304d9de7186f93f11faae3cc4f722c4b088aed6f4f8f87a02f7a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b722c08826ece540bbc4ee9f825aac501282c0900a0a2caa618154d77f23223d\",\"dweb:/ipfs/QmeMsPT5S4vV8f7DYC2eZ7TBCrtRi9cKMsoW6Ca62Uaqwg\"]},\"packages/diamonds/interfaces/IAccessControl.sol\":{\"keccak256\":\"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf\",\"dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT\"]},\"packages/diamonds/interfaces/factory/IFactoryPayment.sol\":{\"keccak256\":\"0xc3b0ff832f14859c5e6fe55daeda125b347d2c4c259f3ff011698e6fa158c240\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://1709f6f2f3fb5a46d3244ef58e3f734ee8002fcb53fc3948c29e5e59f6dc9b31\",\"dweb:/ipfs/QmPVKkA1fi4qQfxHtQLZ2maK3tUsTWfu7gourgpUhy7sij\"]},\"packages/diamonds/src/AccessControl.sol\":{\"keccak256\":\"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062\",\"dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8\"]},\"packages/diamonds/src/factory/facets/FactoryPaymentFacet.sol\":{\"keccak256\":\"0x2ab3dee201c4be631368c2036d3d9e495045db9e6fccc96c325b88fe0649db98\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c3ccae3955541d5bfb67769c147165f1bde71f0adea770501d4df55c1a694cc0\",\"dweb:/ipfs/QmNtH9c6bd6RY526UHaSZpXE4yBxhRsKKjPB5QH9b2xvtg\"]},\"packages/diamonds/src/factory/storage/FactoryPaymentStorage.sol\":{\"keccak256\":\"0xd1c5d2731e6273ab1d012261a97c570cd09083ff96f31044e996804ae697dc72\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://b84eef96700c0fd7a93a84eaf559bbb69b6aeb5e6a7bf4fd8640be37ebcb4251\",\"dweb:/ipfs/QmWavSPr2LWgU8gdtZSY5T4UAh6A3ZQB9trpcmdmMnGnUP\"]}},\"version\":1}","metadata":{"compiler":{"version":"0.8.30+commit.73712a01"},"language":"Solidity","output":{"abi":[{"inputs":[{"internalType":"address","name":"caller","type":"address"},{"internalType":"bytes4","name":"functionSig","type":"bytes4"}],"type":"error","name":"AccessControl_CallerIsNotAuthorized"},{"inputs":[],"type":"error","name":"FactoryPayment_AlreadyInitialized"},{"inputs":[],"type":"error","name":"FactoryPayment_InsufficientAllowance"},{"inputs":[],"type":"error","name":"FactoryPayment_InvalidFeeRecipient"},{"inputs":[],"type":"error","name":"FactoryPayment_InvalidPaymentToken"},{"inputs":[],"type":"error","name":"FactoryPayment_NotInitialized"},{"inputs":[],"type":"error","name":"FactoryPayment_PaymentTokenNotAccepted"},{"inputs":[],"type":"error","name":"FactoryPayment_TransferFailed"},{"inputs":[{"internalType":"address","name":"feeRecipient","type":"address","indexed":true}],"type":"event","name":"FeeRecipientUpdated","anonymous":false},{"inputs":[{"internalType":"address","name":"payer","type":"address","indexed":true},{"internalType":"address","name":"paymentToken","type":"address","indexed":true},{"internalType":"uint256","name":"amount","type":"uint256","indexed":false},{"internalType":"string","name":"deploymentType","type":"string","indexed":false}],"type":"event","name":"PaymentCollected","anonymous":false},{"inputs":[{"internalType":"address","name":"feeRecipient","type":"address","indexed":true}],"type":"event","name":"PaymentModuleInitialized","anonymous":false},{"inputs":[{"internalType":"address","name":"paymentToken","type":"address","indexed":true},{"internalType":"uint256","name":"feeAmount","type":"uint256","indexed":false},{"internalType":"bool","name":"isActive","type":"bool","indexed":false}],"type":"event","name":"PaymentTokenConfigured","anonymous":false},{"inputs":[{"internalType":"bool","name":"enabled","type":"bool","indexed":false}],"type":"event","name":"PaymentsStatusChanged","anonymous":false},{"inputs":[{"internalType":"address","name":"feeRecipient","type":"address"}],"stateMutability":"nonpayable","type":"function","name":"FactoryPayment_init"},{"inputs":[{"internalType":"address","name":"paymentToken","type":"address"},{"internalType":"uint256","name":"feeAmount","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"nonpayable","type":"function","name":"configurePaymentToken"},{"inputs":[],"stateMutability":"view","type":"function","name":"getAcceptedTokens","outputs":[{"internalType":"address[]","name":"tokens","type":"address[]"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"getFeeRecipient","outputs":[{"internalType":"address","name":"recipient","type":"address"}]},{"inputs":[],"stateMutability":"view","type":"function","name":"getPaymentStats","outputs":[{"internalType":"bool","name":"paymentsEnabled","type":"bool"},{"internalType":"uint256","name":"deploymentCount","type":"uint256"}]},{"inputs":[{"internalType":"address","name":"paymentToken","type":"address"}],"stateMutability":"view","type":"function","name":"getPaymentTokenConfig","outputs":[{"internalType":"struct IFactoryPayment.PaymentTokenConfig","name":"config","type":"tuple","components":[{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"uint256","name":"feeAmount","type":"uint256"},{"internalType":"uint256","name":"totalCollected","type":"uint256"}]}]},{"inputs":[],"stateMutability":"view","type":"function","name":"isPaymentInitialized","outputs":[{"internalType":"bool","name":"initialized","type":"bool"}]},{"inputs":[{"internalType":"address","name":"feeRecipient","type":"address"}],"stateMutability":"nonpayable","type":"function","name":"setFeeRecipient"},{"inputs":[{"internalType":"bool","name":"enabled","type":"bool"}],"stateMutability":"nonpayable","type":"function","name":"setPaymentsEnabled"}],"devdoc":{"kind":"dev","methods":{"FactoryPayment_init(address)":{"params":{"feeRecipient":"Address to receive fees"}},"configurePaymentToken(address,uint256,bool)":{"params":{"feeAmount":"Fee amount in token's smallest unit","isActive":"Whether token is accepted","paymentToken":"Token address"}},"getAcceptedTokens()":{"returns":{"tokens":"Array of accepted token addresses"}},"getFeeRecipient()":{"returns":{"recipient":"Fee recipient address"}},"getPaymentStats()":{"returns":{"deploymentCount":"Total number of paid deployments","paymentsEnabled":"Whether payments are enabled"}},"getPaymentTokenConfig(address)":{"params":{"paymentToken":"Token address"},"returns":{"config":"Payment token configuration"}},"isPaymentInitialized()":{"returns":{"initialized":"Whether payments are initialized"}},"setFeeRecipient(address)":{"params":{"feeRecipient":"New recipient address"}},"setPaymentsEnabled(bool)":{"params":{"enabled":"Payment status"}}},"version":1},"userdoc":{"kind":"user","methods":{"FactoryPayment_init(address)":{"notice":"Initialize payment module"},"configurePaymentToken(address,uint256,bool)":{"notice":"Configure payment token"},"getAcceptedTokens()":{"notice":"Get all accepted payment tokens"},"getFeeRecipient()":{"notice":"Get fee recipient"},"getPaymentStats()":{"notice":"Get payment statistics"},"getPaymentTokenConfig(address)":{"notice":"Get payment token configuration"},"isPaymentInitialized()":{"notice":"Check if payment module is initialized"},"setFeeRecipient(address)":{"notice":"Update fee recipient"},"setPaymentsEnabled(bool)":{"notice":"Enable or disable payments globally"}},"version":1}},"settings":{"remappings":["@diamonds/=packages/diamonds/","@offerings/=packages/offerings/","@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/","@tokens/=packages/tokens/","@vehicles/=packages/vehicles/","@wallets/=packages/wallets/","FreshCryptoLib/=lib/FreshCryptoLib/solidity/src/","diamonds-src/=packages/diamonds/src/","diamonds/=packages/diamonds/interfaces/","ds-test/=lib/webauthn-sol/lib/forge-std/lib/ds-test/src/","erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/","forge-std/=lib/forge-std/src/","halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/","offerings-src/=packages/offerings/src/","offerings/=packages/offerings/interfaces/","openzeppelin-contracts/=lib/openzeppelin-contracts/","solady/=lib/solady/src/","tokens-src/=packages/tokens/src/","tokens/=packages/tokens/interfaces/","vehicles-src/=packages/vehicles/src/","vehicles/=packages/vehicles/interfaces/","wallets-src/=packages/wallets/src/","wallets/=packages/wallets/interfaces/","webauthn-sol/=lib/webauthn-sol/src/"],"optimizer":{"enabled":true,"runs":200},"metadata":{"bytecodeHash":"ipfs"},"compilationTarget":{"packages/diamonds/src/factory/facets/FactoryPaymentFacet.sol":"FactoryPaymentFacet"},"evmVersion":"prague","libraries":{},"viaIR":true},"sources":{"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol":{"keccak256":"0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7","urls":["bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db","dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9"],"license":"MIT"},"lib/solady/src/utils/SafeTransferLib.sol":{"keccak256":"0xf53a25143307304d9de7186f93f11faae3cc4f722c4b088aed6f4f8f87a02f7a","urls":["bzz-raw://b722c08826ece540bbc4ee9f825aac501282c0900a0a2caa618154d77f23223d","dweb:/ipfs/QmeMsPT5S4vV8f7DYC2eZ7TBCrtRi9cKMsoW6Ca62Uaqwg"],"license":"MIT"},"packages/diamonds/interfaces/IAccessControl.sol":{"keccak256":"0xde8f46c25fc2b888e6820ab983d9a7c505b4eec58d37b8bee1fbde97eaf64ad8","urls":["bzz-raw://da80880d27fb8a58220fa085bfd73e67ea28d8efd48a469b6ed0b906e72c18cf","dweb:/ipfs/QmWahEfboJf8AsTKJt3tEpKtLJFGkcdDCqENrStGUbERKT"],"license":"BUSL-1.1"},"packages/diamonds/interfaces/factory/IFactoryPayment.sol":{"keccak256":"0xc3b0ff832f14859c5e6fe55daeda125b347d2c4c259f3ff011698e6fa158c240","urls":["bzz-raw://1709f6f2f3fb5a46d3244ef58e3f734ee8002fcb53fc3948c29e5e59f6dc9b31","dweb:/ipfs/QmPVKkA1fi4qQfxHtQLZ2maK3tUsTWfu7gourgpUhy7sij"],"license":"BUSL-1.1"},"packages/diamonds/src/AccessControl.sol":{"keccak256":"0x49cd20c1f0a0b905b5f58146c4db49a778974bf2ff159c1f2deb2c479074f811","urls":["bzz-raw://79ea82ea48606d4336c8313ab34e48e834ad5300f2bf37db91d83fb216f35062","dweb:/ipfs/QmRLrVL41eHHYhF7hq553n56VYfNx469rx17B78HsemhG8"],"license":"BUSL-1.1"},"packages/diamonds/src/factory/facets/FactoryPaymentFacet.sol":{"keccak256":"0x2ab3dee201c4be631368c2036d3d9e495045db9e6fccc96c325b88fe0649db98","urls":["bzz-raw://c3ccae3955541d5bfb67769c147165f1bde71f0adea770501d4df55c1a694cc0","dweb:/ipfs/QmNtH9c6bd6RY526UHaSZpXE4yBxhRsKKjPB5QH9b2xvtg"],"license":"BUSL-1.1"},"packages/diamonds/src/factory/storage/FactoryPaymentStorage.sol":{"keccak256":"0xd1c5d2731e6273ab1d012261a97c570cd09083ff96f31044e996804ae697dc72","urls":["bzz-raw://b84eef96700c0fd7a93a84eaf559bbb69b6aeb5e6a7bf4fd8640be37ebcb4251","dweb:/ipfs/QmWavSPr2LWgU8gdtZSY5T4UAh6A3ZQB9trpcmdmMnGnUP"],"license":"BUSL-1.1"}},"version":1},"id":46}
+[
+  {
+    "type": "function",
+    "name": "FactoryPayment_init",
+    "inputs": [
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "collectPayment",
+    "inputs": [
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "deploymentType",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "configurePaymentToken",
+    "inputs": [
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "feeAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isActive",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getAcceptedTokens",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "tokens",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDiscount",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "discountBasisPoints",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFeeRecipient",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPaymentStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "paymentsEnabled",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "deploymentCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPaymentTokenConfig",
+    "inputs": [
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IFactoryPayment.PaymentTokenConfig",
+        "components": [
+          {
+            "name": "isActive",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "feeAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCollected",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isPaymentInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "initialized",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setDiscount",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "discountBasisPoints",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setFeeRecipient",
+    "inputs": [
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setPaymentsEnabled",
+    "inputs": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "DiscountSet",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "discountBasisPoints",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FeeRecipientUpdated",
+    "inputs": [
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentCollected",
+    "inputs": [
+      {
+        "name": "payer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "deploymentType",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentModuleInitialized",
+    "inputs": [
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentTokenConfigured",
+    "inputs": [
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "feeAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "isActive",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentsStatusChanged",
+    "inputs": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_InsufficientAllowance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_InvalidDiscount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_InvalidFeeRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_InvalidPaymentToken",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_PaymentTokenNotAccepted",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FactoryPayment_TransferFailed",
+    "inputs": []
+  }
+]

@@ -5,6 +5,7 @@ import {
   PaymentCollected,
   FeeRecipientUpdated,
   PaymentsStatusChanged,
+  DiscountSet,
   UserRoleUpdated
 } from "../../generated/OfferingFactory/OfferingFactory";
 import { Diamond, Offering, UserRole } from "../../generated/schema";
@@ -16,6 +17,7 @@ import {
   FactoryPaymentTokenConfig,
   PaymentToken,
   FactoryPayment,
+  FactoryPaymentDiscount,
 } from "../../generated/schema";
 
 /**
@@ -24,6 +26,13 @@ import {
  */
 export function handleOfferingCreated(event: OfferingCreated): void {
   const offeringAddress = event.params.offeringDiamond.toHexString();
+
+  // Ensure FactoryPaymentConfig exists for this factory
+  getOrCreateFactoryPaymentConfig(
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash
+  );
 
   // Create or update Diamond entity
   let diamond = Diamond.load(offeringAddress);
@@ -262,6 +271,32 @@ export function handlePaymentsStatusChanged(event: PaymentsStatusChanged): void 
 
   factoryConfig.paymentsEnabled = event.params.enabled;
   factoryConfig.save();
+}
+
+export function handleDiscountSet(event: DiscountSet): void {
+  let factoryAddress = event.address;
+  let userAddress = event.params.user;
+  let discountBasisPoints = event.params.discountBasisPoints;
+
+  // Create or update discount entity
+  let discountId = factoryAddress
+    .toHexString()
+    .concat("-")
+    .concat(userAddress.toHexString());
+  
+  let discount = FactoryPaymentDiscount.load(discountId);
+  if (!discount) {
+    discount = new FactoryPaymentDiscount(discountId);
+    discount.factory = factoryAddress;
+    discount.user = userAddress;
+    discount.setAt = event.block.timestamp;
+    discount.setTx = event.transaction.hash;
+  }
+
+  discount.discountBasisPoints = discountBasisPoints;
+  discount.lastUpdatedAt = event.block.timestamp;
+  discount.lastUpdatedTx = event.transaction.hash;
+  discount.save();
 }
 
 /**

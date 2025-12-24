@@ -1,6 +1,31 @@
 import { WalletCreated, UserRoleUpdated } from "../../generated/WalletFactory/WalletFactory";
-import { Diamond, Wallet, Owner, UserRole } from "../../generated/schema";
+import { Diamond, Wallet, Owner, UserRole, FactoryPaymentConfig } from "../../generated/schema";
 import { WalletDiamond } from "../../generated/templates";
+import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
+
+// Helper to get or create factory payment config
+function getOrCreateFactoryPaymentConfig(
+  factoryAddress: Address,
+  timestamp: BigInt,
+  tx: Bytes
+): FactoryPaymentConfig {
+  let id = factoryAddress.toHexString();
+  let config = FactoryPaymentConfig.load(id);
+
+  if (!config) {
+    config = new FactoryPaymentConfig(id);
+    config.factory = factoryAddress;
+    config.factoryType = "WALLET";
+    config.feeRecipient = Address.fromString("0x0000000000000000000000000000000000000000");
+    config.paymentsEnabled = true;
+    config.deploymentCount = BigInt.zero();
+    config.createdAt = timestamp;
+    config.createdTx = tx;
+    config.save();
+  }
+
+  return config;
+}
 
 /**
  * Handle wallet creation from WalletFactory
@@ -8,6 +33,13 @@ import { WalletDiamond } from "../../generated/templates";
  */
 export function handleWalletCreated(event: WalletCreated): void {
   const walletAddress = event.params.walletDiamond.toHexString();
+
+  // Ensure FactoryPaymentConfig exists for this factory
+  getOrCreateFactoryPaymentConfig(
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash
+  );
 
   // Create or update Diamond entity
   let diamond = Diamond.load(walletAddress);
