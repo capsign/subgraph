@@ -5,6 +5,9 @@ type Diamond @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   
+  # Factory settings (for factory diamonds)
+  facetRegistry: Bytes # Address of FacetRegistry (only for factory diamonds)
+  
   # Polymorphic relationships (optional - diamonds may be tracked separately)
   wallet: Wallet
   offering: Offering
@@ -14,6 +17,16 @@ type Diamond @entity {
   userRoles: [UserRole!]! @derivedFrom(field: "diamond")
   functionAccess: [FunctionAccess!]! @derivedFrom(field: "diamond")
 }
+
+# System configuration - single entity with id "system"
+type SystemConfig @entity {
+  id: ID! # Always "system"
+  diamondFactory: Bytes! # Address of DiamondFactory
+  facetRegistry: Bytes! # Address of FacetRegistry
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 
 # Generic access control tracking for all diamonds
 type UserRole @entity {

@@ -1,5 +1,5 @@
-import { DiamondCreated, UserRoleUpdated } from "../../generated/DiamondFactory/DiamondFactory";
-import { Diamond, Wallet, Offering, UserRole } from "../../generated/schema";
+import { DiamondCreated, FacetRegistryUpdated, UserRoleUpdated } from "../../generated/DiamondFactory/DiamondFactory";
+import { Diamond, Wallet, Offering, UserRole, SystemConfig } from "../../generated/schema";
 import {
   OfferingDiamond,
   TokenDiamond,
@@ -7,6 +7,17 @@ import {
 } from "../../generated/templates";
 
 export function handleDiamondCreated(event: DiamondCreated): void {
+  // Initialize SystemConfig if it doesn't exist
+  let systemConfig = SystemConfig.load("system");
+  if (!systemConfig) {
+    systemConfig = new SystemConfig("system");
+    systemConfig.diamondFactory = event.address;
+    systemConfig.facetRegistry = event.address; // Will be updated by FacetRegistryUpdated event
+    systemConfig.lastUpdatedAt = event.block.timestamp;
+    systemConfig.lastUpdatedTx = event.transaction.hash;
+    systemConfig.save();
+  }
+
   const diamond = new Diamond(event.params.diamond.toHexString());
   diamond.diamondType = "UNKNOWN"; // Type will be determined by initialization events
   diamond.creator = event.params.deployer;
@@ -19,6 +30,40 @@ export function handleDiamondCreated(event: DiamondCreated): void {
   WalletDiamond.create(event.params.diamond);
   OfferingDiamond.create(event.params.diamond);
   TokenDiamond.create(event.params.diamond);
+}
+
+/**
+ * Handle FacetRegistryUpdated events from DiamondFactory
+ * Tracks when the factory's facet registry is updated
+ */
+export function handleFacetRegistryUpdated(event: FacetRegistryUpdated): void {
+  const factoryAddress = event.address.toHexString();
+  
+  // Update SystemConfig
+  let systemConfig = SystemConfig.load("system");
+  if (!systemConfig) {
+    systemConfig = new SystemConfig("system");
+  }
+  // Always update to the latest DiamondFactory address emitting the event
+  systemConfig.diamondFactory = event.address;
+  systemConfig.facetRegistry = event.params.registry;
+  systemConfig.lastUpdatedAt = event.block.timestamp;
+  systemConfig.lastUpdatedTx = event.transaction.hash;
+  systemConfig.save();
+  
+  // Load or create diamond entity for the factory
+  let diamond = Diamond.load(factoryAddress);
+  if (!diamond) {
+    diamond = new Diamond(factoryAddress);
+    diamond.diamondType = "FACTORY";
+    diamond.creator = event.transaction.from;
+    diamond.createdAt = event.block.timestamp;
+    diamond.createdTx = event.transaction.hash;
+  }
+  
+  // Update facet registry
+  diamond.facetRegistry = event.params.registry;
+  diamond.save();
 }
 
 /**

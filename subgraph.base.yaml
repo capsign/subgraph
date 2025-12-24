@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base
     source:
-      address: "0xC0315C905984013088738916fB659e58b0dE6ffB"
+      address: "0x801f27B0d9b238D7E81cBc4141cc49A17a644e21"
       abi: DiamondFactory
-      startBlock: 39901547 # Updated 2024-12-24 - CREATE2 _V0 deployment
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -36,6 +36,8 @@ dataSources:
       eventHandlers:
         - event: DiamondCreated(indexed address,indexed address,indexed bytes32)
           handler: handleDiamondCreated
+        - event: FacetRegistryUpdated(indexed address)
+          handler: handleFacetRegistryUpdated
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated
           receipt: false
@@ -72,9 +74,9 @@ dataSources:
     name: FacetRegistry
     network: base
     source:
-      address: "0x31dD80E19b3471cf9209C2A4615984b9FDde0CC2"
+      address: "0x7835CE482068592bC6761522c53A2665a409398C"
       abi: FacetRegistry
-      startBlock: 39901547 # Updated 2025-12-24 - CREATE2 _V0.1 deployment
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -99,7 +101,7 @@ dataSources:
     source:
       address: "0xC8528af35a995be186B38f76Bf9Fa7Bcd27f9DC0"
       abi: WalletFactory
-      startBlock: 39901547
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -131,7 +133,7 @@ dataSources:
     source:
       address: "0xf42904CbCf95707CD42E1cBA1CF59f10d8B4a966"
       abi: OfferingFactory
-      startBlock: 39901547
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -178,7 +180,7 @@ dataSources:
     source:
       address: "0x1bcE01F79Fdf62EA681e1Db2Fa28EA51053eE635"
       abi: TokenFactory
-      startBlock: 39901547 # v0.1 deployment with updated salts (2025-12-24)
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -226,9 +228,9 @@ dataSources:
     name: AcquisitionFactory
     network: base
     source:
-      address: "0x6534e90Ce15f6dD96F69BE2491aD840e2141206F"
+      address: "0x39F1Ef9a5cFc3e47FccDbfd501DA6E9F5f61C5D0"
       abi: AcquisitionFactory
-      startBlock: 39712238
+      startBlock: 39902109 # Updated 2025-12-24 - V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
