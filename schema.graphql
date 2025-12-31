@@ -493,6 +493,7 @@ enum ActivityType {
   MEMBER_REMOVED
   # Native asset activities
   ETH_SENT # Outgoing ETH transfer from wallet
+  ETH_RECEIVED # Incoming ETH transfer to wallet
   USDC_SENT # Outgoing USDC transfer from wallet
   USDC_RECEIVED # Incoming USDC transfer to wallet
 }

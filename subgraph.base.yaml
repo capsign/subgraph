@@ -656,6 +656,9 @@ templates:
         - event: TransactionExecuted(indexed address,uint256,bytes)
           handler: handleTransactionExecuted
           receipt: false
+        - event: EtherReceived(indexed address,uint256)
+          handler: handleEtherReceived
+          receipt: false
       file: ./src/mappings/wallets.ts
 
   # Acquisition Diamond Template

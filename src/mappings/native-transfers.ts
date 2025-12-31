@@ -1,6 +1,6 @@
 import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Transfer } from "../../generated/USDC/ERC20";
-import { TransactionExecuted } from "../../generated/templates/WalletDiamond/WalletDiamond";
+import { TransactionExecuted, EtherReceived } from "../../generated/templates/WalletDiamond/WalletDiamond";
 import { AssetTransfer, Wallet } from "../../generated/schema";
 import { createActivity } from "./activity";
 
@@ -210,5 +210,48 @@ export function handleTransactionExecuted(event: TransactionExecuted): void {
       }
     }
   }
+}
+
+/**
+ * Handles EtherReceived events from WalletDiamond
+ * Creates ETH_RECEIVED activity when wallet receives ETH
+ */
+export function handleEtherReceived(event: EtherReceived): void {
+  const walletAddress = event.address;
+  const from = event.params.from;
+  const amount = event.params.amount;
+  
+  // Skip zero-value transfers
+  if (amount.equals(BigInt.zero())) {
+    return;
+  }
+  
+  const txHash = event.transaction.hash;
+  const logIndex = event.logIndex;
+  const timestamp = event.block.timestamp;
+  const blockNumber = event.block.number;
+  
+  const activityId = "eth-received-" + txHash.toHexString() + "-" + logIndex.toString();
+  
+  const activity = createActivity(
+    activityId,
+    "ETH_RECEIVED",
+    walletAddress,
+    timestamp,
+    txHash,
+    blockNumber
+  );
+  
+  const transfer = new AssetTransfer(activityId);
+  transfer.asset = "ETH";
+  transfer.assetSymbol = "ETH";
+  transfer.amount = amount;
+  transfer.amountFormatted = toDecimal(amount, ETH_DECIMALS);
+  transfer.counterparty = from;
+  transfer.direction = "IN";
+  transfer.save();
+  
+  activity.assetTransfer = activityId;
+  activity.save();
 }
 

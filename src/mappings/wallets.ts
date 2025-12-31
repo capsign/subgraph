@@ -379,4 +379,4 @@ export {
 } from "./paymaster";
 
 // Re-export native transfer handlers
-export { handleTransactionExecuted } from "./native-transfers";
+export { handleTransactionExecuted, handleEtherReceived } from "./native-transfers";
