@@ -94,7 +94,7 @@ export function handleCapitalContributed(event: CapitalContributed): void {
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
-  );
+  ).save();
 }
 
 /**
@@ -136,7 +136,7 @@ export function handleDistributionExecuted(event: DistributionExecuted): void {
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
-  );
+  ).save();
 }
 
 /**
@@ -192,7 +192,7 @@ export function handleDistributionClaimed(event: DistributionClaimed): void {
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
-  );
+  ).save();
 }
 
 /**
@@ -233,7 +233,7 @@ export function handleMemberAdded(event: MemberAdded): void {
       event.block.timestamp,
       event.transaction.hash,
       event.block.number
-    );
+    ).save();
   }
 }
 
@@ -269,7 +269,7 @@ export function handleMemberRemoved(event: MemberRemoved): void {
       event.block.timestamp,
       event.transaction.hash,
       event.block.number
-    );
+    ).save();
   }
 }
 

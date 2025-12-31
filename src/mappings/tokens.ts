@@ -203,15 +203,42 @@ export function handleLotCreated(event: LotCreated): void {
     promissoryNote.save();
   }
   
-  // Create activity
-  createActivity(
-    "lot-created-" + lotId,
-    "LOT_CREATED",
+  // Create activity for recipient (lot received)
+  const recipientActivity = createActivity(
+    "lot-received-" + lotId,
+    "LOT_RECEIVED",
     event.params.owner,
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
   );
+  recipientActivity.lot = lotId;
+  recipientActivity.save();
+  
+  // Create activity for issuer (lot issued)
+  // Get the issuer (admin) from the token entity
+  let issuerAddress: Bytes | null = null;
+  if (shareClass) {
+    issuerAddress = shareClass.admin;
+  } else if (safe) {
+    issuerAddress = safe.admin;
+  } else if (promissoryNote) {
+    issuerAddress = promissoryNote.admin;
+  }
+  
+  // Only create issuer activity if issuer is different from recipient
+  if (issuerAddress && issuerAddress.toHexString() != ownerAddress) {
+    const issuerActivity = createActivity(
+      "lot-issued-" + lotId,
+      "LOT_ISSUED",
+      issuerAddress,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    issuerActivity.lot = lotId;
+    issuerActivity.save();
+  }
 }
 
 /**
@@ -239,8 +266,8 @@ export function handleLotTransferred(event: LotTransferred): void {
     lot.save();
   }
   
-  // Create activity
-  createActivity(
+  // Create activity for lot transfer
+  const activity = createActivity(
     "lot-transferred-" + lotId,
     "LOT_TRANSFERRED",
     event.params.to,
@@ -248,6 +275,8 @@ export function handleLotTransferred(event: LotTransferred): void {
     event.transaction.hash,
     event.block.number
   );
+  activity.lot = lotId;
+  activity.save();
 }
 
 /**

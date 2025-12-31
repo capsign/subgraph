@@ -198,7 +198,7 @@ export function handleDocumentCreated(event: DocumentCreated): void {
   document.save();
   
   // Create activity
-  createActivity(
+  const activity = createActivity(
     "document-created-" + documentId,
     "DOCUMENT_CREATED",
     event.params.creator,
@@ -206,6 +206,8 @@ export function handleDocumentCreated(event: DocumentCreated): void {
     event.transaction.hash,
     event.block.number
   );
+  activity.document = documentId;
+  activity.save();
 }
 
 export function handleAttestationAdded(event: AttestationAdded): void {
