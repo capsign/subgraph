@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0x801f27B0d9b238D7E81cBc4141cc49A17a644e21"
       abi: DiamondFactory
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -76,7 +76,7 @@ dataSources:
     source:
       address: "0x7835CE482068592bC6761522c53A2665a409398C"
       abi: FacetRegistry
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -101,7 +101,7 @@ dataSources:
     source:
       address: "0xC8528af35a995be186B38f76Bf9Fa7Bcd27f9DC0"
       abi: WalletFactory
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -133,7 +133,7 @@ dataSources:
     source:
       address: "0xf42904CbCf95707CD42E1cBA1CF59f10d8B4a966"
       abi: OfferingFactory
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -180,7 +180,7 @@ dataSources:
     source:
       address: "0x1bcE01F79Fdf62EA681e1Db2Fa28EA51053eE635"
       abi: TokenFactory
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -230,7 +230,7 @@ dataSources:
     source:
       address: "0x39F1Ef9a5cFc3e47FccDbfd501DA6E9F5f61C5D0"
       abi: AcquisitionFactory
-      startBlock: 35416706 # Updated 2025-12-24 - V0.1 deployment
+      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
