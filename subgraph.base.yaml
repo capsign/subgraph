@@ -270,6 +270,30 @@ dataSources:
           handler: handleUserRoleUpdated
       file: ./src/mappings/acquisition-factory.ts
 
+  # USDC - tracks USDC transfers to/from CapSign wallets
+  - kind: ethereum/contract
+    name: USDC
+    network: base
+    source:
+      address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      abi: ERC20
+      startBlock: 27000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Activity
+        - AssetTransfer
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleUSDCTransfer
+          receipt: false
+      file: ./src/mappings/native-transfers.ts
+
   # CapSignPaymaster - tracks gas sponsorship
   - kind: ethereum/contract
     name: CapSignPaymaster
@@ -627,6 +651,10 @@ templates:
           receipt: false
         - event: SpendingRecorded(indexed address,uint256)
           handler: handleSpendingRecorded
+          receipt: false
+        # Native asset transfer tracking
+        - event: TransactionExecuted(indexed address,uint256,bytes)
+          handler: handleTransactionExecuted
           receipt: false
       file: ./src/mappings/wallets.ts
 

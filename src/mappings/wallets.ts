@@ -377,3 +377,6 @@ export {
   handleRolePolicySet,
   handleSpendingRecorded,
 } from "./paymaster";
+
+// Re-export native transfer handlers
+export { handleTransactionExecuted } from "./native-transfers";

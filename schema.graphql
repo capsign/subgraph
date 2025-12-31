@@ -437,6 +437,24 @@ type Activity @entity {
   classification: InvestorClassification
   lot: Lot
   attestation: Attestation # Hybrid EAS support - kept for backward compatibility
+  assetTransfer: AssetTransfer # Native asset transfers (ETH, USDC)
+}
+
+# Tracks native asset transfers (ETH, USDC, etc.)
+type AssetTransfer @entity {
+  id: ID! # activity-id (same as parent activity)
+  activity: Activity! @derivedFrom(field: "assetTransfer")
+  asset: String! # "ETH" or token address (e.g., USDC address)
+  assetSymbol: String! # "ETH", "USDC", etc.
+  amount: BigInt! # Raw amount in smallest units (wei for ETH, 6 decimals for USDC)
+  amountFormatted: BigDecimal! # Human-readable amount
+  counterparty: Bytes! # The other party (recipient for sends, sender for receives)
+  direction: TransferDirection!
+}
+
+enum TransferDirection {
+  IN
+  OUT
 }
 
 enum ActivityType {
@@ -473,6 +491,10 @@ enum ActivityType {
   DISTRIBUTION_CLAIMED
   MEMBER_ADDED
   MEMBER_REMOVED
+  # Native asset activities
+  ETH_SENT # Outgoing ETH transfer from wallet
+  USDC_SENT # Outgoing USDC transfer from wallet
+  USDC_RECEIVED # Incoming USDC transfer to wallet
 }
 
 type Offering @entity {
