@@ -18,7 +18,9 @@ const TRANSFER_SELECTOR = Bytes.fromHexString("0xa9059cbb");
 /**
  * Converts BigInt to BigDecimal with specified decimals
  */
+// @ts-ignore - i32 and u8 are AssemblyScript types, not TypeScript
 function toDecimal(value: BigInt, decimals: i32): BigDecimal {
+  // @ts-ignore - u8 is AssemblyScript type
   const divisor = BigInt.fromI32(10).pow(decimals as u8);
   return value.toBigDecimal().div(divisor.toBigDecimal());
 }
