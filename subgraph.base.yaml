@@ -277,7 +277,7 @@ dataSources:
     source:
       address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
       abi: ERC20
-      startBlock: 27000000
+      startBlock: 39902109 # Match V0.1 deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
