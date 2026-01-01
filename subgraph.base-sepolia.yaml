@@ -486,6 +486,8 @@ templates:
           handler: handleLotCreated
         - event: LotTransferred(indexed bytes32,indexed address,indexed address,uint256,string,bytes,uint8,uint256)
           handler: handleLotTransferred
+        - event: LotAdjusted(indexed bytes32,indexed bytes32,indexed address,uint256,uint256,address,uint256,string)
+          handler: handleLotAdjusted
         - event: LotURIUpdated(indexed bytes32,string,string)
           handler: handleLotURIUpdated
         - event: LotInvalidated(indexed bytes32)

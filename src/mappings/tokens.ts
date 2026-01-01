@@ -13,6 +13,7 @@ import {
   BaseURIUpdated,
   LotCreated,
   LotTransferred,
+  LotAdjusted,
   LotInvalidated,
   LotURIUpdated,
   DefaultTermsSet,
@@ -277,6 +278,74 @@ export function handleLotTransferred(event: LotTransferred): void {
   );
   activity.lot = lotId;
   activity.save();
+}
+
+/**
+ * Handle LotAdjusted event
+ * Called when a lot is modified via adjustLot()
+ */
+export function handleLotAdjusted(event: LotAdjusted): void {
+  const oldLotId = event.params.oldLotId.toHexString();
+  const newLotId = event.params.newLotId.toHexString();
+  const ownerAddress = event.params.owner.toHexString();
+  const tokenAddress = event.address.toHexString();
+  
+  // Load the lot - adjustLot creates a new lot and invalidates the old one
+  // So we need to create the new lot entity
+  let lot = Lot.load(newLotId);
+  
+  if (!lot) {
+    // This is a new lot created from adjustment
+    lot = new Lot(newLotId);
+    lot.lotId = BigInt.fromByteArray(event.params.newLotId);
+    lot.token = tokenAddress;
+    lot.assetId = tokenAddress;
+    lot.owner = ownerAddress;
+    lot.parentLotId = BigInt.fromByteArray(event.params.oldLotId);
+    lot.frozen = false;
+    lot.isValid = true;
+    lot.createdAt = event.block.timestamp;
+    lot.acquiredFrom = event.address;
+    lot.transferType = "INTERNAL";
+  }
+  
+  // Update with the new values from the event
+  lot.quantity = event.params.newQuantity;
+  lot.costBasis = event.params.newCostBasis;
+  lot.acquisitionDate = event.params.newAcquisitionDate;
+  
+  // Get payment currency and decimals
+  const paymentCurrency = event.params.newPaymentCurrency;
+  lot.paymentCurrency = Bytes.fromHexString(paymentCurrency.toHexString());
+  lot.paymentDecimals = getPaymentDecimals(Bytes.fromHexString(paymentCurrency.toHexString()));
+  
+  // Fetch additional lot details from contract (URI, data)
+  const tokenContract = TokenLots.bind(event.address);
+  const lotDetails = tokenContract.try_getLot(event.params.newLotId);
+  
+  if (!lotDetails.reverted) {
+    lot.uri = lotDetails.value.uri;
+    lot.data = lotDetails.value.data;
+  }
+  
+  lot.save();
+  
+  // Invalidate the old lot if it's different from the new one
+  if (oldLotId != newLotId) {
+    const oldLot = Lot.load(oldLotId);
+    if (oldLot) {
+      oldLot.isValid = false;
+      oldLot.save();
+    }
+  }
+  
+  log.info("LotAdjusted: {} -> {}, quantity: {}, costBasis: {}, paymentDecimals: {}", [
+    oldLotId,
+    newLotId,
+    event.params.newQuantity.toString(),
+    event.params.newCostBasis.toString(),
+    lot.paymentDecimals.toString()
+  ]);
 }
 
 /**
