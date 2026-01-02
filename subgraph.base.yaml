@@ -508,6 +508,8 @@ templates:
           handler: handleTokenRetired
         - event: TokenUnretired(uint256)
           handler: handleTokenUnretired
+        - event: TokenTypeSet(indexed bytes6,string)
+          handler: handleTokenTypeSet
         - event: DefaultTermsSet(uint256,uint256,address,bool,bool)
           handler: handleDefaultTermsSet
         - event: LotTermsSet(indexed bytes32,uint256,uint256,address,bool)
@@ -572,6 +574,8 @@ templates:
         - VehicleInvestment
         - AuthorityDelegation
         - TargetFunctionPermission
+        - AuthorizedSigner
+        - UserOperationExecution
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -660,6 +664,29 @@ templates:
           receipt: false
         - event: EtherReceived(indexed address,uint256)
           handler: handleEtherReceived
+          receipt: false
+        # Authorized Signer events (role-limited signers)
+        - event: SignerAdded(indexed bytes32,indexed uint8,uint8,uint48,string)
+          handler: handleSignerAdded
+          receipt: false
+        - event: SignerRemoved(indexed bytes32,indexed address)
+          handler: handleSignerRemoved
+          receipt: false
+        - event: SignerRoleUpdated(indexed bytes32,uint8,uint8)
+          handler: handleSignerRoleUpdated
+          receipt: false
+        - event: SignerExpiryUpdated(indexed bytes32,uint48,uint48)
+          handler: handleSignerExpiryUpdated
+          receipt: false
+        - event: SignerSuspended(indexed bytes32,indexed address)
+          handler: handleSignerSuspended
+          receipt: false
+        - event: SignerReinstated(indexed bytes32,indexed address)
+          handler: handleSignerReinstated
+          receipt: false
+        # UserOperation Execution audit trail
+        - event: UserOperationExecuted(indexed bytes32,indexed bytes32,uint8,address,bytes4,bool)
+          handler: handleUserOperationExecuted
           receipt: false
       file: ./src/mappings/wallets.ts
 

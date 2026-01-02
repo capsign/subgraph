@@ -72,8 +72,14 @@ type Wallet @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   
-  # Owners (multiple allowed)
+  # Owners (full control - governance layer)
   owners: [Owner!]! @derivedFrom(field: "wallet")
+  
+  # Authorized Signers (role-limited - operational layer)
+  signers: [AuthorizedSigner!]! @derivedFrom(field: "wallet")
+  
+  # UserOperation Executions (audit trail)
+  executions: [UserOperationExecution!]! @derivedFrom(field: "wallet")
   
   # Documents
   documents: [Document!]! @derivedFrom(field: "wallet")
@@ -127,6 +133,53 @@ enum OwnerType {
   EOA
   Passkey
   MPC
+}
+
+# ============ AUTHORIZED SIGNERS ============
+# Role-limited signers separate from full wallet owners
+# Enables separation of governance (owners) from operations (signers)
+
+type AuthorizedSigner @entity {
+  id: ID! # wallet-signerId
+  wallet: Wallet!
+  signerId: Bytes! # bytes32 keccak256 of credentials
+  signerType: SignerType!
+  address: Bytes # For EOA signers
+  publicKeyX: BigInt # For Passkey signers
+  publicKeyY: BigInt # For Passkey signers
+  roleId: Int! # Role limiting signer's access
+  validUntil: BigInt # Expiry timestamp (0 = no expiry)
+  isActive: Boolean!
+  label: String
+  addedAt: BigInt!
+  addedTx: Bytes!
+  removedAt: BigInt
+  removedTx: Bytes
+  
+  # Executions by this signer
+  executions: [UserOperationExecution!]! @derivedFrom(field: "signer")
+}
+
+enum SignerType {
+  EOA
+  Passkey
+}
+
+# Tracks each UserOperation execution for audit trail
+type UserOperationExecution @entity {
+  id: ID! # tx-hash-logIndex
+  wallet: Wallet!
+  userOpHash: Bytes!
+  signer: AuthorizedSigner # null if owner executed
+  signerId: Bytes! # bytes32(0) for owners, signerId for signers
+  signerRole: Int! # 0 = admin/owner
+  target: Bytes!
+  functionSelector: Bytes!
+  success: Boolean!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
 }
 
 type Document @entity {
@@ -795,7 +848,7 @@ enum TokenCategory {
   DERIVATIVE  # Options and warrants: EmployeeStockOption, Warrant, StockAppreciationRight
 }
 
-# ShareClass tokens (equity shares)
+# ShareClass tokens (equity shares and membership units)
 type ShareClass implements Token @entity {
   id: ID!
   name: String!
@@ -807,6 +860,7 @@ type ShareClass implements Token @entity {
   createdTx: Bytes!
   assetType: TokenAssetType!
   tokenCategory: TokenCategory!
+  cfiCode: Bytes # ISO 10962 Classification of Financial Instruments code (6 bytes)
   complianceConditions: [Bytes!]!
   paused: Boolean!
   frozenAccounts: [Bytes!]!
@@ -995,10 +1049,13 @@ type TokenClaim @entity {
 # }
 
 enum TokenAssetType {
-  ShareClass
-  UnitInterest # LLC/LP unit interests (for investment vehicles)
+  ShareClass # Corporate common/preferred shares
+  MembershipUnit # LLC/DAO membership units
+  UnitInterest # LP unit interests (for investment vehicles)
   Safe # Simple Agreement for Future Equity
   PromissoryNote # Debt instrument (loans, bonds, notes)
+  DaoToken # DAO governance token
+  TokenizedAsset # Tokenized real-world asset
   # Future token types (commented out until implemented):
   # EmployeeStockOption
   # Warrant
@@ -1019,6 +1076,7 @@ type Safe implements Token @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  cfiCode: Bytes # ISO 10962 CFI code (6 bytes)
   tokenCategory: TokenCategory!
   
   # Compliance
@@ -1089,6 +1147,7 @@ type PromissoryNote implements Token @entity {
   createdAt: BigInt!
   createdTx: Bytes!
   assetType: TokenAssetType!
+  cfiCode: Bytes # ISO 10962 CFI code (6 bytes)
   tokenCategory: TokenCategory!
   
   # Compliance

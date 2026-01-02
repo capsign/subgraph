@@ -9,6 +9,13 @@ import {
 import {
   AttestationAdded,
   AttestationRevoked,
+  SignerAdded,
+  SignerRemoved,
+  SignerRoleUpdated,
+  SignerExpiryUpdated,
+  SignerSuspended,
+  SignerReinstated,
+  UserOperationExecuted,
 } from "../../generated/templates/WalletDiamond/WalletDiamond";
 import {
   WalletTargetFunctionRoleSet,
@@ -18,8 +25,8 @@ import {
   FunctionAccessChanged as FunctionAccessChangedEvent,
 } from "../../generated/templates/WalletDiamond/AccessControl";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
-import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess } from "../../generated/schema";
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess, AuthorizedSigner, UserOperationExecution } from "../../generated/schema";
+import { Bytes, BigInt } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export vehicle handlers
@@ -367,6 +374,174 @@ export function handleWalletFunctionAccessChanged(event: FunctionAccessChangedEv
   functionAccess.lastUpdatedTx = event.transaction.hash;
   
   functionAccess.save();
+}
+
+// ============ AUTHORIZED SIGNER HANDLERS ============
+
+/**
+ * Handle SignerAdded event
+ * Event: SignerAdded(bytes32 indexed signerId, uint8 indexed signerType, uint8 roleId, uint48 validUntil, string label)
+ */
+export function handleSignerAdded(event: SignerAdded): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = new AuthorizedSigner(entityId);
+  signer.wallet = walletAddress;
+  signer.signerId = event.params.signerId;
+  signer.signerType = event.params.signerType === 0 ? "EOA" : "Passkey";
+  signer.roleId = event.params.roleId;
+  signer.validUntil = event.params.validUntil;
+  signer.isActive = true;
+  signer.label = event.params.label;
+  signer.addedAt = event.block.timestamp;
+  signer.addedTx = event.transaction.hash;
+  signer.removedAt = null;
+  signer.removedTx = null;
+  
+  // Note: address and publicKey fields would need to be fetched from contract
+  // For now, we leave them null and could add a contract call if needed
+  signer.address = null;
+  signer.publicKeyX = null;
+  signer.publicKeyY = null;
+  
+  signer.save();
+
+  // Create activity
+  const activity = createActivity(
+    "signer-added-" + entityId,
+    "SIGNER_ADDED",
+    event.transaction.from,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle SignerRemoved event
+ * Event: SignerRemoved(bytes32 indexed signerId, address indexed removedBy)
+ */
+export function handleSignerRemoved(event: SignerRemoved): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = AuthorizedSigner.load(entityId);
+  if (signer) {
+    signer.isActive = false;
+    signer.removedAt = event.block.timestamp;
+    signer.removedTx = event.transaction.hash;
+    signer.save();
+  }
+
+  // Create activity
+  const activity = createActivity(
+    "signer-removed-" + event.transaction.hash.toHexString() + "-" + event.logIndex.toString(),
+    "SIGNER_REMOVED",
+    event.params.removedBy,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle SignerRoleUpdated event
+ * Event: SignerRoleUpdated(bytes32 indexed signerId, uint8 oldRole, uint8 newRole)
+ */
+export function handleSignerRoleUpdated(event: SignerRoleUpdated): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = AuthorizedSigner.load(entityId);
+  if (signer) {
+    signer.roleId = event.params.newRole;
+    signer.save();
+  }
+}
+
+/**
+ * Handle SignerExpiryUpdated event
+ * Event: SignerExpiryUpdated(bytes32 indexed signerId, uint48 oldExpiry, uint48 newExpiry)
+ */
+export function handleSignerExpiryUpdated(event: SignerExpiryUpdated): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = AuthorizedSigner.load(entityId);
+  if (signer) {
+    signer.validUntil = event.params.newExpiry;
+    signer.save();
+  }
+}
+
+/**
+ * Handle SignerSuspended event
+ * Event: SignerSuspended(bytes32 indexed signerId, address indexed suspendedBy)
+ */
+export function handleSignerSuspended(event: SignerSuspended): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = AuthorizedSigner.load(entityId);
+  if (signer) {
+    signer.isActive = false;
+    signer.save();
+  }
+}
+
+/**
+ * Handle SignerReinstated event
+ * Event: SignerReinstated(bytes32 indexed signerId, address indexed reinstatedBy)
+ */
+export function handleSignerReinstated(event: SignerReinstated): void {
+  const walletAddress = event.address.toHexString();
+  const signerId = event.params.signerId.toHexString();
+  const entityId = `${walletAddress}-${signerId}`;
+
+  let signer = AuthorizedSigner.load(entityId);
+  if (signer) {
+    signer.isActive = true;
+    signer.save();
+  }
+}
+
+/**
+ * Handle UserOperationExecuted event (audit trail)
+ * Event: UserOperationExecuted(bytes32 indexed userOpHash, bytes32 indexed signerId, uint8 signerRole, address target, bytes4 selector, bool success)
+ */
+export function handleUserOperationExecuted(event: UserOperationExecuted): void {
+  const walletAddress = event.address.toHexString();
+  const executionId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+
+  let execution = new UserOperationExecution(executionId);
+  execution.wallet = walletAddress;
+  execution.userOpHash = event.params.userOpHash;
+  execution.signerId = event.params.signerId;
+  execution.signerRole = event.params.signerRole;
+  execution.target = event.params.target;
+  execution.functionSelector = event.params.selector;
+  execution.success = event.params.success;
+  execution.timestamp = event.block.timestamp;
+  execution.tx = event.transaction.hash;
+  execution.blockNumber = event.block.number;
+  execution.logIndex = event.logIndex;
+
+  // Link to signer entity if not an owner (owner signerId is a special constant)
+  const ownerSignerId = Bytes.fromHexString("0x" + "d19f51c8a3f26a67be3d96ee6c9f1b0e9f56d8a6c5b8e1f4a7d0c3b6e9f2a5d8"); // keccak256("OWNER")
+  if (event.params.signerId.notEqual(ownerSignerId)) {
+    const signerEntityId = `${walletAddress}-${event.params.signerId.toHexString()}`;
+    execution.signer = signerEntityId;
+  }
+
+  execution.save();
 }
 
 // Re-export paymaster handlers from paymaster.ts

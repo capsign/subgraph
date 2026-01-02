@@ -783,6 +783,51 @@
   },
   {
     "type": "event",
+    "name": "TokenTypeSet",
+    "inputs": [
+      {
+        "name": "cfiCode",
+        "type": "bytes6",
+        "indexed": true,
+        "internalType": "bytes6"
+      },
+      {
+        "name": "assetType",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "getAssetType",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "assetType",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCfiCode",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "cfiCode",
+        "type": "bytes6",
+        "internalType": "bytes6"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
     "name": "TokenUnretired",
     "inputs": [
       {

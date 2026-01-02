@@ -8,6 +8,7 @@ import {
   LotUnfrozen,
   TokenRetired,
   TokenUnretired,
+  TokenTypeSet,
   StockSplitApplied,
   StockDividendApplied,
   BaseURIUpdated,
@@ -663,6 +664,59 @@ export function handleTokenUnretired(event: TokenUnretired): void {
     note.retired = false;
     note.retiredAt = null;
     note.save();
+    return;
+  }
+}
+
+/**
+ * Handle TokenTypeSet event
+ * Updates the token's assetType and cfiCode based on the ISO 10962 classification
+ */
+export function handleTokenTypeSet(event: TokenTypeSet): void {
+  const tokenAddress = event.address.toHexString();
+  const cfiCode = event.params.cfiCode;
+  const assetType = event.params.assetType;
+  
+  log.info("TokenTypeSet: {} cfiCode={} assetType={}", [
+    tokenAddress,
+    cfiCode.toHexString(),
+    assetType
+  ]);
+  
+  // Try loading as ShareClass first
+  let shareClass = ShareClass.load(tokenAddress);
+  if (shareClass != null) {
+    shareClass.cfiCode = cfiCode;
+    // Map assetType string to enum value
+    if (assetType == "ShareClass") {
+      shareClass.assetType = "ShareClass";
+    } else if (assetType == "MembershipUnit") {
+      shareClass.assetType = "MembershipUnit";
+    } else if (assetType == "DaoToken") {
+      shareClass.assetType = "DaoToken";
+    } else {
+      // Keep existing or default
+      shareClass.assetType = "ShareClass";
+    }
+    shareClass.save();
+    return;
+  }
+  
+  // Try loading as Safe
+  let safe = Safe.load(tokenAddress);
+  if (safe != null) {
+    safe.cfiCode = cfiCode;
+    safe.assetType = "Safe";
+    safe.save();
+    return;
+  }
+  
+  // Try loading as PromissoryNote
+  let pNote = PromissoryNote.load(tokenAddress);
+  if (pNote != null) {
+    pNote.cfiCode = cfiCode;
+    pNote.assetType = "PromissoryNote";
+    pNote.save();
     return;
   }
 }
