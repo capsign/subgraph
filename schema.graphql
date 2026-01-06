@@ -16,6 +16,10 @@ type Diamond @entity {
   # Access control
   userRoles: [UserRole!]! @derivedFrom(field: "diamond")
   functionAccess: [FunctionAccess!]! @derivedFrom(field: "diamond")
+  
+  # Installed facets (diamond configuration)
+  installedFacets: [InstalledFacet!]! @derivedFrom(field: "diamond")
+  cutHistory: [DiamondCutEvent!]! @derivedFrom(field: "diamond")
 }
 
 # System configuration - single entity with id "system"
@@ -544,6 +548,13 @@ enum ActivityType {
   DISTRIBUTION_CLAIMED
   MEMBER_ADDED
   MEMBER_REMOVED
+  # Authorized signer activities
+  SIGNER_ADDED
+  SIGNER_REMOVED
+  SIGNER_SUSPENDED
+  SIGNER_REINSTATED
+  SIGNER_ROLE_UPDATED
+  SIGNER_EXPIRY_UPDATED
   # Native asset activities
   ETH_SENT # Outgoing ETH transfer from wallet
   ETH_RECEIVED # Incoming ETH transfer to wallet
@@ -1626,6 +1637,53 @@ enum FacetRegistryEventType {
   REGISTERED
   REMOVED
   DEPLOYED
+}
+
+# ============ INSTALLED FACETS (Diamond Config Tracking) ============
+
+# Tracks which facets are currently installed on a diamond
+type InstalledFacet @entity {
+  id: ID! # diamond-facetAddress (e.g., "0xwallet-0xfacet")
+  diamond: Diamond!
+  facetAddress: Bytes!
+  facetName: String # Resolved from registry if known
+  selectors: [String!]! # Function selectors routed to this facet
+  action: FacetCutAction! # How it was installed (ADD, REPLACE)
+  installedAt: BigInt!
+  installedTx: Bytes!
+  installedBlock: BigInt!
+  
+  # Version tracking (resolved from registry)
+  version: BigInt # Null if facet not in registry
+  
+  # Current state
+  isActive: Boolean! # False if removed
+  removedAt: BigInt
+  removedTx: Bytes
+}
+
+# Historical record of all diamond cuts
+type DiamondCutEvent @entity {
+  id: ID! # tx-logIndex
+  diamond: Diamond!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  
+  # Cut details
+  facetAddress: Bytes!
+  action: FacetCutAction!
+  selectors: [String!]!
+  
+  # Initialization (if any)
+  initAddress: Bytes
+  initCalldata: Bytes
+}
+
+enum FacetCutAction {
+  ADD
+  REPLACE
+  REMOVE
 }
 
 # ============ PAYMENT TOKENS ============

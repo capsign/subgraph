@@ -350,6 +350,8 @@ templates:
         - Wallet
         - SafePreApprovedTerms
         - AuthorityDelegation
+        - InstalledFacet
+        - DiamondCutEvent
       abis:
         - name: OfferingDiamond
           file: ./abis/OfferingDiamond.json
@@ -368,6 +370,10 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
+        # Diamond cut tracking (for deployment config audit trail)
+        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
+          handler: handleDiamondCut
+          receipt: false
         - event: AuthorityUpdated(indexed address,indexed address)
           handler: handleOfferingAuthorityUpdated
         - event: OfferingInitialized(indexed address,indexed address,address,address,uint256,uint256,uint256,uint256,string)
@@ -462,6 +468,8 @@ templates:
         - Token
         - TokenClaim
         - AuthorityDelegation
+        - InstalledFacet
+        - DiamondCutEvent
       abis:
         - name: TokenDiamond
           file: ./abis/TokenDiamond.json
@@ -480,6 +488,10 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
+        # Diamond cut tracking (for deployment config audit trail)
+        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
+          handler: handleDiamondCut
+          receipt: false
         - event: AuthorityUpdated(indexed address,indexed address)
           handler: handleTokenAuthorityUpdated
         - event: LotCreated(indexed bytes32,indexed uint256,indexed address,uint256)
@@ -576,6 +588,8 @@ templates:
         - TargetFunctionPermission
         - AuthorizedSigner
         - UserOperationExecution
+        - InstalledFacet
+        - DiamondCutEvent
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -594,6 +608,10 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
+        # Diamond cut tracking (for deployment config audit trail)
+        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
+          handler: handleDiamondCut
+          receipt: false
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated
           receipt: false

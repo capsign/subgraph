@@ -26,6 +26,9 @@ import {
 } from "../../generated/templates/WalletDiamond/AccessControl";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
 import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess, AuthorizedSigner, UserOperationExecution } from "../../generated/schema";
+
+// Re-export DiamondCut handler for this template
+export { handleDiamondCut } from "./diamond-cut";
 import { Bytes, BigInt } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 

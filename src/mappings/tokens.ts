@@ -38,6 +38,9 @@ import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
+// Re-export DiamondCut handler for this template
+export { handleDiamondCut } from "./diamond-cut";
+
 /**
  * Handle AuthorityUpdated events for tokens
  * Event: AuthorityUpdated(address indexed oldAuthority, address indexed newAuthority)

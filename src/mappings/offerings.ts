@@ -58,6 +58,9 @@ import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentL
 import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
+// Re-export DiamondCut handler for this template
+export { handleDiamondCut } from "./diamond-cut";
+
 // Helper function to ensure offering has offchain fields initialized
 function ensureOffchainFieldsInitialized(offering: Offering): void {
   if (!offering.totalOffchainPending) {
