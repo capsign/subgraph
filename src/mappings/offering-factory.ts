@@ -26,19 +26,22 @@ import {
  */
 export function handleOfferingCreated(event: OfferingCreated): void {
   const offeringAddress = event.params.offeringDiamond.toHexString();
+  const factoryAddress = event.address;
 
-  // Ensure FactoryPaymentConfig exists for this factory
-  getOrCreateFactoryPaymentConfig(
-    event.address,
+  // Get or create FactoryPaymentConfig and increment deployment count
+  let config = getOrCreateFactoryPaymentConfig(
+    factoryAddress,
     event.block.timestamp,
     event.transaction.hash
   );
+  config.deploymentCount = config.deploymentCount.plus(BigInt.fromI32(1));
+  config.save();
 
   // Create or update Diamond entity
   let diamond = Diamond.load(offeringAddress);
   if (!diamond) {
     diamond = new Diamond(offeringAddress);
-    diamond.creator = event.params.issuer;
+    diamond.creator = factoryAddress; // Set to factory address for proper querying
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
   }

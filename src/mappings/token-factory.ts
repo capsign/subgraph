@@ -28,19 +28,22 @@ import {
  */
 export function handleTokenCreated(event: TokenCreated): void {
   const tokenAddress = event.params.tokenDiamond.toHexString();
+  const factoryAddress = event.address;
 
-  // Ensure FactoryPaymentConfig exists for this factory
-  getOrCreateFactoryPaymentConfig(
-    event.address,
+  // Get or create FactoryPaymentConfig and increment deployment count
+  let config = getOrCreateFactoryPaymentConfig(
+    factoryAddress,
     event.block.timestamp,
     event.transaction.hash
   );
+  config.deploymentCount = config.deploymentCount.plus(BigInt.fromI32(1));
+  config.save();
 
   // Create or update Diamond entity
   let diamond = Diamond.load(tokenAddress);
   if (!diamond) {
     diamond = new Diamond(tokenAddress);
-    diamond.creator = event.params.admin;
+    diamond.creator = factoryAddress; // Set to factory address for proper querying
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
   }
