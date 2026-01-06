@@ -7,7 +7,7 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x801f27B0d9b238D7E81cBc4141cc49A17a644e21"
+      address: "0x9Bc014d27378EfC5d5C0b80cAd9393f2E58E1E56"
       abi: DiamondFactory
       startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
@@ -74,7 +74,7 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x7835CE482068592bC6761522c53A2665a409398C"
+      address: "0x3c21d18b3719ABf5341974Ec3cdB59b37E4048a6"
       abi: FacetRegistry
       startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
@@ -228,7 +228,7 @@ dataSources:
     name: AcquisitionFactory
     network: base-sepolia
     source:
-      address: "0x39F1Ef9a5cFc3e47FccDbfd501DA6E9F5f61C5D0"
+      address: "0xE59CF8FBC0C8AF45Fcbf4216bcEf708FaA37a8d7"
       abi: AcquisitionFactory
       startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
     mapping:
