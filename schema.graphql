@@ -1,7 +1,7 @@
 type Diamond @entity {
   id: ID! # Diamond address
   diamondType: String! # WALLET, OFFERING, TOKEN
-  creator: Bytes!
+  creator: Bytes! # User/deployer who initiated the creation
   createdAt: BigInt!
   createdTx: Bytes!
   

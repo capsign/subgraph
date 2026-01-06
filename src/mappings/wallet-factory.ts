@@ -48,7 +48,7 @@ export function handleWalletCreated(event: WalletCreated): void {
   let diamond = Diamond.load(walletAddress);
   if (!diamond) {
     diamond = new Diamond(walletAddress);
-    diamond.creator = factoryAddress; // Set to factory address for proper querying
+    diamond.creator = event.params.deployer; // User who deployed
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
   }

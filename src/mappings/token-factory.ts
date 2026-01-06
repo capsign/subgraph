@@ -43,7 +43,7 @@ export function handleTokenCreated(event: TokenCreated): void {
   let diamond = Diamond.load(tokenAddress);
   if (!diamond) {
     diamond = new Diamond(tokenAddress);
-    diamond.creator = factoryAddress; // Set to factory address for proper querying
+    diamond.creator = event.params.admin; // User who deployed
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
   }

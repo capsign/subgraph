@@ -41,7 +41,7 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   let diamond = Diamond.load(offeringAddress);
   if (!diamond) {
     diamond = new Diamond(offeringAddress);
-    diamond.creator = factoryAddress; // Set to factory address for proper querying
+    diamond.creator = event.params.issuer; // User who deployed
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
   }
