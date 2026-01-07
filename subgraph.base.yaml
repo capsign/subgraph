@@ -684,9 +684,9 @@ templates:
           receipt: false
       file: ./src/mappings/wallets.ts
 
-  # Acquisition Diamond Template
+  # Escrow Diamond Template
   - kind: ethereum/contract
-    name: AcquisitionDiamond
+    name: EscrowDiamond
     network: base
     source:
       abi: AcquisitionCoreFacet
@@ -695,7 +695,7 @@ templates:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Acquisition
+        - Escrow
       abis:
         - name: AcquisitionDiamond
           file: ./abis/AcquisitionDiamond.json
@@ -703,14 +703,14 @@ templates:
           file: ./abis/AcquisitionCoreFacet.json
       eventHandlers:
         - event: AcquisitionListed(uint256)
-          handler: handleAcquisitionListed
+          handler: handleEscrowActivated
         - event: AcquisitionCancelled()
-          handler: handleAcquisitionCancelled
+          handler: handleEscrowCancelled
         - event: OfferAccepted(indexed address)
           handler: handleOfferAccepted
         - event: DisputeRaised(indexed address)
           handler: handleDisputeRaised
-      file: ./src/mappings/acquisitions.ts
+      file: ./src/mappings/escrows.ts
 
   # NOTE: Rule144ComplianceModule template removed - replaced by modular HoldingPeriodModule, VolumeLimitModule, AffiliateStatusModule
 
