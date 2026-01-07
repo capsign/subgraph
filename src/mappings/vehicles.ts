@@ -9,18 +9,20 @@ import {
   InvestmentExited,
 } from "../../generated/templates/WalletDiamond/VehicleMembers";
 import {
+  DistributionCreated,
+  DistributionCancelled,
+} from "../../generated/templates/WalletDiamond/VehicleDistributionFacet";
+import {
   Vehicle,
   VehicleMember,
   CapitalContribution as CapitalContributionEntity,
   Distribution,
   DistributionClaim,
   VehicleInvestment,
+  Wallet,
 } from "../../generated/schema";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
-
-// Note: DistributionCreated and DistributionFinalized are from SPVDistributionFacet
-// but are optional, so we'll handle them in the future if needed
 
 /**
  * Handle CapitalContributed event
@@ -98,7 +100,55 @@ export function handleCapitalContributed(event: CapitalContributed): void {
 }
 
 /**
- * Handle DistributionExecuted event
+ * Handle DistributionCreated event (new claim-based model)
+ * Creates distribution record when a claimable distribution is created
+ */
+export function handleDistributionCreated(event: DistributionCreated): void {
+  const vehicleAddress = event.address.toHexString();
+  const distributionId = `${vehicleAddress}-${event.params.distributionId.toString()}`;
+  
+  // Load vehicle
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (!vehicle) {
+    return;
+  }
+  
+  // Update vehicle totals
+  vehicle.totalDistributionsExecuted = vehicle.totalDistributionsExecuted.plus(event.params.totalAmount);
+  vehicle.save();
+  
+  // Create Distribution entity
+  let distribution = new Distribution(distributionId);
+  distribution.vehicle = vehicleAddress;
+  distribution.distributionId = event.params.distributionId;
+  distribution.totalAmount = event.params.totalAmount;
+  distribution.totalClaimed = BigInt.fromI32(0);
+  distribution.lpAmount = event.params.lpPoolAmount;
+  distribution.carryAmount = event.params.carryPoolAmount;
+  distribution.paymentToken = event.params.paymentToken;
+  distribution.membershipToken = event.params.membershipToken;
+  distribution.cancelled = false;
+  distribution.createdAt = event.block.timestamp;
+  distribution.createdTx = event.transaction.hash;
+  distribution.blockNumber = event.block.number;
+  distribution.save();
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "DISTRIBUTION_CREATED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.distribution = distributionId;
+  activity.save();
+}
+
+/**
+ * Handle DistributionExecuted event (legacy - kept for backward compatibility)
  * Creates distribution record when yield is distributed
  */
 export function handleDistributionExecuted(event: DistributionExecuted): void {
@@ -111,32 +161,70 @@ export function handleDistributionExecuted(event: DistributionExecuted): void {
     return; // Should not happen
   }
   
-  // Update vehicle totals
-  vehicle.totalDistributionsExecuted = vehicle.totalDistributionsExecuted.plus(event.params.totalAmount);
-  vehicle.save();
+  // Check if distribution already exists (from DistributionCreated)
+  let distribution = Distribution.load(distributionId);
+  if (!distribution) {
+    // Legacy path - create distribution
+    distribution = new Distribution(distributionId);
+    distribution.vehicle = vehicleAddress;
+    distribution.distributionId = event.params.distributionId;
+    distribution.totalAmount = event.params.totalAmount;
+    distribution.totalClaimed = BigInt.fromI32(0);
+    distribution.lpAmount = BigInt.fromI32(0);
+    distribution.carryAmount = BigInt.fromI32(0);
+    distribution.paymentToken = Bytes.empty();
+    distribution.cancelled = false;
+    distribution.createdAt = event.params.timestamp;
+    distribution.createdTx = event.transaction.hash;
+    distribution.blockNumber = event.block.number;
+    distribution.save();
+    
+    // Update vehicle totals
+    vehicle.totalDistributionsExecuted = vehicle.totalDistributionsExecuted.plus(event.params.totalAmount);
+    vehicle.save();
+    
+    // Create activity
+    const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+    let activity = createActivity(
+      activityId,
+      "DISTRIBUTION_CREATED",
+      event.address,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.distribution = distributionId;
+    activity.save();
+  }
+}
+
+/**
+ * Handle DistributionCancelled event (Vehicle)
+ */
+export function handleVehicleDistributionCancelled(event: DistributionCancelled): void {
+  const vehicleAddress = event.address.toHexString();
+  const distributionId = `${vehicleAddress}-${event.params.distributionId.toString()}`;
   
-  // Create Distribution entity
-  let distribution = new Distribution(distributionId);
-  distribution.vehicle = vehicleAddress;
-  distribution.distributionId = event.params.distributionId;
-  distribution.totalAmount = event.params.totalAmount;
-  distribution.lpAmount = BigInt.fromI32(0); // Will be set by DistributionCreated/Finalized
-  distribution.carryAmount = BigInt.fromI32(0);
-  distribution.finalized = false;
-  distribution.createdAt = event.params.timestamp;
-  distribution.createdTx = event.transaction.hash;
-  distribution.blockNumber = event.block.number;
-  distribution.save();
+  let distribution = Distribution.load(distributionId);
+  if (distribution) {
+    distribution.cancelled = true;
+    distribution.cancelledAt = event.block.timestamp;
+    distribution.cancelledTx = event.transaction.hash;
+    distribution.save();
+  }
   
   // Create activity
-  createActivity(
-    distributionId,
-    "DISTRIBUTION_CREATED",
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "DISTRIBUTION_CANCELLED",
     event.address,
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
-  ).save();
+  );
+  activity.distribution = distributionId;
+  activity.save();
 }
 
 /**
@@ -160,6 +248,13 @@ export function handleDistributionClaimed(event: DistributionClaimed): void {
   vehicle.totalDistributionsClaimed = vehicle.totalDistributionsClaimed.plus(event.params.amount);
   vehicle.save();
   
+  // Update distribution totals
+  let distribution = Distribution.load(distributionId);
+  if (distribution) {
+    distribution.totalClaimed = distribution.totalClaimed.plus(event.params.amount);
+    distribution.save();
+  }
+  
   // Load member
   let member = VehicleMember.load(memberId);
   if (member) {
@@ -167,32 +262,33 @@ export function handleDistributionClaimed(event: DistributionClaimed): void {
     member.save();
   }
   
-  // Create or update DistributionClaim
-  let claim = DistributionClaim.load(claimId);
-  if (!claim) {
-    claim = new DistributionClaim(claimId);
-    claim.distribution = distributionId;
-    claim.member = memberId;
-    claim.memberAddress = memberAddress;
-    claim.amount = event.params.amount;
-    claim.claimed = false;
-  }
-  
+  // Create DistributionClaim
+  let claim = new DistributionClaim(claimId);
+  claim.distribution = distributionId;
+  claim.claimantAddress = memberAddress;
+  claim.amount = event.params.amount;
+  claim.vehicleMember = memberId;
+  claim.isCarryRecipient = false; // Will need to be determined from member status
   claim.claimed = true;
-  claim.claimedAt = event.params.timestamp;
+  claim.claimedAt = event.block.timestamp;
   claim.claimedTx = event.transaction.hash;
+  claim.blockNumber = event.block.number;
+  claim.logIndex = event.logIndex;
   claim.save();
   
   // Create activity
   const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
-  createActivity(
+  let activity = createActivity(
     activityId,
     "DISTRIBUTION_CLAIMED",
     event.address,
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
-  ).save();
+  );
+  activity.distribution = distributionId;
+  activity.distributionClaim = claimId;
+  activity.save();
 }
 
 /**

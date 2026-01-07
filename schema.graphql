@@ -97,6 +97,10 @@ type Wallet @entity {
   # Access Manager - contracts this wallet manages
   managedContracts: [AuthorityDelegation!]! @derivedFrom(field: "authorityWallet")
   targetPermissions: [TargetFunctionPermission!]! @derivedFrom(field: "managerWallet")
+  
+  # Vehicle/Trust profiles (if wallet has these facets)
+  vehicle: Vehicle
+  trust: Trust
 }
 
 # Tracks which wallet (AccessManager) has authority over a contract (AccessManaged)
@@ -392,37 +396,61 @@ enum CapitalSource {
 }
 
 type Distribution @entity {
-  id: ID! # vehicle-distributionId
-  vehicle: Vehicle!
+  id: ID! # vehicle-distributionId or trust-distributionId
+  vehicle: Vehicle # Vehicle this distribution belongs to (null for trust distributions)
+  trust: Trust # Trust this distribution belongs to (null for vehicle distributions)
   distributionId: BigInt! # Protocol's internal distribution ID
   totalAmount: BigInt!
-  lpAmount: BigInt! # Amount for limited partners (token holders)
-  carryAmount: BigInt! # Amount for carry recipients (GP, etc.)
+  totalClaimed: BigInt! # Amount claimed so far
+  lpAmount: BigInt! # Amount for limited partners (vehicle only)
+  carryAmount: BigInt! # Amount for carry recipients (vehicle only)
+  
+  # Token references (claim-based model)
+  paymentToken: Bytes! # Token being distributed (e.g., USDC)
+  membershipToken: Bytes # Token determining eligibility (vehicle) or beneficialInterestToken (trust)
+  
+  # Distribution type (for trusts)
+  distributionType: DistributionTypeEnum # INCOME, PRINCIPAL, LIQUIDATING
   
   # State
-  finalized: Boolean!
-  finalizedAt: BigInt
-  finalizedTx: Bytes
+  cancelled: Boolean!
+  cancelledAt: BigInt
+  cancelledTx: Bytes
+  expiresAt: BigInt # Expiration timestamp (0 = no expiry)
   
   createdAt: BigInt!
   createdTx: Bytes!
   blockNumber: BigInt!
   
-  # Individual distributions to members
+  # Individual claims by members/beneficiaries
   claims: [DistributionClaim!]! @derivedFrom(field: "distribution")
 }
 
+enum DistributionTypeEnum {
+  INCOME       # Regular income (rental, dividends)
+  PRINCIPAL    # Return of capital
+  LIQUIDATING  # Trust termination
+}
+
 type DistributionClaim @entity {
-  id: ID! # distribution-member-address
+  id: ID! # distribution-claimant-address
   distribution: Distribution!
-  member: VehicleMember!
-  memberAddress: Bytes! # Denormalized for filtering
+  claimantAddress: Bytes! # Address of the claimant (member or beneficiary)
   amount: BigInt!
+  
+  # For vehicle distributions
+  vehicleMember: VehicleMember # Link to vehicle member (if vehicle distribution)
+  isCarryRecipient: Boolean # True if this is a carry (GP) claim
+  
+  # For trust distributions
+  trustParticipant: TrustParticipant # Link to trust participant (if trust distribution)
   
   # State
   claimed: Boolean!
   claimedAt: BigInt
   claimedTx: Bytes
+  blockNumber: BigInt
+  logIndex: BigInt
 }
 
 type VehicleInvestment @entity {
@@ -474,6 +502,143 @@ type VehicleValuation @entity {
   blockNumber: BigInt!
 }
 
+# ============ TRUST ENTITIES ============
+
+type Trust @entity {
+  id: ID! # Trust wallet address
+  wallet: Wallet! # The wallet that has trust facets
+  trustType: TrustType!
+  status: TrustStatus!
+  
+  # Core info (stored on-chain)
+  trustInstrumentHash: Bytes! # Hash of trust document
+  dateEstablished: BigInt!
+  isRevocable: Boolean!
+  
+  # Participants
+  grantor: Bytes! # Primary grantor address
+  trustees: [Bytes!]! # Current trustees
+  successorTrustees: [Bytes!]! # Successor trustees in order
+  beneficiaries: [Bytes!]! # All beneficiaries
+  protectors: [Bytes!]! # Trust protectors
+  
+  # Token reference (for beneficial interest tokens)
+  beneficialInterestToken: Token # The token representing beneficial interests
+  
+  # Accounting totals
+  totalDistributed: BigInt!
+  totalDistributionsClaimed: BigInt!
+  
+  # Participants
+  participantCount: Int!
+  participants: [TrustParticipant!]! @derivedFrom(field: "trust")
+  
+  # Distributions
+  distributions: [Distribution!]! @derivedFrom(field: "trust")
+  
+  # Milestones
+  milestones: [TrustMilestone!]! @derivedFrom(field: "trust")
+  
+  # Vesting schedules
+  vestingSchedules: [TrustVestingSchedule!]! @derivedFrom(field: "trust")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+enum TrustType {
+  REVOCABLE_LIVING   # Can be modified by grantor during lifetime
+  IRREVOCABLE        # Cannot be modified once created
+  TESTAMENTARY       # Created by will, activated upon death
+  CHARITABLE         # For charitable purposes
+  SPECIAL_NEEDS      # For disabled beneficiaries
+  SPENDTHRIFT        # Protects from beneficiary creditors
+  OTHER              # Other trust types
+}
+
+enum TrustStatus {
+  ACTIVE             # Trust is active
+  SUSPENDED          # Temporarily suspended
+  TERMINATED         # Trust has been terminated
+}
+
+type TrustParticipant @entity {
+  id: ID! # trust-participant-address
+  trust: Trust!
+  participantAddress: Bytes!
+  role: TrustParticipantRole!
+  
+  # Beneficiary-specific fields
+  benefitPercentage: Int # Basis points (10000 = 100%)
+  
+  # Token ownership (for tokenized beneficial interests)
+  tokenBalance: BigInt # Current beneficial interest token balance
+  
+  addedAt: BigInt!
+  addedTx: Bytes!
+  
+  # Track if participant has been removed
+  removed: Boolean!
+  removedAt: BigInt
+  removedTx: Bytes
+}
+
+enum TrustParticipantRole {
+  GRANTOR
+  TRUSTEE
+  SUCCESSOR_TRUSTEE
+  BENEFICIARY
+  PROTECTOR
+}
+
+type TrustMilestone @entity {
+  id: ID! # trust-milestoneId (bytes32)
+  trust: Trust!
+  milestoneId: Bytes! # bytes32 milestone identifier
+  beneficiary: Bytes!
+  description: String!
+  distributionAmount: BigInt!
+  token: Bytes! # Token to distribute
+  
+  # State
+  achieved: Boolean!
+  achievedAt: BigInt
+  achievedTx: Bytes
+  attestedBy: Bytes # Who attested the milestone
+  
+  # Claim state
+  claimed: Boolean!
+  claimedAt: BigInt
+  claimedTx: Bytes
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+type TrustVestingSchedule @entity {
+  id: ID! # trust-beneficiary-address
+  trust: Trust!
+  beneficiary: Bytes!
+  token: Bytes! # Token being vested
+  
+  # Schedule parameters
+  totalAmount: BigInt!
+  releasedAmount: BigInt!
+  startTime: BigInt!
+  duration: BigInt!
+  cliffDuration: BigInt!
+  
+  # State
+  revoked: Boolean!
+  revokedAt: BigInt
+  revokedTx: Bytes
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 # Unified Activity Feed
 type Activity @entity {
   id: ID! # tx-hash-logIndex or unique identifier
@@ -495,6 +660,13 @@ type Activity @entity {
   lot: Lot
   attestation: Attestation # Hybrid EAS support - kept for backward compatibility
   assetTransfer: AssetTransfer # Native asset transfers (ETH, USDC)
+  
+  # Vehicle/Trust distribution references
+  distribution: Distribution
+  distributionClaim: DistributionClaim
+  trust: Trust
+  trustMilestone: TrustMilestone
+  trustVestingSchedule: TrustVestingSchedule
 }
 
 # Tracks native asset transfers (ETH, USDC, etc.)
@@ -560,6 +732,20 @@ enum ActivityType {
   ETH_RECEIVED # Incoming ETH transfer to wallet
   USDC_SENT # Outgoing USDC transfer from wallet
   USDC_RECEIVED # Incoming USDC transfer to wallet
+  # Trust activities
+  TRUST_CREATED
+  TRUST_DISTRIBUTION_CREATED
+  TRUST_DISTRIBUTION_CLAIMED
+  TRUST_PARTICIPANT_ADDED
+  TRUST_PARTICIPANT_REMOVED
+  TRUST_MILESTONE_CREATED
+  TRUST_MILESTONE_ACHIEVED
+  TRUST_VESTING_CREATED
+  TRUST_VESTING_RELEASED
+  TRUST_REVOKED
+  TRUST_STATUS_CHANGED
+  # Distribution cancellation
+  DISTRIBUTION_CANCELLED
 }
 
 type Offering @entity {

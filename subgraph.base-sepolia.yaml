@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base-sepolia
     source:
-      address: "0x9Bc014d27378EfC5d5C0b80cAd9393f2E58E1E56"
+      address: "0x29b6EcCf401DDDC7B7A52cb5645380e6Fd9Cd687"
       abi: DiamondFactory
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
+      startBlock: 35999055 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -74,9 +74,9 @@ dataSources:
     name: FacetRegistry
     network: base-sepolia
     source:
-      address: "0x3c21d18b3719ABf5341974Ec3cdB59b37E4048a6"
+      address: "0x4261A5238F3C90b404AfDC72Fb9eB75Ae506DeBd"
       abi: FacetRegistry
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
+      startBlock: 35999055 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -99,9 +99,9 @@ dataSources:
     name: WalletFactory
     network: base-sepolia
     source:
-      address: "0xC8528af35a995be186B38f76Bf9Fa7Bcd27f9DC0"
+      address: "0xE8ba6f7d0039074338027E43518BD89e2F1f2ac6"
       abi: WalletFactory
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
+      startBlock: 35999637 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -131,9 +131,9 @@ dataSources:
     name: OfferingFactory
     network: base-sepolia
     source:
-      address: "0xf42904CbCf95707CD42E1cBA1CF59f10d8B4a966"
+      address: "0x60880d3c604205A762B91Efd60a39D6F9BfE31AE"
       abi: OfferingFactory
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
+      startBlock: 35999637 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -178,9 +178,9 @@ dataSources:
     name: TokenFactory
     network: base-sepolia
     source:
-      address: "0x1bcE01F79Fdf62EA681e1Db2Fa28EA51053eE635"
+      address: "0x7eA89e9Dfb09Dcef1fb0c496Aae038f1c8300730"
       abi: TokenFactory
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
+      startBlock: 35999637 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -223,52 +223,28 @@ dataSources:
           handler: handleUserRoleUpdated
       file: ./src/mappings/token-factory.ts
 
-  # AcquisitionFactory - tracks acquisition/listing creation (Permissionless)
-  - kind: ethereum/contract
-    name: AcquisitionFactory
-    network: base-sepolia
-    source:
-      address: "0xE59CF8FBC0C8AF45Fcbf4216bcEf708FaA37a8d7"
-      abi: AcquisitionFactory
-      startBlock: 35119881 # Reverted to capture wallets created Dec 17-24
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Acquisition
-        - Diamond
-        - FactoryPaymentConfig
-        - FactoryPaymentToken
-        - FactoryPayment
-        - UserRole
-      abis:
-        - name: AcquisitionFactory
-          file: ./abis/AcquisitionFactory.json
-        - name: AcquisitionFactoryCoreFacet
-          file: ./abis/AcquisitionFactoryCoreFacet.json
-        - name: FactoryPaymentFacet
-          file: ./abis/FactoryPaymentFacet.json
-        - name: ERC20
-          file: ./abis/ERC20.json
-        - name: AccessControl
-          file: ./abis/AccessControlFacet.json
-      eventHandlers:
-        - event: AcquisitionCreated(indexed address,indexed address,uint256)
-          handler: handleAcquisitionCreated
-        - event: PaymentModuleInitialized(indexed address)
-          handler: handlePaymentModuleInitialized
-        - event: PaymentTokenConfigured(indexed address,uint256,bool)
-          handler: handlePaymentTokenConfigured
-        - event: PaymentCollected(indexed address,indexed address,uint256,string)
-          handler: handlePaymentCollected
-        - event: FeeRecipientUpdated(indexed address)
-          handler: handleFeeRecipientUpdated
-        - event: PaymentsStatusChanged(bool)
-          handler: handlePaymentsStatusChanged
-        - event: UserRoleUpdated(indexed address,indexed uint8,bool)
-          handler: handleUserRoleUpdated
-      file: ./src/mappings/acquisition-factory.ts
+  # EscrowFactory - tracks escrow creation (Permissionless)
+  # TODO: Add EscrowFactory ABI and mappings
+  # - kind: ethereum/contract
+  #   name: EscrowFactory
+  #   network: base-sepolia
+  #   source:
+  #     address: "0xa37E52Ddf9e3fD7e4806C8d442405ff5616E0E4A"
+  #     abi: EscrowFactory
+  #     startBlock: 35999637 # Updated 2026-01-07 - Fresh deployment with new storage slots
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Escrow
+  #     abis:
+  #       - name: EscrowFactory
+  #         file: ./abis/EscrowFactory.json
+  #     eventHandlers:
+  #       - event: EscrowCreated(indexed address,indexed address)
+  #         handler: handleEscrowCreated
+  #     file: ./src/mappings/escrow-factory.ts
 
   # USDC - tracks USDC transfers to/from CapSign wallets
   - kind: ethereum/contract
@@ -277,7 +253,7 @@ dataSources:
     source:
       address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
       abi: ERC20
-      startBlock: 35119881
+      startBlock: 35999055 # Updated 2026-01-07 - Match fresh deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -299,9 +275,9 @@ dataSources:
     name: CapSignPaymaster
     network: base-sepolia
     source:
-      address: "0x12109F20880e1387C10F804EB8e3526D186eF728"
+      address: "0x02b5830f17e9B9bfF476dfb2b382F3aA2d12430E"
       abi: CapSignPaymasterFacet
-      startBlock: 35120181
+      startBlock: 35999799 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -584,6 +560,10 @@ templates:
         - Distribution
         - DistributionClaim
         - VehicleInvestment
+        - Trust
+        - TrustParticipant
+        - TrustMilestone
+        - TrustVestingSchedule
         - AuthorityDelegation
         - TargetFunctionPermission
         - AuthorizedSigner
@@ -599,8 +579,14 @@ templates:
           file: ./abis/WalletDocumentsFacet.json
         - name: VehicleMembers
           file: ./abis/VehicleMembersFacet.json
-        - name: SPVDistribution
-          file: ./abis/SPVDistributionFacet.json
+        - name: VehicleDistributionFacet
+          file: ./abis/VehicleDistributionFacet.json
+        - name: TrustCoreFacet
+          file: ./abis/TrustCoreFacet.json
+        - name: TrustDistributionFacet
+          file: ./abis/TrustDistributionFacet.json
+        - name: TrustSuccessionFacet
+          file: ./abis/TrustSuccessionFacet.json
         - name: WalletPaymasterPolicyFacet
           file: ./abis/WalletPaymasterPolicyFacet.json
         - name: WalletAccessManager
@@ -659,6 +645,51 @@ templates:
           receipt: false
         - event: InvestmentExited(indexed uint256,uint256,uint256)
           handler: handleInvestmentExited
+          receipt: false
+        # Vehicle Distribution events (claim-based model from VehicleDistributionFacet)
+        - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleDistributionCreated
+          receipt: false
+        - event: DistributionCancelled(indexed uint256,uint256)
+          handler: handleVehicleDistributionCancelled
+          receipt: false
+        # Trust Core events (from TrustCoreFacet)
+        - event: TrustInitialized(uint8,indexed address,indexed address,bool)
+          handler: handleTrustInitialized
+          receipt: false
+        - event: TrustStatusChanged(uint8,uint8)
+          handler: handleTrustStatusChanged
+          receipt: false
+        - event: TrustRevoked(indexed address,uint256)
+          handler: handleTrustRevoked
+          receipt: false
+        - event: ParticipantAdded(indexed address,uint8,uint256,string)
+          handler: handleParticipantAdded
+          receipt: false
+        - event: ParticipantRemoved(indexed address,uint8)
+          handler: handleParticipantRemoved
+          receipt: false
+        - event: BeneficiaryShareUpdated(indexed address,uint256,uint256)
+          handler: handleBeneficiaryShareUpdated
+          receipt: false
+        # Trust Distribution events (from TrustDistributionFacet)
+        - event: ClaimableDistributionCreated(indexed uint256,uint8,indexed address,indexed address,uint256)
+          handler: handleTrustClaimableDistributionCreated
+          receipt: false
+        - event: DistributionScheduleCreated(indexed address,uint256,uint256,uint256,uint8)
+          handler: handleDistributionScheduleCreated
+          receipt: false
+        - event: DistributionScheduleRevoked(indexed address,indexed address)
+          handler: handleDistributionScheduleRevoked
+          receipt: false
+        - event: VestedAmountReleased(indexed address,uint256,uint256,uint256)
+          handler: handleVestedAmountReleased
+          receipt: false
+        - event: MilestoneCreated(indexed bytes32,indexed address,string,uint256)
+          handler: handleMilestoneCreated
+          receipt: false
+        - event: MilestoneAchieved(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleMilestoneAchieved
           receipt: false
         # Paymaster policy events (from WalletPaymasterPolicyFacet ABI)
         - event: PaymasterEnabled(bool)
