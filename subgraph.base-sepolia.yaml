@@ -463,7 +463,14 @@ templates:
           file: ./abis/ERC20.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
+        - name: Token409AFacet
+          file: ./abis/Token409AFacet.json
       eventHandlers:
+        # 409A Valuation events
+        - event: Valuation409ARecorded(indexed uint256,uint256,uint256,uint256,bytes32,indexed address)
+          handler: handleValuation409ARecorded
+        - event: Valuation409AInvalidated(indexed uint256,string)
+          handler: handleValuation409AInvalidated
         # Diamond cut tracking (for deployment config audit trail)
         - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
           handler: handleDiamondCut
@@ -593,7 +600,20 @@ templates:
           file: ./abis/WalletAccessManagerFacet.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
+        - name: WalletRule701Facet
+          file: ./abis/WalletRule701Facet.json
       eventHandlers:
+        # Rule 701 events
+        - event: EquityTokenRegistered(indexed address,string)
+          handler: handleEquityTokenRegistered
+        - event: EquityTokenUnregistered(indexed address)
+          handler: handleEquityTokenUnregistered
+        - event: CompanyMetricsUpdated(uint256,uint256,bytes32)
+          handler: handleCompanyMetricsUpdated
+        - event: Rule701GrantRegistered(indexed uint256,indexed address,indexed address,address,uint256,string,uint256)
+          handler: handleRule701GrantRegistered
+        - event: DisclosureProvided(bytes32)
+          handler: handleDisclosureProvided
         # Diamond cut tracking (for deployment config audit trail)
         - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
           handler: handleDiamondCut

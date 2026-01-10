@@ -1141,6 +1141,166 @@ type TokenClaim @entity {
   redeemedTx: Bytes # null until redeemed
 }
 
+# ============ EQUITY COMPENSATION ============
+
+# 409A Valuation tracking for equity tokens
+type Valuation409A @entity {
+  id: ID! # token-valuationId
+  token: ShareClass!
+  valuationId: BigInt!
+  pricePerShare: BigInt!
+  effectiveDate: BigInt!
+  expirationDate: BigInt!
+  reportHash: Bytes!
+  valuationFirm: Bytes # Optional attestation firm
+  recordedBy: Bytes!
+  recordedAt: BigInt!
+  recordedTx: Bytes!
+  invalidatedAt: BigInt
+  invalidatedTx: Bytes
+  isValid: Boolean!
+}
+
+# Stock Option grants
+type OptionGrant @entity {
+  id: ID! # optionPlan-grantId
+  optionPlan: Bytes! # Address of the option plan diamond
+  grantId: BigInt!
+  recipient: Bytes!
+  equityToken: ShareClass!
+  companyWallet: Wallet
+  optionType: OptionType!
+  status: OptionStatus!
+  totalShares: BigInt!
+  exercisedShares: BigInt!
+  strikePrice: BigInt!
+  grantDate: BigInt!
+  expirationDate: BigInt!
+  vestingDuration: BigInt!
+  cliffDuration: BigInt!
+  earlyExercise: Boolean!
+  election83bHash: Bytes
+  election83bDeadline: BigInt
+  grantTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+  
+  # Exercise history
+  exercises: [OptionExercise!]! @derivedFrom(field: "grant")
+}
+
+enum OptionType {
+  ISO
+  NSO
+}
+
+enum OptionStatus {
+  GRANTED
+  PARTIALLY_EXERCISED
+  FULLY_EXERCISED
+  FORFEITED
+  EXPIRED
+  CANCELLED
+}
+
+# Option exercise events
+type OptionExercise @entity {
+  id: ID! # tx-logIndex
+  grant: OptionGrant!
+  sharesExercised: BigInt!
+  paymentAmount: BigInt!
+  paymentToken: Bytes!
+  equityLotId: Bytes! # Lot created on equity token
+  exercisedAt: BigInt!
+  exerciseTx: Bytes!
+}
+
+# RSU grants
+type RSUGrant @entity {
+  id: ID! # rsuPlan-grantId
+  rsuPlan: Bytes! # Address of the RSU plan diamond
+  grantId: BigInt!
+  recipient: Bytes!
+  equityToken: ShareClass!
+  companyWallet: Wallet
+  status: RSUStatus!
+  totalShares: BigInt!
+  settledShares: BigInt!
+  grantDate: BigInt!
+  settlementDate: BigInt
+  vestingDuration: BigInt!
+  cliffDuration: BigInt!
+  grantTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+  
+  # Settlement history
+  settlements: [RSUSettlement!]! @derivedFrom(field: "grant")
+}
+
+enum RSUStatus {
+  GRANTED
+  PARTIALLY_SETTLED
+  FULLY_SETTLED
+  FORFEITED
+  CANCELLED
+}
+
+# RSU settlement events
+type RSUSettlement @entity {
+  id: ID! # tx-logIndex
+  grant: RSUGrant!
+  sharesSettled: BigInt!
+  equityLotId: Bytes! # Lot created on equity token
+  settledAt: BigInt!
+  settlementTx: Bytes!
+}
+
+# Rule 701 company-level tracking
+type Rule701Status @entity {
+  id: ID! # companyWallet address
+  companyWallet: Wallet!
+  totalAssets: BigInt!
+  assetReportHash: Bytes!
+  aggregate12MonthValue: BigInt! # Rolling 12-month grant value
+  currentLimit: BigInt! # Max of $1M or 15% of assets
+  remainingCapacity: BigInt!
+  disclosureRequired: Boolean!
+  disclosureHash: Bytes
+  disclosureProvidedAt: BigInt
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+  
+  # Registered equity tokens
+  equityTokens: [Rule701EquityToken!]! @derivedFrom(field: "rule701Status")
+  
+  # All grants (options and RSUs)
+  grants: [Rule701Grant!]! @derivedFrom(field: "rule701Status")
+}
+
+type Rule701EquityToken @entity {
+  id: ID! # companyWallet-token
+  rule701Status: Rule701Status!
+  token: ShareClass!
+  registeredAt: BigInt!
+  registeredTx: Bytes!
+}
+
+type Rule701Grant @entity {
+  id: ID! # companyWallet-grantId
+  rule701Status: Rule701Status!
+  internalGrantId: BigInt!
+  equityToken: ShareClass!
+  grantValue: BigInt!
+  grantType: String! # "ISO_option", "NSO_option", "RSU"
+  recipient: Bytes!
+  sourcePlan: Bytes! # Option/RSU plan address
+  grantDate: BigInt!
+  grantTx: Bytes!
+}
+
+# ============ SAFE TOKENS ============
+
 # SAFE tokens (Simple Agreement for Future Equity)
 # COMMENTED OUT - Will implement in Phase 4
 # type Safe implements Token @entity {

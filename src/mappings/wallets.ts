@@ -24,8 +24,15 @@ import {
   UserRoleUpdated as UserRoleUpdatedEvent,
   FunctionAccessChanged as FunctionAccessChangedEvent,
 } from "../../generated/templates/WalletDiamond/AccessControl";
+import {
+  EquityTokenRegistered,
+  EquityTokenUnregistered,
+  CompanyMetricsUpdated,
+  Rule701GrantRegistered,
+  DisclosureProvided,
+} from "../../generated/templates/WalletDiamond/WalletRule701Facet";
 import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletDocuments";
-import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess, AuthorizedSigner, UserOperationExecution } from "../../generated/schema";
+import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess, AuthorizedSigner, UserOperationExecution, Rule701Status, Rule701EquityToken, Rule701Grant } from "../../generated/schema";
 
 // Re-export DiamondCut handler for this template
 export { handleDiamondCut } from "./diamond-cut";
@@ -558,3 +565,132 @@ export {
 
 // Re-export native transfer handlers
 export { handleTransactionExecuted, handleEtherReceived } from "./native-transfers";
+
+// ============ RULE 701 HANDLERS ============
+
+/**
+ * Handle EquityTokenRegistered event
+ * Event: EquityTokenRegistered(address indexed tokenAddress, string tokenClass)
+ */
+export function handleEquityTokenRegistered(event: EquityTokenRegistered): void {
+  const walletAddress = event.address.toHexString();
+  const tokenAddress = event.params.tokenAddress.toHexString();
+  const id = `${walletAddress}-${tokenAddress}`;
+
+  // Initialize Rule701Status if first equity token registration
+  let status = Rule701Status.load(walletAddress);
+  if (!status) {
+    status = new Rule701Status(walletAddress);
+    status.companyWallet = walletAddress;
+    status.totalAssets = BigInt.fromI32(0);
+    status.assetReportHash = Bytes.fromHexString("0x0000000000000000000000000000000000000000000000000000000000000000");
+    status.aggregate12MonthValue = BigInt.fromI32(0);
+    status.currentLimit = BigInt.fromI64(1000000000000); // $1M minimum in 6 decimals
+    status.remainingCapacity = status.currentLimit;
+    status.disclosureRequired = false;
+    status.lastUpdatedAt = event.block.timestamp;
+    status.lastUpdatedTx = event.transaction.hash;
+    status.save();
+  }
+
+  let equityToken = new Rule701EquityToken(id);
+  equityToken.rule701Status = walletAddress;
+  equityToken.token = tokenAddress;
+  equityToken.registeredAt = event.block.timestamp;
+  equityToken.registeredTx = event.transaction.hash;
+
+  equityToken.save();
+}
+
+/**
+ * Handle EquityTokenUnregistered event
+ * Event: EquityTokenUnregistered(address indexed token)
+ */
+export function handleEquityTokenUnregistered(event: EquityTokenUnregistered): void {
+  // Graph Protocol doesn't support entity deletion
+  // Simply logged for audit
+}
+
+/**
+ * Handle CompanyMetricsUpdated event
+ * Event: CompanyMetricsUpdated(uint256 totalAssets, uint256 asOfDate, bytes32 reportHash)
+ */
+export function handleCompanyMetricsUpdated(event: CompanyMetricsUpdated): void {
+  const walletAddress = event.address.toHexString();
+
+  let status = Rule701Status.load(walletAddress);
+  if (!status) {
+    return;
+  }
+
+  status.totalAssets = event.params.totalAssets;
+  status.assetReportHash = event.params.reportHash;
+
+  // Recalculate limit: max($1M, 15% of assets)
+  const fifteenPercent = event.params.totalAssets.times(BigInt.fromI32(15)).div(BigInt.fromI32(100));
+  const oneMillionUSDC = BigInt.fromI64(1000000000000); // $1M in 6 decimals
+  status.currentLimit = fifteenPercent.gt(oneMillionUSDC) ? fifteenPercent : oneMillionUSDC;
+  status.remainingCapacity = status.currentLimit.minus(status.aggregate12MonthValue);
+  status.lastUpdatedAt = event.block.timestamp;
+  status.lastUpdatedTx = event.transaction.hash;
+
+  status.save();
+}
+
+/**
+ * Handle Rule701GrantRegistered event
+ * Event: Rule701GrantRegistered(uint256 indexed grantId, address indexed tokenAddress, address indexed planAddress, address recipient, uint256 grantValue, string grantType, uint256 newAggregateValue)
+ */
+export function handleRule701GrantRegistered(event: Rule701GrantRegistered): void {
+  const walletAddress = event.address.toHexString();
+  const grantId = event.params.grantId;
+  const id = `${walletAddress}-${grantId.toString()}`;
+
+  let grant = new Rule701Grant(id);
+  grant.rule701Status = walletAddress;
+  grant.internalGrantId = grantId;
+  grant.equityToken = event.params.tokenAddress.toHexString();
+  grant.grantValue = event.params.grantValue;
+  grant.grantType = event.params.grantType;
+  grant.recipient = event.params.recipient;
+  grant.sourcePlan = event.params.planAddress;
+  grant.grantDate = event.block.timestamp; // Use block timestamp since grantDate is not in event
+  grant.grantTx = event.transaction.hash;
+
+  grant.save();
+
+  // Update aggregate value from event (already calculated on-chain)
+  let status = Rule701Status.load(walletAddress);
+  if (status) {
+    status.aggregate12MonthValue = event.params.newAggregateValue;
+    status.remainingCapacity = status.currentLimit.minus(status.aggregate12MonthValue);
+
+    // Check if disclosure is required ($5M threshold)
+    const fiveMillionUSDC = BigInt.fromI64(5000000000000); // $5M in 6 decimals
+    status.disclosureRequired = status.aggregate12MonthValue.gt(fiveMillionUSDC);
+    status.lastUpdatedAt = event.block.timestamp;
+    status.lastUpdatedTx = event.transaction.hash;
+
+    status.save();
+  }
+}
+
+/**
+ * Handle DisclosureProvided event
+ * Event: DisclosureProvided(bytes32 disclosureHash)
+ */
+export function handleDisclosureProvided(event: DisclosureProvided): void {
+  const walletAddress = event.address.toHexString();
+
+  let status = Rule701Status.load(walletAddress);
+  if (!status) {
+    return;
+  }
+
+  status.disclosureHash = event.params.disclosureHash;
+  status.disclosureProvidedAt = event.block.timestamp;
+  status.lastUpdatedAt = event.block.timestamp;
+  status.lastUpdatedTx = event.transaction.hash;
+
+  status.save();
+}

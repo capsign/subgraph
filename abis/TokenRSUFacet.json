@@ -1,0 +1,679 @@
+[
+  {
+    "type": "function",
+    "name": "forfeitRSU",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCompanyWallet",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "companyWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEquityToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPlanURI",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPoolStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "authorized",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "granted",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "settled",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "forfeited",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "available",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRSUGrant",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grant",
+        "type": "tuple",
+        "internalType": "struct ITokenRSU.RSUGrant",
+        "components": [
+          {
+            "name": "grantId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "recipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum ITokenRSU.RSUStatus"
+          },
+          {
+            "name": "totalUnits",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "settledUnits",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "forfeitedUnits",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "grantDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "settlementTiming",
+            "type": "uint8",
+            "internalType": "enum ITokenRSU.SettlementTiming"
+          },
+          {
+            "name": "grantFMV",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecipientGrants",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grantIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSettleableUnits",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "settleableUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSettlementHistory",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "records",
+        "type": "tuple[]",
+        "internalType": "struct ITokenRSU.SettlementRecord[]",
+        "components": [
+          {
+            "name": "grantId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "settlementDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "unitsSettled",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "fmvAtSettlement",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "sharesWithheld",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "sharesDelivered",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "equityLotId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestedUnits",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "vestedUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingModule",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "vestingModule",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "grantRSU",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "totalUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "vestingDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cliffDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "settlementTiming",
+        "type": "uint8",
+        "internalType": "enum ITokenRSU.SettlementTiming"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "params",
+        "type": "tuple",
+        "internalType": "struct ITokenRSU.InitParams",
+        "components": [
+          {
+            "name": "equityToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "companyWallet",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "vestingModule",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "authorizedPool",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "planURI",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "processVesting",
+    "inputs": [
+      {
+        "name": "grantIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "settledCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "settleRSU",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "unitsToSettle",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesWithheld",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "equityLotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "RSUForfeited",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "unitsForfeited",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RSUGranted",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "totalUnits",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "grantFMV",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RSUPlanInitialized",
+    "inputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "companyWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "authorizedPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "planURI",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RSUSettled",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "unitsSettled",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesDelivered",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "fmvAtSettlement",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "equityLotId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RSUVested",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "unitsVested",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "cumulativeVested",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RSU_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_ExceedsRule701Limit",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_GrantNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_GrantNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_InsufficientPoolCapacity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_InvalidRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_InvalidUnitAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_No409AValuation",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_NoUnitsToSettle",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_NotRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RSU_SettlementNotAllowed",
+    "inputs": []
+  }
+]

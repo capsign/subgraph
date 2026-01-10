@@ -31,10 +31,14 @@ import {
   AuthorityUpdated,
   DebtTermsSet
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
+import {
+  Valuation409ARecorded,
+  Valuation409AInvalidated
+} from "../../generated/templates/TokenDiamond/Token409AFacet";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -1081,5 +1085,65 @@ export function handleDebtTermsSet(event: DebtTermsSet): void {
     tokenAddress,
     event.params.principalAmount.toString(),
     event.params.interestRate.toString()
+  ]);
+}
+
+// ============ 409A VALUATION HANDLERS ============
+
+/**
+ * Handle Valuation409ARecorded events
+ * Event: Valuation409ARecorded(uint256 indexed valuationId, uint256 pricePerShare, uint256 effectiveDate, uint256 expirationDate, bytes32 reportHash, address valuationFirm)
+ */
+export function handleValuation409ARecorded(event: Valuation409ARecorded): void {
+  const tokenAddress = event.address.toHexString();
+  const valuationId = event.params.valuationId;
+  const id = `${tokenAddress}-${valuationId.toString()}`;
+
+  let valuation = new Valuation409A(id);
+  valuation.token = tokenAddress;
+  valuation.valuationId = valuationId;
+  valuation.pricePerShare = event.params.pricePerShare;
+  valuation.effectiveDate = event.params.effectiveDate;
+  valuation.expirationDate = event.params.expirationDate;
+  valuation.reportHash = event.params.reportHash;
+  valuation.valuationFirm = event.params.valuationFirm;
+  valuation.recordedBy = event.transaction.from;
+  valuation.recordedAt = event.block.timestamp;
+  valuation.recordedTx = event.transaction.hash;
+  valuation.isValid = true;
+
+  valuation.save();
+
+  log.info("409A Valuation recorded: token={}, id={}, price={}", [
+    tokenAddress,
+    valuationId.toString(),
+    event.params.pricePerShare.toString()
+  ]);
+}
+
+/**
+ * Handle Valuation409AInvalidated events
+ * Event: Valuation409AInvalidated(uint256 indexed valuationId, string reason)
+ */
+export function handleValuation409AInvalidated(event: Valuation409AInvalidated): void {
+  const tokenAddress = event.address.toHexString();
+  const valuationId = event.params.valuationId;
+  const id = `${tokenAddress}-${valuationId.toString()}`;
+
+  let valuation = Valuation409A.load(id);
+  if (!valuation) {
+    log.warning("409A Valuation invalidated for unknown valuation: {}", [id]);
+    return;
+  }
+
+  valuation.isValid = false;
+  valuation.invalidatedAt = event.block.timestamp;
+  valuation.invalidatedTx = event.transaction.hash;
+
+  valuation.save();
+
+  log.info("409A Valuation invalidated: token={}, id={}", [
+    tokenAddress,
+    valuationId.toString()
   ]);
 }

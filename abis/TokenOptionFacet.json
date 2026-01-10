@@ -1,0 +1,940 @@
+[
+  {
+    "type": "function",
+    "name": "earlyExerciseOption",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesToExercise",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "equityLotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exerciseOption",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesToExercise",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "equityLotId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expireOptions",
+    "inputs": [
+      {
+        "name": "grantIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "expiredCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "forfeitOption",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCompanyWallet",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "companyWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEarlyExerciseRecord",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "record",
+        "type": "tuple",
+        "internalType": "struct ITokenOption.EarlyExerciseRecord",
+        "components": [
+          {
+            "name": "grantId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "exerciseDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalShares",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "vestedAtExercise",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "unvestedAtExercise",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "repurchasePrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "election83bHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "election83bDeadline",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "election83bFiled",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEquityToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getExercisableShares",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "exercisableShares",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getISOGrantsInYear",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalValue",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOptionGrant",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grant",
+        "type": "tuple",
+        "internalType": "struct ITokenOption.OptionGrant",
+        "components": [
+          {
+            "name": "grantId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lotId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "recipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "optionType",
+            "type": "uint8",
+            "internalType": "enum ITokenOption.OptionType"
+          },
+          {
+            "name": "status",
+            "type": "uint8",
+            "internalType": "enum ITokenOption.OptionStatus"
+          },
+          {
+            "name": "totalShares",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "exercisedShares",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "forfeitedShares",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "strikePrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "grantDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "earlyExercise",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPlanURI",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPoolStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "authorized",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "granted",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "exercised",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "forfeited",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "available",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecipientGrants",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grantIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUnvestedEarlyExerciseShares",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "unvestedShares",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestedShares",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "vestedShares",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingModule",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "vestingModule",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "grantOption",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "optionType",
+        "type": "uint8",
+        "internalType": "enum ITokenOption.OptionType"
+      },
+      {
+        "name": "totalShares",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "strikePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "expirationDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "vestingDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cliffDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "earlyExercise",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "params",
+        "type": "tuple",
+        "internalType": "struct ITokenOption.InitParams",
+        "components": [
+          {
+            "name": "equityToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "companyWallet",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "vestingModule",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "authorizedPool",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "planURI",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "record83bElection",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "electionHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "repurchaseUnvestedShares",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesToRepurchase",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "EarlyExerciseRecorded",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "totalShares",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "unvestedShares",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "election83bDeadline",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Election83bFiled",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "electionHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OptionExercised",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sharesExercised",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalPayment",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "equityLotId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OptionExpired",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sharesExpired",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OptionForfeited",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sharesForfeited",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OptionGranted",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "lotId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "optionType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum ITokenOption.OptionType"
+      },
+      {
+        "name": "totalShares",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "strikePrice",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "expirationDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OptionPlanInitialized",
+    "inputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "companyWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "authorizedPool",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "planURI",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UnvestedSharesRepurchased",
+    "inputs": [
+      {
+        "name": "grantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "sharesRepurchased",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "repurchaseAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Option_83bDeadlinePassed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_EarlyExerciseNotAllowed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_ExceedsRule701Limit",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_Expired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_GrantNotActive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_GrantNotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_ISOExceedsAnnualLimit",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_InsufficientPoolCapacity",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_InsufficientVestedShares",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_InvalidRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_InvalidShareAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_InvalidStrikePrice",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_No409AValuation",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_NotRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_PaymentFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Option_StrikeBelowFMV",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  }
+]

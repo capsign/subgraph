@@ -1,0 +1,430 @@
+[
+  {
+    "type": "function",
+    "name": "Token409A_init",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "get409APriceAt",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "get409AValuation",
+    "inputs": [
+      {
+        "name": "valuationId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "valuation",
+        "type": "tuple",
+        "internalType": "struct IToken409A.Valuation409A",
+        "components": [
+          {
+            "name": "pricePerShare",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "effectiveDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reportHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "valuationFirm",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "recordedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "recordedBy",
+            "type": "address",
+            "internalType": "address"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "get409AValuationHistory",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "valuations",
+        "type": "tuple[]",
+        "internalType": "struct IToken409A.Valuation409A[]",
+        "components": [
+          {
+            "name": "pricePerShare",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "effectiveDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reportHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "valuationFirm",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "recordedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "recordedBy",
+            "type": "address",
+            "internalType": "address"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCurrent409APrice",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCurrent409AValuation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "valuation",
+        "type": "tuple",
+        "internalType": "struct IToken409A.Valuation409A",
+        "components": [
+          {
+            "name": "pricePerShare",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "effectiveDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "expirationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "reportHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "valuationFirm",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "recordedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "recordedBy",
+            "type": "address",
+            "internalType": "address"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasValid409AValuation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "hasValid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "invalidate409AValuation",
+    "inputs": [
+      {
+        "name": "valuationId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "record409AValuation",
+    "inputs": [
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "effectiveDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "expirationDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reportHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "valuationFirm",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "valuationId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "validate409ACompliance",
+    "inputs": [
+      {
+        "name": "strikePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "isValid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Valuation409AInvalidated",
+    "inputs": [
+      {
+        "name": "valuationId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Valuation409ARecorded",
+    "inputs": [
+      {
+        "name": "valuationId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "effectiveDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "expirationDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "reportHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "valuationFirm",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_Expired",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_InvalidEffectiveDate",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_InvalidExpirationDate",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_InvalidPrice",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_NoValidValuation",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_NotFound",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Valuation409A_StrikeBelowFMV",
+    "inputs": []
+  }
+]
