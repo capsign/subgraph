@@ -1801,7 +1801,7 @@ type Lot @entity {
   lotId: BigInt!
   owner: Wallet!
   quantity: BigInt! # Raw quantity (before corporate actions). To get real quantity: quantity * token.splitNum * token.divNum / (token.splitDen * token.divDen)
-  costBasis: BigInt! # Raw cost basis (before adjustments)
+  costBasis: BigInt! # Total cost basis for this lot (total investment amount, not per-token). Use paymentDecimals to convert to display value.
   acquisitionDate: BigInt!
   createdAt: BigInt! # Alias for acquisitionDate
   acquiredFrom: Bytes!
