@@ -54,7 +54,7 @@ import {
 import {
   CustomTermsSet,
 } from "../../generated/templates/OfferingDiamond/OfferingTerms";
-import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement, RequiredSigner, AuthorityDelegation } from "../../generated/schema";
+import { Offering, Investment, Diamond, DocumentSignature, Document, InvestmentLookup, OfferingInvestor, SafePreApprovedTerms, OffchainInvestment, UserRole, FunctionAccess, OfferingTemplate, OfferingDocument, OfferingDocumentSignature, DocumentRequirement, RequiredSigner, AuthorityDelegation } from "../../generated/schema";
 import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -167,7 +167,28 @@ export function handleFundsDeposited(event: FundsDeposited): void {
   // Update offering totals
   ensureOffchainFieldsInitialized(offering);
   offering.totalInvested = offering.totalInvested.plus(event.params.amount);
-  offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+  
+  // Track unique investors - only increment count if this is a new investor
+  const offeringInvestorId = event.address.toHexString() + "-" + event.params.investor.toHexString();
+  let offeringInvestor = OfferingInvestor.load(offeringInvestorId);
+  
+  if (!offeringInvestor) {
+    // New unique investor for this offering
+    offeringInvestor = new OfferingInvestor(offeringInvestorId);
+    offeringInvestor.offering = offering.id;
+    offeringInvestor.investor = event.params.investor.toHexString();
+    offeringInvestor.firstInvestedAt = event.block.timestamp;
+    offeringInvestor.investmentCount = 1;
+    offeringInvestor.save();
+    
+    // Only increment investor count for new unique investors
+    offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+  } else {
+    // Existing investor making another investment
+    offeringInvestor.investmentCount = offeringInvestor.investmentCount + 1;
+    offeringInvestor.save();
+  }
+  
   offering.save();
   
   // Create activity for investment made (investor's perspective)
@@ -252,7 +273,21 @@ export function handleInvestmentRejected(event: InvestmentRejected): void {
   if (offering) {
     ensureOffchainFieldsInitialized(offering);
     offering.totalInvested = offering.totalInvested.minus(investment.amount);
-    offering.investorCount = offering.investorCount.minus(BigInt.fromI32(1));
+    
+    // Update OfferingInvestor tracking
+    const offeringInvestorId = event.address.toHexString() + "-" + investment.investor;
+    const offeringInvestor = OfferingInvestor.load(offeringInvestorId);
+    
+    if (offeringInvestor) {
+      offeringInvestor.investmentCount = offeringInvestor.investmentCount - 1;
+      offeringInvestor.save();
+      
+      // Only decrement investor count if this was their last investment
+      if (offeringInvestor.investmentCount <= 0) {
+        offering.investorCount = offering.investorCount.minus(BigInt.fromI32(1));
+      }
+    }
+    
     offering.save();
   }
 }
@@ -645,36 +680,26 @@ export function handleOffchainInvestmentConfirmed(event: OffchainInvestmentConfi
   offering.totalOffchainPending = offering.totalOffchainPending!.minus(offchainInvestment.amount);
   offering.totalOffchainConfirmed = offering.totalOffchainConfirmed!.plus(offchainInvestment.amount);
   
-  // Check if this is the investor's first confirmed investment for this offering
-  const investorId = offchainInvestment.investor;
-  let hasOtherInvestments = false;
+  // Track unique investors using OfferingInvestor entity
+  const investorAddress = Bytes.fromHexString(offchainInvestment.investor);
+  const offeringInvestorId = event.address.toHexString() + "-" + investorAddress.toHexString();
+  let offeringInvestor = OfferingInvestor.load(offeringInvestorId);
   
-  // Check onchain investments for this offering
-  const onchainInvestments = offering.investments.load();
-  for (let i = 0; i < onchainInvestments.length; i++) {
-    if (onchainInvestments[i].investor == investorId &&
-        (onchainInvestments[i].status == "ACCEPTED" || onchainInvestments[i].status == "COUNTERSIGNED")) {
-      hasOtherInvestments = true;
-      break;
-    }
-  }
-  
-  // Check offchain investments for this offering (excluding this one)
-  if (!hasOtherInvestments) {
-    const offchainInvestments = offering.offchainInvestments.load();
-    for (let i = 0; i < offchainInvestments.length; i++) {
-      if (offchainInvestments[i].investor == investorId &&
-          offchainInvestments[i].status == "CONFIRMED" &&
-          offchainInvestments[i].id != compositeId) {
-        hasOtherInvestments = true;
-        break;
-      }
-    }
-  }
-  
-  // Increment investor count if this is their first confirmed investment for this offering
-  if (!hasOtherInvestments) {
+  if (!offeringInvestor) {
+    // New unique investor for this offering
+    offeringInvestor = new OfferingInvestor(offeringInvestorId);
+    offeringInvestor.offering = offering.id;
+    offeringInvestor.investor = offchainInvestment.investor;
+    offeringInvestor.firstInvestedAt = event.block.timestamp;
+    offeringInvestor.investmentCount = 1;
+    offeringInvestor.save();
+    
+    // Only increment investor count for new unique investors
     offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+  } else {
+    // Existing investor - increment their investment count
+    offeringInvestor.investmentCount = offeringInvestor.investmentCount + 1;
+    offeringInvestor.save();
   }
   
   offering.save();

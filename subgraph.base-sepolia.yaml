@@ -465,7 +465,18 @@ templates:
           file: ./abis/AccessControlFacet.json
         - name: Token409AFacet
           file: ./abis/Token409AFacet.json
+        - name: TokenOptionFacet
+          file: ./abis/TokenOptionFacet.json
       eventHandlers:
+        # Option grant events
+        - event: OptionGranted(indexed uint256,indexed bytes32,indexed address,uint8,uint256,uint256,uint256)
+          handler: handleOptionGranted
+        - event: OptionExercised(indexed uint256,indexed address,uint256,uint256,bytes32)
+          handler: handleOptionExercised
+        - event: OptionExpired(indexed uint256,indexed address,uint256)
+          handler: handleOptionExpired
+        - event: OptionForfeited(indexed uint256,indexed address,uint256)
+          handler: handleOptionForfeited
         # 409A Valuation events
         - event: Valuation409ARecorded(indexed uint256,uint256,uint256,uint256,bytes32,indexed address)
           handler: handleValuation409ARecorded

@@ -905,6 +905,15 @@ type InvestmentLookup @entity {
   investment: Investment! # Points to the actual investment entity
 }
 
+# Tracks unique investors per offering (for accurate investor count)
+type OfferingInvestor @entity {
+  id: ID! # offering-investor (e.g., "0xoffering-0xinvestor")
+  offering: Offering!
+  investor: Wallet!
+  firstInvestedAt: BigInt!
+  investmentCount: Int! # Number of investments by this investor in this offering
+}
+
 type Investment @entity {
   id: ID! # tx-hash-logIndex (unique event identifier)
   compositeId: String! # offering-investmentId (for protocol lookups)
@@ -1163,12 +1172,11 @@ type Valuation409A @entity {
 
 # Stock Option grants
 type OptionGrant @entity {
-  id: ID! # optionPlan-grantId
-  optionPlan: Bytes! # Address of the option plan diamond
+  id: ID! # token-grantId
+  equityToken: ShareClass! # Token diamond address (named for UI compatibility)
   grantId: BigInt!
-  recipient: Bytes!
-  equityToken: ShareClass!
-  companyWallet: Wallet
+  lotId: Bytes! # Associated lot ID
+  recipient: Wallet! # Recipient wallet
   optionType: OptionType!
   status: OptionStatus!
   totalShares: BigInt!
@@ -1176,14 +1184,14 @@ type OptionGrant @entity {
   strikePrice: BigInt!
   grantDate: BigInt!
   expirationDate: BigInt!
-  vestingDuration: BigInt!
-  cliffDuration: BigInt!
-  earlyExercise: Boolean!
+  vestingDuration: BigInt # Optional - may not be in event
+  cliffDuration: BigInt # Optional - may not be in event
+  earlyExercise: Boolean # Optional - may not be in event
   election83bHash: Bytes
   election83bDeadline: BigInt
+  grantedBy: Bytes! # Who granted the option
   grantTx: Bytes!
-  lastUpdatedAt: BigInt!
-  lastUpdatedTx: Bytes!
+  blockNumber: BigInt!
   
   # Exercise history
   exercises: [OptionExercise!]! @derivedFrom(field: "grant")

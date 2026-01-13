@@ -35,10 +35,16 @@ import {
   Valuation409ARecorded,
   Valuation409AInvalidated
 } from "../../generated/templates/TokenDiamond/Token409AFacet";
+import {
+  OptionGranted,
+  OptionExercised,
+  OptionExpired,
+  OptionForfeited
+} from "../../generated/templates/TokenDiamond/TokenOptionFacet";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -1145,5 +1151,176 @@ export function handleValuation409AInvalidated(event: Valuation409AInvalidated):
   log.info("409A Valuation invalidated: token={}, id={}", [
     tokenAddress,
     valuationId.toString()
+  ]);
+}
+
+// ============ OPTION GRANT HANDLERS ============
+
+/**
+ * Handle OptionGranted events
+ * Event: OptionGranted(uint256 indexed grantId, bytes32 indexed lotId, address indexed recipient, uint8 optionType, uint256 totalShares, uint256 strikePrice, uint256 expirationDate)
+ */
+export function handleOptionGranted(event: OptionGranted): void {
+  const tokenAddress = event.address.toHexString();
+  const grantId = event.params.grantId;
+  const id = `${tokenAddress}-${grantId.toString()}`;
+
+  // Token/ShareClass must exist
+  let token = ShareClass.load(tokenAddress);
+  if (!token) {
+    log.warning("OptionGranted for unknown token: {}", [tokenAddress]);
+    return;
+  }
+
+  // Ensure recipient wallet exists
+  const recipientAddress = event.params.recipient.toHexString();
+  let recipientWallet = Wallet.load(recipientAddress);
+  if (!recipientWallet) {
+    recipientWallet = new Wallet(recipientAddress);
+    recipientWallet.save();
+  }
+
+  let grant = new OptionGrant(id);
+  grant.equityToken = tokenAddress;
+  grant.grantId = grantId;
+  grant.lotId = event.params.lotId;
+  grant.recipient = recipientAddress;
+  
+  // Map optionType: 0 = ISO, 1 = NSO
+  grant.optionType = event.params.optionType == 0 ? "ISO" : "NSO";
+  grant.status = "GRANTED";
+  
+  grant.totalShares = event.params.totalShares;
+  grant.exercisedShares = BigInt.fromI32(0);
+  grant.strikePrice = event.params.strikePrice;
+  grant.grantDate = event.block.timestamp;
+  grant.expirationDate = event.params.expirationDate;
+  grant.grantedBy = event.transaction.from;
+  grant.grantTx = event.transaction.hash;
+  grant.blockNumber = event.block.number;
+
+  grant.save();
+
+  // Create activity
+  const activity = createActivity(
+    "option-granted-" + id,
+    "OPTION_GRANTED",
+    event.params.recipient,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+
+  log.info("Option granted: token={}, grantId={}, recipient={}, shares={}", [
+    tokenAddress,
+    grantId.toString(),
+    recipientAddress,
+    event.params.totalShares.toString()
+  ]);
+}
+
+/**
+ * Handle OptionExercised events
+ * Event: OptionExercised(uint256 indexed grantId, address indexed recipient, uint256 sharesExercised, uint256 totalPayment, bytes32 equityLotId)
+ */
+export function handleOptionExercised(event: OptionExercised): void {
+  const tokenAddress = event.address.toHexString();
+  const grantId = event.params.grantId;
+  const grantEntityId = `${tokenAddress}-${grantId.toString()}`;
+
+  let grant = OptionGrant.load(grantEntityId);
+  if (!grant) {
+    log.warning("Option exercised for unknown grant: {}", [grantEntityId]);
+    return;
+  }
+
+  // Update grant
+  grant.exercisedShares = grant.exercisedShares.plus(event.params.sharesExercised);
+  
+  // Update status if fully exercised
+  if (grant.exercisedShares.equals(grant.totalShares)) {
+    grant.status = "EXERCISED";
+  } else {
+    grant.status = "PARTIALLY_EXERCISED";
+  }
+  
+  grant.save();
+
+  // Create exercise record
+  const exerciseId = `${grantEntityId}-${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let exercise = new OptionExercise(exerciseId);
+  exercise.grant = grantEntityId;
+  exercise.sharesExercised = event.params.sharesExercised;
+  exercise.paymentAmount = event.params.totalPayment;
+  exercise.equityLotId = event.params.equityLotId;
+  exercise.exercisedAt = event.block.timestamp;
+  exercise.exerciseTx = event.transaction.hash;
+  
+  exercise.save();
+
+  // Create activity
+  const activity = createActivity(
+    "option-exercised-" + exerciseId,
+    "OPTION_EXERCISED",
+    event.params.recipient,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+
+  log.info("Option exercised: grantId={}, shares={}, payment={}", [
+    grantId.toString(),
+    event.params.sharesExercised.toString(),
+    event.params.totalPayment.toString()
+  ]);
+}
+
+/**
+ * Handle OptionExpired events
+ * Event: OptionExpired(uint256 indexed grantId, address indexed recipient, uint256 unvestedShares)
+ */
+export function handleOptionExpired(event: OptionExpired): void {
+  const tokenAddress = event.address.toHexString();
+  const grantId = event.params.grantId;
+  const grantEntityId = `${tokenAddress}-${grantId.toString()}`;
+
+  let grant = OptionGrant.load(grantEntityId);
+  if (!grant) {
+    log.warning("Option expired for unknown grant: {}", [grantEntityId]);
+    return;
+  }
+
+  grant.status = "EXPIRED";
+  grant.save();
+
+  log.info("Option expired: grantId={}, sharesExpired={}", [
+    grantId.toString(),
+    event.params.sharesExpired.toString()
+  ]);
+}
+
+/**
+ * Handle OptionForfeited events
+ * Event: OptionForfeited(uint256 indexed grantId, address indexed recipient, uint256 unvestedShares)
+ */
+export function handleOptionForfeited(event: OptionForfeited): void {
+  const tokenAddress = event.address.toHexString();
+  const grantId = event.params.grantId;
+  const grantEntityId = `${tokenAddress}-${grantId.toString()}`;
+
+  let grant = OptionGrant.load(grantEntityId);
+  if (!grant) {
+    log.warning("Option forfeited for unknown grant: {}", [grantEntityId]);
+    return;
+  }
+
+  grant.status = "FORFEITED";
+  grant.save();
+
+  log.info("Option forfeited: grantId={}, sharesForfeited={}", [
+    grantId.toString(),
+    event.params.sharesForfeited.toString()
   ]);
 }
