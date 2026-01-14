@@ -659,6 +659,7 @@ type Activity @entity {
   lot: Lot
   attestation: Attestation # Hybrid EAS support - kept for backward compatibility
   assetTransfer: AssetTransfer # Native asset transfers (ETH, USDC)
+  optionGrant: OptionGrant # Equity compensation option grants
   
   # Vehicle/Trust distribution references
   distribution: Distribution

@@ -1201,7 +1201,7 @@ export function handleOptionGranted(event: OptionGranted): void {
 
   grant.save();
 
-  // Create activity
+  // Create activity with optionGrant reference
   const activity = createActivity(
     "option-granted-" + id,
     "OPTION_GRANTED",
@@ -1210,6 +1210,7 @@ export function handleOptionGranted(event: OptionGranted): void {
     event.transaction.hash,
     event.block.number
   );
+  activity.optionGrant = id;
   activity.save();
 
   log.info("Option granted: token={}, grantId={}, recipient={}, shares={}", [
