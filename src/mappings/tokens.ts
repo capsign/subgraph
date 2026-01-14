@@ -83,7 +83,6 @@ export function handleTokenAuthorityUpdated(event: AuthorityUpdated): void {
       let wallet = Wallet.load(newAuthority.toHexString());
       if (!wallet) {
         wallet = new Wallet(newAuthority.toHexString());
-        wallet.type = "UNKNOWN"; // Will be updated when WalletCreated event fires
         wallet.deployer = event.transaction.from;
         wallet.createdAt = event.block.timestamp;
         wallet.createdTx = event.transaction.hash;
@@ -150,7 +149,6 @@ export function handleLotCreated(event: LotCreated): void {
     wallet.deployer = event.transaction.from;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
-    wallet.type = "EOA"; // Default to EOA for non-factory created wallets
     wallet.save();
   }
   
@@ -270,7 +268,6 @@ export function handleLotTransferred(event: LotTransferred): void {
     wallet.deployer = event.transaction.from;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
-    wallet.type = "EOA"; // Default to EOA for non-factory created wallets
     wallet.save();
   }
   
@@ -1177,6 +1174,9 @@ export function handleOptionGranted(event: OptionGranted): void {
   let recipientWallet = Wallet.load(recipientAddress);
   if (!recipientWallet) {
     recipientWallet = new Wallet(recipientAddress);
+    recipientWallet.deployer = event.transaction.from;
+    recipientWallet.createdAt = event.block.timestamp;
+    recipientWallet.createdTx = event.transaction.hash;
     recipientWallet.save();
   }
 

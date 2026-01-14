@@ -62,7 +62,6 @@ export function handleWalletInitialized(event: WalletInitialized): void {
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
     wallet.deployer = event.transaction.from;
-    wallet.type = event.params.walletType;
 
     // Create fallback owner (EOA)
     const ownerId = walletAddress + "-" + event.transaction.from.toHexString();
@@ -77,8 +76,6 @@ export function handleWalletInitialized(event: WalletInitialized): void {
     owner.save();
   }
 
-  // Update wallet type from initialization event (may provide more specific info)
-  wallet.type = event.params.walletType;
   wallet.save();
   
   // Update diamond type

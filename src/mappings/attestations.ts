@@ -17,7 +17,6 @@ export function handleAttested(event: Attested): void {
     // Create placeholder wallet if it doesn't exist yet
     // This will be properly initialized when the wallet diamond is actually deployed
     wallet = new Wallet(walletId);
-    wallet.type = "EOA"; // Default fallback
     wallet.deployer = event.params.attester;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;

@@ -60,26 +60,17 @@ export function handleWalletCreated(event: WalletCreated): void {
   wallet.deployer = event.params.deployer;
   wallet.createdAt = event.block.timestamp;
   wallet.createdTx = event.transaction.hash;
-
-  // Map ownerType enum (0=EOA, 1=Passkey)
-  const ownerTypeValue = event.params.ownerType;
-  if (ownerTypeValue === 0) {
-    wallet.type = "EOA";
-  } else if (ownerTypeValue === 1) {
-    wallet.type = "Passkey";
-  } else {
-    wallet.type = "EOA"; // Fallback
-  }
-
   wallet.save();
 
   // Create initial Owner entity
+  // Map ownerType enum (0=EOA, 1=Passkey)
   // For Passkey: owner param is address(0), use wallet address as unique ID
   // For EOA: owner param is the actual EOA address
-  const ownerTypeStr = wallet.type;
+  const ownerTypeValue = event.params.ownerType;
+  const isPasskey = ownerTypeValue === 1;
   let ownerId: string;
   
-  if (ownerTypeStr === "Passkey") {
+  if (isPasskey) {
     // For Passkey, owner param is 0x0, so use salt for uniqueness
     ownerId = walletAddress + "-passkey-" + event.params.salt.toHexString();
   } else {
@@ -92,15 +83,15 @@ export function handleWalletCreated(event: WalletCreated): void {
   owner.addedAt = event.block.timestamp;
   owner.addedTx = event.transaction.hash;
 
-  if (ownerTypeStr === "EOA") {
-    owner.ownerType = "EOA";
-    owner.address = event.params.owner;
-    owner.publicKey = null;
-    owner.publicKeyHash = null;
-  } else if (ownerTypeStr === "Passkey") {
+  if (isPasskey) {
     owner.ownerType = "Passkey";
     owner.address = null; // Passkey owners have address(0) in the event
     owner.publicKey = null; // Public key must be fetched from contract via ownerAtIndex()
+    owner.publicKeyHash = null;
+  } else {
+    owner.ownerType = "EOA";
+    owner.address = event.params.owner;
+    owner.publicKey = null;
     owner.publicKeyHash = null;
   }
 

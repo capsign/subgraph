@@ -52,7 +52,6 @@ export function handleKYCStatusUpdated(event: KYCStatusUpdated): void {
   if (!wallet) {
     // Create placeholder wallet if it doesn't exist
     wallet = new Wallet(walletId);
-    wallet.type = "EOA";
     wallet.deployer = event.params.verifiedBy;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
@@ -138,7 +137,6 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
   if (!wallet) {
     // Create placeholder wallet if it doesn't exist
     wallet = new Wallet(walletId);
-    wallet.type = "EOA";
     wallet.deployer = event.params.verifiedBy;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;

@@ -98,7 +98,6 @@ export function handleAuthorityUpdated(event: AuthorityUpdatedEvent): void {
       let wallet = Wallet.load(newAuthority.toHexString());
       if (!wallet) {
         wallet = new Wallet(newAuthority.toHexString());
-        wallet.type = "UNKNOWN"; // Will be updated when WalletCreated event fires
         wallet.deployer = event.transaction.from;
         wallet.createdAt = event.block.timestamp;
         wallet.createdTx = event.transaction.hash;

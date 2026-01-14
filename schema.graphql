@@ -70,8 +70,7 @@ type FunctionAccess @entity {
 }
 
 type Wallet @entity {
-  id: ID! # Wallet address
-  type: String! # "EOA", "Passkey", "MPC"
+  id: ID! # Wallet address (all CapSign wallets are ERC-4337 smart accounts)
   deployer: Bytes! # Address that deployed the wallet
   createdAt: BigInt!
   createdTx: Bytes!
@@ -746,6 +745,10 @@ enum ActivityType {
   TRUST_STATUS_CHANGED
   # Distribution cancellation
   DISTRIBUTION_CANCELLED
+  # Equity compensation activities
+  OPTION_GRANTED
+  OPTION_EXERCISED
+  RSA_GRANTED
 }
 
 type Offering @entity {
@@ -1101,6 +1104,9 @@ type ShareClass implements Token @entity {
   
   # Corporate action history
   corporateActions: [CorporateAction!]! @derivedFrom(field: "token")
+  
+  # Option grants for this equity token (for fully diluted cap table)
+  optionGrants: [OptionGrant!]! @derivedFrom(field: "equityToken")
 }
 
 # Token role membership tracking
