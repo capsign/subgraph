@@ -1,6 +1,6 @@
 {
   "name": "capsign-subgraph",
-  "version": "0.12.18",
+  "version": "0.12.17",
   "description": "CapSign Protocol Subgraph for Base (Goldsky)",
   "scripts": {
     "codegen:sepolia": "graph codegen subgraph.base-sepolia.yaml",
