@@ -1,10 +1,35 @@
 import { DiamondCreated, FacetRegistryUpdated, UserRoleUpdated } from "../../generated/DiamondFactory/DiamondFactory";
-import { Diamond, Wallet, Offering, UserRole, SystemConfig } from "../../generated/schema";
+import { Diamond, Wallet, Offering, UserRole, SystemConfig, FactoryPaymentConfig } from "../../generated/schema";
 import {
   OfferingDiamond,
   TokenDiamond,
   WalletDiamond,
 } from "../../generated/templates";
+import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
+
+// Helper to get or create factory payment config for DiamondFactory
+function getOrCreateFactoryPaymentConfig(
+  factoryAddress: Address,
+  timestamp: BigInt,
+  tx: Bytes
+): FactoryPaymentConfig {
+  let id = factoryAddress.toHexString();
+  let config = FactoryPaymentConfig.load(id);
+
+  if (!config) {
+    config = new FactoryPaymentConfig(id);
+    config.factory = factoryAddress;
+    config.factoryType = "DIAMOND";
+    config.feeRecipient = Address.fromString("0x0000000000000000000000000000000000000000");
+    config.paymentsEnabled = false; // DiamondFactory doesn't have payments
+    config.deploymentCount = BigInt.zero();
+    config.createdAt = timestamp;
+    config.createdTx = tx;
+    config.save();
+  }
+
+  return config;
+}
 
 export function handleDiamondCreated(event: DiamondCreated): void {
   // Initialize SystemConfig if it doesn't exist
@@ -17,6 +42,15 @@ export function handleDiamondCreated(event: DiamondCreated): void {
     systemConfig.lastUpdatedTx = event.transaction.hash;
     systemConfig.save();
   }
+
+  // Get or create FactoryPaymentConfig and increment deployment count
+  let config = getOrCreateFactoryPaymentConfig(
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash
+  );
+  config.deploymentCount = config.deploymentCount.plus(BigInt.fromI32(1));
+  config.save();
 
   const diamond = new Diamond(event.params.diamond.toHexString());
   diamond.diamondType = "UNKNOWN"; // Type will be determined by initialization events
@@ -107,4 +141,3 @@ export function handleUserRoleUpdated(event: UserRoleUpdated): void {
   
   userRole.save();
 }
-
