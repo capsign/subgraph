@@ -70,13 +70,14 @@ dataSources:
   #     file: ./src/mappings/attestations.ts
 
   # FacetRegistry - tracks facet registration and deployment
+  # IMPORTANT: Must start from original deployment to capture all facet registrations
   - kind: ethereum/contract
     name: FacetRegistry
     network: base
     source:
       address: "0x4261A5238F3C90b404AfDC72Fb9eB75Ae506DeBd"
       abi: FacetRegistry
-      startBlock: 40488499 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 40488499 # Contract deployment block - captures all facet registrations
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -578,6 +579,10 @@ templates:
         - Distribution
         - DistributionClaim
         - VehicleInvestment
+        - Trust
+        - TrustParticipant
+        - TrustMilestone
+        - TrustVestingSchedule
         - AuthorityDelegation
         - TargetFunctionPermission
         - AuthorizedSigner
@@ -593,15 +598,34 @@ templates:
           file: ./abis/WalletDocumentsFacet.json
         - name: VehicleMembers
           file: ./abis/VehicleMembersFacet.json
-        - name: SPVDistribution
-          file: ./abis/SPVDistributionFacet.json
+        - name: VehicleDistributionFacet
+          file: ./abis/VehicleDistributionFacet.json
+        - name: TrustCoreFacet
+          file: ./abis/TrustCoreFacet.json
+        - name: TrustDistributionFacet
+          file: ./abis/TrustDistributionFacet.json
+        - name: TrustSuccessionFacet
+          file: ./abis/TrustSuccessionFacet.json
         - name: WalletPaymasterPolicyFacet
           file: ./abis/WalletPaymasterPolicyFacet.json
         - name: WalletAccessManager
           file: ./abis/WalletAccessManagerFacet.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
+        - name: WalletRule701Facet
+          file: ./abis/WalletRule701Facet.json
       eventHandlers:
+        # Rule 701 events
+        - event: EquityTokenRegistered(indexed address,string)
+          handler: handleEquityTokenRegistered
+        - event: EquityTokenUnregistered(indexed address)
+          handler: handleEquityTokenUnregistered
+        - event: CompanyMetricsUpdated(uint256,uint256,bytes32)
+          handler: handleCompanyMetricsUpdated
+        - event: Rule701GrantRegistered(indexed uint256,indexed address,indexed address,address,uint256,string,uint256)
+          handler: handleRule701GrantRegistered
+        - event: DisclosureProvided(bytes32)
+          handler: handleDisclosureProvided
         # Diamond cut tracking (for deployment config audit trail)
         - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
           handler: handleDiamondCut
@@ -653,6 +677,51 @@ templates:
           receipt: false
         - event: InvestmentExited(indexed uint256,uint256,uint256)
           handler: handleInvestmentExited
+          receipt: false
+        # Vehicle Distribution events (claim-based model from VehicleDistributionFacet)
+        - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleDistributionCreated
+          receipt: false
+        - event: DistributionCancelled(indexed uint256,uint256)
+          handler: handleVehicleDistributionCancelled
+          receipt: false
+        # Trust Core events (from TrustCoreFacet)
+        - event: TrustInitialized(uint8,indexed address,indexed address,bool)
+          handler: handleTrustInitialized
+          receipt: false
+        - event: TrustStatusChanged(uint8,uint8)
+          handler: handleTrustStatusChanged
+          receipt: false
+        - event: TrustRevoked(indexed address,uint256)
+          handler: handleTrustRevoked
+          receipt: false
+        - event: ParticipantAdded(indexed address,uint8,uint256,string)
+          handler: handleParticipantAdded
+          receipt: false
+        - event: ParticipantRemoved(indexed address,uint8)
+          handler: handleParticipantRemoved
+          receipt: false
+        - event: BeneficiaryShareUpdated(indexed address,uint256,uint256)
+          handler: handleBeneficiaryShareUpdated
+          receipt: false
+        # Trust Distribution events (from TrustDistributionFacet)
+        - event: ClaimableDistributionCreated(indexed uint256,uint8,indexed address,indexed address,uint256)
+          handler: handleTrustClaimableDistributionCreated
+          receipt: false
+        - event: DistributionScheduleCreated(indexed address,uint256,uint256,uint256,uint8)
+          handler: handleDistributionScheduleCreated
+          receipt: false
+        - event: DistributionScheduleRevoked(indexed address,indexed address)
+          handler: handleDistributionScheduleRevoked
+          receipt: false
+        - event: VestedAmountReleased(indexed address,uint256,uint256,uint256)
+          handler: handleVestedAmountReleased
+          receipt: false
+        - event: MilestoneCreated(indexed bytes32,indexed address,string,uint256)
+          handler: handleMilestoneCreated
+          receipt: false
+        - event: MilestoneAchieved(indexed bytes32,indexed address,indexed address,uint256)
+          handler: handleMilestoneAchieved
           receipt: false
         # Paymaster policy events (from WalletPaymasterPolicyFacet ABI)
         - event: PaymasterEnabled(bool)
@@ -856,4 +925,3 @@ templates:
         - event: VestingScheduleRevoked(indexed address,indexed bytes32)
           handler: handleVestingScheduleRevoked
       file: ./src/mappings/vesting-module.ts
-
