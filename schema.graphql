@@ -2126,6 +2126,7 @@ type FactoryPaymentDiscount @entity {
 }
 
 enum FactoryType {
+  DIAMOND
   TOKEN
   OFFERING
   WALLET
