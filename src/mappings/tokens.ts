@@ -29,7 +29,8 @@ import {
   ComplianceModuleAdded,
   ComplianceModuleRemoved,
   AuthorityUpdated,
-  DebtTermsSet
+  DebtTermsSet,
+  NoteInitialized
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import {
   Valuation409ARecorded,
@@ -1088,6 +1089,42 @@ export function handleDebtTermsSet(event: DebtTermsSet): void {
     tokenAddress,
     event.params.principalAmount.toString(),
     event.params.interestRate.toString()
+  ]);
+}
+
+/**
+ * Handle NoteInitialized events from TokenNoteFacet
+ * Event: NoteInitialized(address indexed borrower, address indexed lender, uint256 principalAmount, uint16 interestRateBps, uint256 maturityDate)
+ * This sets the debtor (borrower) and creditor (lender) fields on the PromissoryNote
+ */
+export function handleNoteInitialized(event: NoteInitialized): void {
+  const tokenAddress = event.address.toHexString();
+  
+  let note = PromissoryNote.load(tokenAddress);
+  if (!note) {
+    log.warning("NoteInitialized event for unknown PromissoryNote: {}", [tokenAddress]);
+    return;
+  }
+  
+  // Set borrower (debtor) and lender (creditor)
+  note.debtor = event.params.borrower;
+  note.creditor = event.params.lender;
+  
+  // Also update the loan terms from this event
+  note.principalAmount = event.params.principalAmount;
+  note.interestRate = event.params.interestRateBps; // Already in basis points
+  note.maturityDate = event.params.maturityDate;
+  
+  // Initialize outstanding balance to principal amount
+  note.outstandingBalance = event.params.principalAmount;
+  
+  note.save();
+  
+  log.info("Note initialized: token={}, borrower={}, lender={}, principal={}", [
+    tokenAddress,
+    event.params.borrower.toHexString(),
+    event.params.lender.toHexString(),
+    event.params.principalAmount.toString()
   ]);
 }
 
