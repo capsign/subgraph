@@ -234,7 +234,9 @@ function detectTokenType(tokenAddress: Address): string {
   // Check each facet for type-specific function selectors
   // TokenSAFEFacet implements: defaultTerms(): 0x43e30c7f
   const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
-  // TokenDebtFacet implements: applyLotTerms(bytes32,bytes): 0x510b2d24
+  // TokenNoteFacet implements: getNoteStatus(): 0x1c269ce6
+  const NOTE_FACET_SELECTOR = Bytes.fromHexString("0x1c269ce6");
+  // TokenDebtFacet (deprecated) implements: applyLotTerms(bytes32,bytes): 0x510b2d24
   const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
   
   // First pass: Check for SAFE facet (highest priority)
@@ -247,8 +249,17 @@ function detectTokenType(tokenAddress: Address): string {
     }
   }
   
-  // Second pass: Check for Debt facet (Promissory Note)
-  // Note: applyLotTerms is also in TokenSAFEFacet, but we already checked for SAFE above
+  // Second pass: Check for Note facet (TokenNoteFacet - bilateral promissory note)
+  for (let i = 0; i < facets.length; i++) {
+    let facetSelectors = facets[i].functionSelectors;
+    for (let j = 0; j < facetSelectors.length; j++) {
+      if (facetSelectors[j].equals(NOTE_FACET_SELECTOR)) {
+        return "PromissoryNote";
+      }
+    }
+  }
+  
+  // Third pass: Check for legacy Debt facet (deprecated TokenDebtFacet)
   for (let i = 0; i < facets.length; i++) {
     let facetSelectors = facets[i].functionSelectors;
     for (let j = 0; j < facetSelectors.length; j++) {
