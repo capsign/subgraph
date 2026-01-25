@@ -234,8 +234,8 @@ function detectTokenType(tokenAddress: Address): string {
   // Check each facet for type-specific function selectors
   // TokenSAFEFacet implements: defaultTerms(): 0x43e30c7f
   const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
-  // TokenNoteFacet implements: getNoteStatus(): 0x1c269ce6
-  const NOTE_FACET_SELECTOR = Bytes.fromHexString("0x1c269ce6");
+  // TokenNoteFacet implements: getNote(): 0xdf3ac476
+  const NOTE_FACET_SELECTOR = Bytes.fromHexString("0xdf3ac476");
   // TokenDebtFacet (deprecated) implements: applyLotTerms(bytes32,bytes): 0x510b2d24
   const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
   
