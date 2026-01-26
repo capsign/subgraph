@@ -468,7 +468,12 @@ templates:
           file: ./abis/Token409AFacet.json
         - name: TokenOptionFacet
           file: ./abis/TokenOptionFacet.json
+        - name: TokenNoteFacet
+          file: ./abis/TokenNoteFacet.json
       eventHandlers:
+        # Promissory Note events
+        - event: NoteInitialized(indexed address,indexed address,uint256,uint16,uint256)
+          handler: handleNoteInitialized
         # Option grant events
         - event: OptionGranted(indexed uint256,indexed bytes32,indexed address,uint8,uint256,uint256,uint256)
           handler: handleOptionGranted
