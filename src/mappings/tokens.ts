@@ -45,6 +45,7 @@ import {
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
+import { TokenNoteFacet } from "../../generated/templates/TokenDiamond/TokenNoteFacet";
 import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
@@ -1117,6 +1118,34 @@ export function handleNoteInitialized(event: NoteInitialized): void {
   
   // Initialize outstanding balance to principal amount
   note.outstandingBalance = event.params.principalAmount;
+  
+  // Fetch payment token from contract (not in event)
+  const tokenNote = TokenNoteFacet.bind(event.address);
+  const noteResult = tokenNote.try_getNote();
+  if (!noteResult.reverted) {
+    // terms is at index 2 of the result tuple, paymentToken is in the terms struct
+    const terms = noteResult.value.getTerms();
+    note.paymentCurrency = terms.paymentToken;
+    note.gracePeriodDays = terms.gracePeriodDays.toI32();
+    
+    // Map payment frequency enum
+    const freq = terms.paymentFrequency;
+    if (freq == 0) {
+      note.paymentType = "BULLET";
+    } else if (freq == 1) {
+      note.paymentType = "MONTHLY";
+    } else if (freq == 2) {
+      note.paymentType = "QUARTERLY";
+    } else if (freq == 3) {
+      note.paymentType = "ANNUALLY";
+    } else {
+      note.paymentType = "BULLET";
+    }
+    
+    log.info("Note payment token: {}", [terms.paymentToken.toHexString()]);
+  } else {
+    log.warning("Failed to fetch note details from contract: {}", [tokenAddress]);
+  }
   
   note.save();
   
