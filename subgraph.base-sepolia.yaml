@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0x29b6EcCf401DDDC7B7A52cb5645380e6Fd9Cd687"
       abi: DiamondFactory
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -102,7 +102,7 @@ dataSources:
     source:
       address: "0xE8ba6f7d0039074338027E43518BD89e2F1f2ac6"
       abi: WalletFactory
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -134,7 +134,7 @@ dataSources:
     source:
       address: "0x60880d3c604205A762B91Efd60a39D6F9BfE31AE"
       abi: OfferingFactory
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -181,7 +181,7 @@ dataSources:
     source:
       address: "0x7eA89e9Dfb09Dcef1fb0c496Aae038f1c8300730"
       abi: TokenFactory
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -254,7 +254,7 @@ dataSources:
     source:
       address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
       abi: ERC20
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -278,7 +278,7 @@ dataSources:
     source:
       address: "0x02b5830f17e9B9bfF476dfb2b382F3aA2d12430E"
       abi: CapSignPaymasterFacet
-      startBlock: 36370000 # Updated 2026-01-15 - v9 clean reset with API integration
+      startBlock: 35119881 # Reverted to capture all historical data including offerings
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
