@@ -39,14 +39,34 @@ export { handleDiamondCut } from "./diamond-cut";
 import { Bytes, BigInt } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
-// Re-export vehicle handlers
+// Re-export entity classification handlers
+export {
+  handleEntityTypeSet,
+  handleLEISet,
+} from "./vehicles";
+
+// Re-export member capital handlers
 export {
   handleCapitalContributed,
-  handleDistributionExecuted,
-  handleDistributionClaimed,
+  handleOwnershipUpdated,
   handleMemberAdded,
   handleMemberRemoved,
-  handleInvestmentMade,
+  handleMemberDistributionCreated,
+  handleMemberDistributionClaimed,
+  handleMemberDistributionCancelled,
+} from "./vehicles";
+
+// Re-export token distribution handlers
+export {
+  handleTokenDistributionCreated,
+  handleTokenDistributionClaimed,
+  handleTokenDistributionCancelled,
+} from "./vehicles";
+
+// Re-export investment handlers
+export {
+  handleInvestmentCreated,
+  handleInvestmentExecuted,
   handleValuationUpdated,
   handleInvestmentExited,
 } from "./vehicles";

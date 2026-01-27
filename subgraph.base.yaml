@@ -594,6 +594,7 @@ templates:
         - UserOperationExecution
         - InstalledFacet
         - DiamondCutEvent
+        - EntityClassification
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -601,10 +602,15 @@ templates:
           file: ./abis/WalletCoreFacet.json
         - name: WalletDocuments
           file: ./abis/WalletDocumentsFacet.json
-        - name: VehicleMembers
-          file: ./abis/VehicleMembersFacet.json
-        - name: VehicleDistributionFacet
-          file: ./abis/VehicleDistributionFacet.json
+        # New capital/investment facets (replaced Vehicle* facets)
+        - name: MemberCapitalFacet
+          file: ./abis/MemberCapitalFacet.json
+        - name: TokenDistributionFacet
+          file: ./abis/TokenDistributionFacet.json
+        - name: InvestmentFacet
+          file: ./abis/InvestmentFacet.json
+        - name: WalletTypeFacet
+          file: ./abis/WalletTypeFacet.json
         - name: TrustCoreFacet
           file: ./abis/TrustCoreFacet.json
         - name: TrustDistributionFacet
@@ -658,37 +664,57 @@ templates:
           handler: handleAttestationAdded
         - event: AttestationRevoked(indexed bytes32,uint256)
           handler: handleAttestationRevoked
-        # Vehicle events (from VehicleMembers ABI)
-        - event: CapitalContributed(indexed address,uint256,uint256)
-          handler: handleCapitalContributed
+        # Entity Classification events (from WalletTypeFacet)
+        - event: EntityTypeSet(indexed bytes4,indexed bytes2,string)
+          handler: handleEntityTypeSet
           receipt: false
-        - event: DistributionExecuted(indexed uint256,uint256,uint256)
-          handler: handleDistributionExecuted
+        - event: LEISet(indexed bytes20)
+          handler: handleLEISet
           receipt: false
-        - event: DistributionClaimed(indexed uint256,indexed address,uint256,uint256)
-          handler: handleDistributionClaimed
-          receipt: false
+        # MemberCapital events (from MemberCapitalFacet)
         - event: MemberAdded(indexed address,uint256)
           handler: handleMemberAdded
           receipt: false
         - event: MemberRemoved(indexed address)
           handler: handleMemberRemoved
           receipt: false
-        - event: InvestmentMade(indexed uint256,indexed address,uint8,uint256,uint256)
-          handler: handleInvestmentMade
+        - event: OwnershipUpdated(indexed address,uint256,uint256)
+          handler: handleOwnershipUpdated
+          receipt: false
+        - event: CapitalContributed(indexed address,uint256,indexed address,uint256)
+          handler: handleCapitalContributed
+          receipt: false
+        - event: DistributionCreated(indexed uint256,uint256,indexed address,indexed address)
+          handler: handleMemberDistributionCreated
+          receipt: false
+        - event: DistributionClaimed(indexed uint256,indexed address,uint256)
+          handler: handleMemberDistributionClaimed
+          receipt: false
+        - event: DistributionCancelled(indexed uint256,uint256)
+          handler: handleMemberDistributionCancelled
+          receipt: false
+        # TokenDistribution events (from TokenDistributionFacet)
+        - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleTokenDistributionCreated
+          receipt: false
+        - event: DistributionClaimed(indexed uint256,indexed address,uint256)
+          handler: handleTokenDistributionClaimed
+          receipt: false
+        - event: DistributionCancelled(indexed uint256,uint256)
+          handler: handleTokenDistributionCancelled
+          receipt: false
+        # Investment events (from InvestmentFacet)
+        - event: InvestmentCreated(indexed uint256,indexed address,uint8,string)
+          handler: handleInvestmentCreated
+          receipt: false
+        - event: InvestmentExecuted(indexed uint256,uint256,uint256)
+          handler: handleInvestmentExecuted
           receipt: false
         - event: ValuationUpdated(indexed uint256,uint256,uint256,uint256)
           handler: handleValuationUpdated
           receipt: false
-        - event: InvestmentExited(indexed uint256,uint256,uint256)
+        - event: InvestmentExited(indexed uint256,uint256,uint256,uint256)
           handler: handleInvestmentExited
-          receipt: false
-        # Vehicle Distribution events (claim-based model from VehicleDistributionFacet)
-        - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleDistributionCreated
-          receipt: false
-        - event: DistributionCancelled(indexed uint256,uint256)
-          handler: handleVehicleDistributionCancelled
           receipt: false
         # Trust Core events (from TrustCoreFacet)
         - event: TrustInitialized(uint8,indexed address,indexed address,bool)

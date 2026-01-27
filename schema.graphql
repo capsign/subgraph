@@ -100,6 +100,36 @@ type Wallet @entity {
   # Vehicle/Trust profiles (if wallet has these facets)
   vehicle: Vehicle
   trust: Trust
+  
+  # Entity classification (GLEIF ELF codes)
+  entityClassification: EntityClassification
+}
+
+# ============ ENTITY CLASSIFICATION (GLEIF ELF Codes) ============
+
+type EntityClassification @entity {
+  id: ID! # Wallet address
+  wallet: Wallet!
+  
+  # GLEIF ELF Code (Entity Legal Form)
+  elfCode: Bytes! # 4-byte ELF code (e.g., 0x384d4a54 for "8MJT" = Delaware LLC)
+  elfName: String! # Human-readable name (e.g., "Delaware LLC")
+  
+  # Legal Entity Identifier (optional)
+  lei: Bytes # 20-character LEI (null if not registered)
+  
+  # Jurisdiction
+  jurisdictionCode: Bytes! # 2-byte ISO 3166-1 alpha-2 (e.g., "US")
+  jurisdictionSub: String # State/province (e.g., "DE" for Delaware)
+  
+  # Formation
+  formationDate: BigInt # Unix timestamp (0 or null if unknown)
+  
+  # Timestamps
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
 }
 
 # Tracks which wallet (AccessManager) has authority over a contract (AccessManaged)

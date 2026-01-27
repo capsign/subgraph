@@ -1,0 +1,280 @@
+[
+  {
+    "type": "function",
+    "name": "WalletType_init",
+    "inputs": [
+      {
+        "name": "classification",
+        "type": "tuple",
+        "internalType": "struct IWalletType.EntityClassification",
+        "components": [
+          {
+            "name": "elfCode",
+            "type": "bytes4",
+            "internalType": "bytes4"
+          },
+          {
+            "name": "elfName",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "lei",
+            "type": "bytes20",
+            "internalType": "bytes20"
+          },
+          {
+            "name": "jurisdictionCode",
+            "type": "bytes2",
+            "internalType": "bytes2"
+          },
+          {
+            "name": "jurisdictionSub",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "formationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getElfCode",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "elfCode",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getElfName",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "elfName",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEntityClassification",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "classification",
+        "type": "tuple",
+        "internalType": "struct IWalletType.EntityClassification",
+        "components": [
+          {
+            "name": "elfCode",
+            "type": "bytes4",
+            "internalType": "bytes4"
+          },
+          {
+            "name": "elfName",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "lei",
+            "type": "bytes20",
+            "internalType": "bytes20"
+          },
+          {
+            "name": "jurisdictionCode",
+            "type": "bytes2",
+            "internalType": "bytes2"
+          },
+          {
+            "name": "jurisdictionSub",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "formationDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFormationDate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "formationDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getJurisdiction",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "countryCode",
+        "type": "bytes2",
+        "internalType": "bytes2"
+      },
+      {
+        "name": "subdivision",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLEI",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "lei",
+        "type": "bytes20",
+        "internalType": "bytes20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isWalletTypeInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "initialized",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setFormationDate",
+    "inputs": [
+      {
+        "name": "formationDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setLEI",
+    "inputs": [
+      {
+        "name": "lei",
+        "type": "bytes20",
+        "internalType": "bytes20"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "EntityTypeSet",
+    "inputs": [
+      {
+        "name": "elfCode",
+        "type": "bytes4",
+        "indexed": true,
+        "internalType": "bytes4"
+      },
+      {
+        "name": "jurisdictionCode",
+        "type": "bytes2",
+        "indexed": true,
+        "internalType": "bytes2"
+      },
+      {
+        "name": "elfName",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LEISet",
+    "inputs": [
+      {
+        "name": "lei",
+        "type": "bytes20",
+        "indexed": true,
+        "internalType": "bytes20"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "WalletType_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletType_InvalidElfCode",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletType_InvalidElfName",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletType_InvalidJurisdiction",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "WalletType_InvalidLEI",
+    "inputs": []
+  }
+]
