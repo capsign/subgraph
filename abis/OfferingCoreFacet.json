@@ -54,6 +54,59 @@
   },
   {
     "type": "function",
+    "name": "OfferingCore_initCommitmentBased",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentRecipient",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "pricePerToken",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minInvestment",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "uri",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "attachInvestmentAgreement",
     "inputs": [
       {
@@ -81,6 +134,30 @@
       }
     ],
     "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "commitToOffering",
+    "inputs": [
+      {
+        "name": "commitmentAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "attestationUIDs",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -203,6 +280,44 @@
   },
   {
     "type": "function",
+    "name": "getInvestorCapitalContributed",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "capitalContributed",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorCommitment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "commitmentAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getInvestorInvestments",
     "inputs": [
       {
@@ -252,6 +367,25 @@
     "outputs": [
       {
         "name": "totalAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInvestorUnfundedCommitment",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "unfundedAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -327,6 +461,11 @@
             "name": "uri",
             "type": "string",
             "internalType": "string"
+          },
+          {
+            "name": "isCommitmentBased",
+            "type": "bool",
+            "internalType": "bool"
           }
         ]
       }
@@ -358,6 +497,19 @@
   },
   {
     "type": "function",
+    "name": "getTotalCommitted",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "totalCommitted",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "invest",
     "inputs": [
       {
@@ -379,6 +531,37 @@
       }
     ],
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "isCommitmentBased",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "recordCapitalContribution",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -475,6 +658,74 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CommitmentContribution",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalContributed",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "remainingCommitment",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CommitmentMade",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investmentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "commitmentAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenQuantity",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "subscriptionAgreementRef",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
   },
   {
     "type": "event",
@@ -994,6 +1245,11 @@
   },
   {
     "type": "error",
+    "name": "OfferingCore_ExceedsCommitment",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "OfferingCore_ExceedsMaximumAmount",
     "inputs": []
   },
@@ -1044,12 +1300,27 @@
   },
   {
     "type": "error",
+    "name": "OfferingCore_IsCommitmentBased",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_NoCommitment",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "OfferingCore_NoETHExpected",
     "inputs": []
   },
   {
     "type": "error",
     "name": "OfferingCore_NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OfferingCore_NotCommitmentBased",
     "inputs": []
   },
   {
