@@ -177,12 +177,9 @@ export function handleOwnershipUpdated(event: OwnershipUpdated): void {
   const memberAddress = event.params.member;
   const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
   
-  // Note: VehicleMember doesn't have ownership tracking yet
-  // This handler is here for future schema updates
-  // For now, we just log the event
   let member = VehicleMember.load(memberId);
   if (member) {
-    // Could add ownershipBps field to VehicleMember in future
+    member.ownershipBps = event.params.newOwnershipBps.toI32();
     member.save();
   }
 }
@@ -489,6 +486,7 @@ export function handleMemberAdded(event: MemberAdded): void {
     member = new VehicleMember(memberId);
     member.vehicle = vehicleAddress;
     member.memberAddress = memberAddress;
+    member.ownershipBps = event.params.ownershipBps.toI32();
     member.capitalContributed = BigInt.fromI32(0);
     member.distributionsReceived = BigInt.fromI32(0);
     member.tokenBalance = BigInt.fromI32(0);

@@ -382,6 +382,9 @@ type VehicleMember @entity {
   vehicle: Vehicle!
   memberAddress: Bytes!
   
+  # Ownership percentage in basis points (10000 = 100%)
+  ownershipBps: Int!
+  
   # Capital accounting for this member
   capitalContributed: BigInt!
   distributionsReceived: BigInt!
