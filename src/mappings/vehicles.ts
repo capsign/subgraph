@@ -1,13 +1,12 @@
-// MemberCapitalFacet events
+// CapitalCallFacet events
 import {
-  MemberAdded,
-  MemberRemoved,
-  OwnershipUpdated,
-  CapitalContributed,
-  DistributionCreated as MemberDistributionCreated,
-  DistributionClaimed as MemberDistributionClaimed,
-  DistributionCancelled as MemberDistributionCancelled,
-} from "../../generated/templates/WalletDiamond/MemberCapitalFacet";
+  CapitalCallCreated,
+  ContributionReceived,
+  CapitalCallCancelled,
+  CapitalCallFunded,
+  CommitmentCalculated,
+  CommitmentsTransferred,
+} from "../../generated/templates/WalletDiamond/CapitalCallFacet";
 
 // TokenDistributionFacet events
 import {
@@ -38,6 +37,9 @@ import {
   VehicleInvestment,
   Wallet,
   EntityClassification,
+  CapitalCall,
+  CallCommitment,
+  CallContribution,
 } from "../../generated/schema";
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
@@ -91,245 +93,355 @@ export function handleLEISet(event: LEISet): void {
   }
 }
 
-// ============ MEMBER CAPITAL HANDLERS ============
+// ============ CAPITAL CALL HANDLERS ============
 
 /**
- * Handle CapitalContributed event (MemberCapitalFacet)
- * Tracks capital contributions and updates member accounts
+ * Handle CapitalCallCreated event (CapitalCallFacet)
+ * Creates a new capital call for the fund
  */
-export function handleCapitalContributed(event: CapitalContributed): void {
+export function handleCapitalCallCreated(event: CapitalCallCreated): void {
   const vehicleAddress = event.address.toHexString();
-  const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
   
   // Load or create Vehicle
   let vehicle = Vehicle.load(vehicleAddress);
   if (!vehicle) {
-    // Vehicle should exist, but create if missing
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
-    vehicle.vehicleType = "DAO"; // Default
+    vehicle.vehicleType = "FUND";
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
     vehicle.memberCount = 0;
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
+    vehicle.save();
   }
   
-  // Update vehicle totals
-  vehicle.totalCapitalContributed = vehicle.totalCapitalContributed.plus(event.params.amount);
-  vehicle.save();
+  // Create CapitalCall entity
+  let capitalCall = new CapitalCall(callId);
+  capitalCall.vehicle = vehicleAddress;
+  capitalCall.callId = event.params.callId;
+  capitalCall.totalAmount = event.params.totalAmount;
+  capitalCall.totalReceived = BigInt.fromI32(0);
+  capitalCall.dueDate = event.params.dueDate;
+  capitalCall.purposeHash = event.params.purposeHash;
+  capitalCall.paymentToken = event.params.paymentToken;
+  capitalCall.status = "PENDING";
+  capitalCall.cancelled = false;
+  capitalCall.createdAt = event.block.timestamp;
+  capitalCall.createdTx = event.transaction.hash;
+  capitalCall.blockNumber = event.block.number;
+  capitalCall.save();
   
-  // Load or create VehicleMember
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "CAPITAL_CALL_CREATED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.capitalCall = callId;
+  activity.save();
+}
+
+/**
+ * Handle CommitmentCalculated event (CapitalCallFacet)
+ * Creates commitment records for each member when a capital call is created
+ */
+export function handleCommitmentCalculated(event: CommitmentCalculated): void {
+  const vehicleAddress = event.address.toHexString();
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
+  const memberAddress = event.params.member;
+  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
+  const commitmentId = `${callId}-${memberAddress.toHexString()}`;
+  
+  // Load or create member
   let member = VehicleMember.load(memberId);
   if (!member) {
     member = new VehicleMember(memberId);
     member.vehicle = vehicleAddress;
     member.memberAddress = memberAddress;
+    member.ownershipBps = event.params.ownershipBps.toI32();
     member.capitalContributed = BigInt.fromI32(0);
     member.distributionsReceived = BigInt.fromI32(0);
-    member.tokenBalance = BigInt.fromI32(0); // Updated from token events
+    member.tokenBalance = BigInt.fromI32(0);
     member.removed = false;
     member.addedAt = event.block.timestamp;
     member.addedTx = event.transaction.hash;
+    member.save();
     
     // Increment member count
-    vehicle.memberCount = vehicle.memberCount + 1;
-    vehicle.save();
+    let vehicle = Vehicle.load(vehicleAddress);
+    if (vehicle) {
+      vehicle.memberCount = vehicle.memberCount + 1;
+      vehicle.save();
+    }
+  } else {
+    // Update ownership if changed
+    member.ownershipBps = event.params.ownershipBps.toI32();
+    member.save();
   }
   
-  // Update member totals
+  // Create commitment
+  let commitment = new CallCommitment(commitmentId);
+  commitment.capitalCall = callId;
+  commitment.member = memberId;
+  commitment.memberAddress = memberAddress;
+  commitment.amountDue = event.params.amountDue;
+  commitment.amountPaid = BigInt.fromI32(0);
+  commitment.status = "PENDING";
+  commitment.createdAt = event.block.timestamp;
+  commitment.createdTx = event.transaction.hash;
+  commitment.lastUpdatedAt = event.block.timestamp;
+  commitment.lastUpdatedTx = event.transaction.hash;
+  commitment.save();
+}
+
+/**
+ * Handle ContributionReceived event (CapitalCallFacet)
+ * Records a member's contribution (on-chain or off-chain) to a capital call
+ */
+export function handleContributionReceived(event: ContributionReceived): void {
+  const vehicleAddress = event.address.toHexString();
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
+  const memberAddress = event.params.member;
+  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
+  const commitmentId = `${callId}-${memberAddress.toHexString()}`;
+  const contributionId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  
+  // Load capital call and update totals
+  let capitalCall = CapitalCall.load(callId);
+  if (capitalCall) {
+    capitalCall.totalReceived = capitalCall.totalReceived.plus(event.params.amount);
+    
+    // Update status
+    if (capitalCall.totalReceived.ge(capitalCall.totalAmount)) {
+      capitalCall.status = "FUNDED";
+    } else if (capitalCall.totalReceived.gt(BigInt.fromI32(0))) {
+      capitalCall.status = "PARTIAL";
+    }
+    capitalCall.save();
+  }
+  
+  // Load or create member
+  let member = VehicleMember.load(memberId);
+  if (!member) {
+    member = new VehicleMember(memberId);
+    member.vehicle = vehicleAddress;
+    member.memberAddress = memberAddress;
+    member.ownershipBps = 0;
+    member.capitalContributed = BigInt.fromI32(0);
+    member.distributionsReceived = BigInt.fromI32(0);
+    member.tokenBalance = BigInt.fromI32(0);
+    member.removed = false;
+    member.addedAt = event.block.timestamp;
+    member.addedTx = event.transaction.hash;
+  }
   member.capitalContributed = member.capitalContributed.plus(event.params.amount);
   member.save();
   
-  // Create CapitalContribution entity
-  const contributionId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
-  const contribution = new CapitalContributionEntity(contributionId);
-  contribution.vehicle = vehicleAddress;
+  // Update commitment
+  let commitment = CallCommitment.load(commitmentId);
+  if (commitment) {
+    commitment.amountPaid = commitment.amountPaid.plus(event.params.amount);
+    
+    // Update commitment status
+    if (commitment.amountPaid.ge(commitment.amountDue)) {
+      commitment.status = "PAID";
+    } else if (commitment.amountPaid.gt(BigInt.fromI32(0))) {
+      commitment.status = "PARTIAL";
+    }
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+  
+  // Create contribution record
+  let contribution = new CallContribution(contributionId);
+  contribution.capitalCall = callId;
+  contribution.commitment = commitmentId;
   contribution.member = memberId;
   contribution.memberAddress = memberAddress;
   contribution.amount = event.params.amount;
-  contribution.source = "DIRECT"; // Manual recording, not from offering
-  contribution.timestamp = event.params.timestamp;
+  contribution.isOffchain = event.params.isOffchain;
+  contribution.timestamp = event.block.timestamp;
   contribution.tx = event.transaction.hash;
   contribution.blockNumber = event.block.number;
   contribution.logIndex = event.logIndex;
   contribution.save();
   
-  // Create activity
-  createActivity(
-    contributionId,
-    "CAPITAL_CONTRIBUTED",
-    event.address,
-    event.block.timestamp,
-    event.transaction.hash,
-    event.block.number
-  ).save();
-}
-
-/**
- * Handle OwnershipUpdated event (MemberCapitalFacet)
- * Tracks ownership percentage changes
- */
-export function handleOwnershipUpdated(event: OwnershipUpdated): void {
-  const vehicleAddress = event.address.toHexString();
-  const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
-  
-  let member = VehicleMember.load(memberId);
-  if (member) {
-    member.ownershipBps = event.params.newOwnershipBps.toI32();
-    member.save();
-  }
-}
-
-// ============ MEMBER CAPITAL DISTRIBUTION HANDLERS ============
-
-/**
- * Handle DistributionCreated event (MemberCapitalFacet)
- * Creates distribution record for stored-ownership entities
- */
-export function handleMemberDistributionCreated(event: MemberDistributionCreated): void {
-  const vehicleAddress = event.address.toHexString();
-  const distributionId = `${vehicleAddress}-${event.params.distributionId.toString()}`;
-  
-  // Load vehicle
-  let vehicle = Vehicle.load(vehicleAddress);
-  if (!vehicle) {
-    // Create vehicle if missing
-    vehicle = new Vehicle(vehicleAddress);
-    vehicle.wallet = vehicleAddress;
-    vehicle.vehicleType = "DAO";
-    vehicle.totalCapitalContributed = BigInt.fromI32(0);
-    vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
-    vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
-    vehicle.memberCount = 0;
-    vehicle.createdAt = event.block.timestamp;
-    vehicle.createdTx = event.transaction.hash;
-  }
-  
   // Update vehicle totals
-  vehicle.totalDistributionsExecuted = vehicle.totalDistributionsExecuted.plus(event.params.totalAmount);
-  vehicle.save();
-  
-  // Create Distribution entity
-  let distribution = new Distribution(distributionId);
-  distribution.vehicle = vehicleAddress;
-  distribution.distributionId = event.params.distributionId;
-  distribution.totalAmount = event.params.totalAmount;
-  distribution.totalClaimed = BigInt.fromI32(0);
-  distribution.lpAmount = BigInt.fromI32(0); // Not applicable for MemberCapital
-  distribution.carryAmount = BigInt.fromI32(0); // Not applicable for MemberCapital
-  distribution.paymentToken = event.params.paymentToken;
-  distribution.cancelled = false;
-  distribution.createdAt = event.block.timestamp;
-  distribution.createdTx = event.transaction.hash;
-  distribution.blockNumber = event.block.number;
-  distribution.save();
-  
-  // Create activity
-  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
-  let activity = createActivity(
-    activityId,
-    "DISTRIBUTION_CREATED",
-    event.address,
-    event.block.timestamp,
-    event.transaction.hash,
-    event.block.number
-  );
-  activity.distribution = distributionId;
-  activity.save();
-}
-
-/**
- * Handle DistributionClaimed event (MemberCapitalFacet)
- */
-export function handleMemberDistributionClaimed(event: MemberDistributionClaimed): void {
-  const vehicleAddress = event.address.toHexString();
-  const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
-  const distributionId = `${vehicleAddress}-${event.params.distributionId.toString()}`;
-  const claimId = `${distributionId}-${memberAddress.toHexString()}`;
-  
-  // Load vehicle
   let vehicle = Vehicle.load(vehicleAddress);
   if (vehicle) {
-    vehicle.totalDistributionsClaimed = vehicle.totalDistributionsClaimed.plus(event.params.amount);
+    vehicle.totalCapitalContributed = vehicle.totalCapitalContributed.plus(event.params.amount);
     vehicle.save();
   }
   
-  // Update distribution totals
-  let distribution = Distribution.load(distributionId);
-  if (distribution) {
-    distribution.totalClaimed = distribution.totalClaimed.plus(event.params.amount);
-    distribution.save();
-  }
-  
-  // Load member
-  let member = VehicleMember.load(memberId);
-  if (member) {
-    member.distributionsReceived = member.distributionsReceived.plus(event.params.amount);
-    member.save();
-  }
-  
-  // Create DistributionClaim
-  let claim = new DistributionClaim(claimId);
-  claim.distribution = distributionId;
-  claim.claimantAddress = memberAddress;
-  claim.amount = event.params.amount;
-  claim.vehicleMember = memberId;
-  claim.isCarryRecipient = false;
-  claim.claimed = true;
-  claim.claimedAt = event.block.timestamp;
-  claim.claimedTx = event.transaction.hash;
-  claim.blockNumber = event.block.number;
-  claim.logIndex = event.logIndex;
-  claim.save();
-  
   // Create activity
-  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  const activityType = event.params.isOffchain ? "CAPITAL_CALL_OFFCHAIN_CONTRIBUTION" : "CAPITAL_CALL_CONTRIBUTION";
   let activity = createActivity(
-    activityId,
-    "DISTRIBUTION_CLAIMED",
+    contributionId,
+    activityType,
     event.address,
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
   );
-  activity.distribution = distributionId;
-  activity.distributionClaim = claimId;
+  activity.capitalCall = callId;
+  activity.callContribution = contributionId;
   activity.save();
 }
 
 /**
- * Handle DistributionCancelled event (MemberCapitalFacet)
+ * Handle CapitalCallFunded event (CapitalCallFacet)
+ * Emitted when a capital call is fully funded
  */
-export function handleMemberDistributionCancelled(event: MemberDistributionCancelled): void {
+export function handleCapitalCallFunded(event: CapitalCallFunded): void {
   const vehicleAddress = event.address.toHexString();
-  const distributionId = `${vehicleAddress}-${event.params.distributionId.toString()}`;
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
   
-  let distribution = Distribution.load(distributionId);
-  if (distribution) {
-    distribution.cancelled = true;
-    distribution.cancelledAt = event.block.timestamp;
-    distribution.cancelledTx = event.transaction.hash;
-    distribution.save();
+  let capitalCall = CapitalCall.load(callId);
+  if (capitalCall) {
+    capitalCall.status = "FUNDED";
+    capitalCall.totalReceived = event.params.totalReceived;
+    capitalCall.save();
   }
   
   // Create activity
   const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
   let activity = createActivity(
     activityId,
-    "DISTRIBUTION_CANCELLED",
+    "CAPITAL_CALL_FUNDED",
     event.address,
     event.block.timestamp,
     event.transaction.hash,
     event.block.number
   );
-  activity.distribution = distributionId;
+  activity.capitalCall = callId;
   activity.save();
 }
+
+/**
+ * Handle CapitalCallCancelled event (CapitalCallFacet)
+ * Marks a capital call as cancelled
+ */
+export function handleCapitalCallCancelled(event: CapitalCallCancelled): void {
+  const vehicleAddress = event.address.toHexString();
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
+  
+  let capitalCall = CapitalCall.load(callId);
+  if (capitalCall) {
+    capitalCall.cancelled = true;
+    capitalCall.status = "CANCELLED";
+    capitalCall.cancelledAt = event.block.timestamp;
+    capitalCall.cancelledTx = event.transaction.hash;
+    capitalCall.save();
+  }
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "CAPITAL_CALL_CANCELLED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.capitalCall = callId;
+  activity.save();
+}
+
+/**
+ * Handle CommitmentsTransferred event (CapitalCallFacet)
+ * Called when token transfers trigger commitment reallocation
+ */
+export function handleCommitmentsTransferred(event: CommitmentsTransferred): void {
+  const vehicleAddress = event.address.toHexString();
+  const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
+  const fromAddress = event.params.from;
+  const toAddress = event.params.to;
+  const fromCommitmentId = `${callId}-${fromAddress.toHexString()}`;
+  const toCommitmentId = `${callId}-${toAddress.toHexString()}`;
+  const fromMemberId = `${vehicleAddress}-${fromAddress.toHexString()}`;
+  const toMemberId = `${vehicleAddress}-${toAddress.toHexString()}`;
+  
+  // Update 'from' commitment (reduce amountDue and amountPaid)
+  let fromCommitment = CallCommitment.load(fromCommitmentId);
+  if (fromCommitment) {
+    fromCommitment.amountDue = fromCommitment.amountDue.minus(event.params.amountDueTransferred);
+    fromCommitment.amountPaid = fromCommitment.amountPaid.minus(event.params.amountPaidTransferred);
+    
+    // Recalculate status
+    if (fromCommitment.amountPaid.ge(fromCommitment.amountDue)) {
+      fromCommitment.status = "PAID";
+    } else if (fromCommitment.amountPaid.gt(BigInt.fromI32(0))) {
+      fromCommitment.status = "PARTIAL";
+    } else {
+      fromCommitment.status = "PENDING";
+    }
+    fromCommitment.lastUpdatedAt = event.block.timestamp;
+    fromCommitment.lastUpdatedTx = event.transaction.hash;
+    fromCommitment.save();
+  }
+  
+  // Update 'to' commitment (increase amountDue)
+  let toCommitment = CallCommitment.load(toCommitmentId);
+  if (!toCommitment) {
+    // Create new commitment for recipient
+    toCommitment = new CallCommitment(toCommitmentId);
+    toCommitment.capitalCall = callId;
+    toCommitment.member = toMemberId;
+    toCommitment.memberAddress = toAddress;
+    toCommitment.amountDue = BigInt.fromI32(0);
+    toCommitment.amountPaid = BigInt.fromI32(0);
+    toCommitment.status = "PENDING";
+    toCommitment.createdAt = event.block.timestamp;
+    toCommitment.createdTx = event.transaction.hash;
+    
+    // Ensure member exists
+    let toMember = VehicleMember.load(toMemberId);
+    if (!toMember) {
+      toMember = new VehicleMember(toMemberId);
+      toMember.vehicle = vehicleAddress;
+      toMember.memberAddress = toAddress;
+      toMember.ownershipBps = 0;
+      toMember.capitalContributed = BigInt.fromI32(0);
+      toMember.distributionsReceived = BigInt.fromI32(0);
+      toMember.tokenBalance = BigInt.fromI32(0);
+      toMember.removed = false;
+      toMember.addedAt = event.block.timestamp;
+      toMember.addedTx = event.transaction.hash;
+      toMember.save();
+      
+      // Increment member count
+      let vehicle = Vehicle.load(vehicleAddress);
+      if (vehicle) {
+        vehicle.memberCount = vehicle.memberCount + 1;
+        vehicle.save();
+      }
+    }
+  }
+  toCommitment.amountDue = toCommitment.amountDue.plus(event.params.amountDueTransferred);
+  toCommitment.amountPaid = toCommitment.amountPaid.plus(event.params.amountPaidTransferred);
+  
+  // Recalculate status
+  if (toCommitment.amountPaid.ge(toCommitment.amountDue)) {
+    toCommitment.status = "PAID";
+  } else if (toCommitment.amountPaid.gt(BigInt.fromI32(0))) {
+    toCommitment.status = "PARTIAL";
+  } else {
+    toCommitment.status = "PENDING";
+  }
+  toCommitment.lastUpdatedAt = event.block.timestamp;
+  toCommitment.lastUpdatedTx = event.transaction.hash;
+  toCommitment.save();
+}
+
 
 // ============ TOKEN DISTRIBUTION HANDLERS ============
 
@@ -468,87 +580,6 @@ export function handleTokenDistributionCancelled(event: TokenDistributionCancell
   );
   activity.distribution = distributionId;
   activity.save();
-}
-
-// ============ INVESTMENT HANDLERS ============
-
-/**
- * Handle MemberAdded event (MemberCapitalFacet)
- * Tracks when new members join the vehicle
- */
-export function handleMemberAdded(event: MemberAdded): void {
-  const vehicleAddress = event.address.toHexString();
-  const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
-  
-  let member = VehicleMember.load(memberId);
-  if (!member) {
-    member = new VehicleMember(memberId);
-    member.vehicle = vehicleAddress;
-    member.memberAddress = memberAddress;
-    member.ownershipBps = event.params.ownershipBps.toI32();
-    member.capitalContributed = BigInt.fromI32(0);
-    member.distributionsReceived = BigInt.fromI32(0);
-    member.tokenBalance = BigInt.fromI32(0);
-    member.removed = false;
-    member.addedAt = event.block.timestamp;
-    member.addedTx = event.transaction.hash;
-    member.save();
-    
-    // Increment member count
-    let vehicle = Vehicle.load(vehicleAddress);
-    if (vehicle) {
-      vehicle.memberCount = vehicle.memberCount + 1;
-      vehicle.save();
-    }
-    
-    // Create activity
-    const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
-    createActivity(
-      activityId,
-      "MEMBER_ADDED",
-      event.address,
-      event.block.timestamp,
-      event.transaction.hash,
-      event.block.number
-    ).save();
-  }
-}
-
-/**
- * Handle MemberRemoved event (MemberCapitalFacet)
- * Tracks when members leave the vehicle
- */
-export function handleMemberRemoved(event: MemberRemoved): void {
-  const vehicleAddress = event.address.toHexString();
-  const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
-  
-  let member = VehicleMember.load(memberId);
-  if (member) {
-    member.removed = true;
-    member.removedAt = event.block.timestamp;
-    member.removedTx = event.transaction.hash;
-    member.save();
-    
-    // Decrement member count
-    let vehicle = Vehicle.load(vehicleAddress);
-    if (vehicle) {
-      vehicle.memberCount = vehicle.memberCount - 1;
-      vehicle.save();
-    }
-    
-    // Create activity
-    const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
-    createActivity(
-      activityId,
-      "MEMBER_REMOVED",
-      event.address,
-      event.block.timestamp,
-      event.transaction.hash,
-      event.block.number
-    ).save();
-  }
 }
 
 // ============ INVESTMENT HANDLERS (InvestmentFacet) ============

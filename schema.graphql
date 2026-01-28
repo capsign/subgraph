@@ -361,6 +361,9 @@ type Vehicle @entity {
   # Capital contributions
   contributions: [CapitalContribution!]! @derivedFrom(field: "vehicle")
   
+  # Capital calls
+  capitalCalls: [CapitalCall!]! @derivedFrom(field: "vehicle")
+  
   # Distributions
   distributions: [Distribution!]! @derivedFrom(field: "vehicle")
   
@@ -425,6 +428,104 @@ enum CapitalSource {
   OFFERING   # From countersigned investment in an offering
   DIRECT     # Manually recorded contribution
   TRANSFER   # From token transfer (secondary market)
+  CAPITAL_CALL # From a capital call
+}
+
+# ============ CAPITAL CALL ENTITIES ============
+
+type CapitalCall @entity {
+  id: ID! # vehicle-callId
+  vehicle: Vehicle!
+  callId: BigInt! # Protocol's internal capital call ID
+  totalAmount: BigInt!
+  totalReceived: BigInt!
+  dueDate: BigInt! # Unix timestamp when contributions are due
+  purposeHash: Bytes! # IPFS hash or keccak256 of purpose description
+  paymentToken: Bytes!
+  status: CapitalCallStatus!
+  
+  # Commitments for each member
+  commitments: [CallCommitment!]! @derivedFrom(field: "capitalCall")
+  
+  # Contributions linked to this call
+  contributions: [CallContribution!]! @derivedFrom(field: "capitalCall")
+  
+  # State
+  cancelled: Boolean!
+  cancelledAt: BigInt
+  cancelledTx: Bytes
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+  blockNumber: BigInt!
+}
+
+enum CapitalCallStatus {
+  PENDING      # Call created, awaiting contributions
+  PARTIAL      # Some contributions received
+  FUNDED       # Fully funded (totalReceived >= totalAmount)
+  OVERDUE      # Past due date and not fully funded
+  CANCELLED    # Call was cancelled
+}
+
+type CallCommitment @entity {
+  id: ID! # capitalCall-memberAddress
+  capitalCall: CapitalCall!
+  member: VehicleMember!
+  memberAddress: Bytes! # Denormalized for filtering
+  amountDue: BigInt! # Pro-rata amount calculated at call creation
+  amountPaid: BigInt! # Amount contributed so far
+  status: CommitmentStatus!
+  
+  # Track individual contributions
+  contributions: [CallContribution!]! @derivedFrom(field: "commitment")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+enum CommitmentStatus {
+  PENDING      # No contributions yet
+  PARTIAL      # Some amount paid
+  PAID         # Fully paid (amountPaid >= amountDue)
+}
+
+type CallContribution @entity {
+  id: ID! # tx-logIndex
+  capitalCall: CapitalCall!
+  commitment: CallCommitment!
+  member: VehicleMember!
+  memberAddress: Bytes! # Denormalized for filtering
+  amount: BigInt!
+  isOffchain: Boolean! # True if recorded via recordOffchainContribution
+  
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
+}
+
+# Track incoming ERC20 transfers to fund wallets for auto-matching
+type IncomingTransfer @entity {
+  id: ID! # tx-logIndex
+  wallet: Wallet! # The fund wallet receiving the transfer
+  vehicle: Vehicle # Vehicle profile if wallet has one
+  from: Bytes! # Sender address
+  token: Bytes! # Token address
+  amount: BigInt!
+  
+  # Auto-matching status
+  matched: Boolean! # True if matched to a capital call
+  matchedCall: CapitalCall # The capital call this was matched to (null if unmatched)
+  matchedMember: VehicleMember # The member this was matched to (null if unmatched)
+  matchedAt: BigInt
+  
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+  logIndex: BigInt!
 }
 
 type Distribution @entity {
@@ -700,6 +801,10 @@ type Activity @entity {
   trust: Trust
   trustMilestone: TrustMilestone
   trustVestingSchedule: TrustVestingSchedule
+  
+  # Capital call references
+  capitalCall: CapitalCall
+  callContribution: CallContribution
 }
 
 # Tracks native asset transfers (ETH, USDC, etc.)
@@ -751,8 +856,15 @@ enum ActivityType {
   CAPITAL_CONTRIBUTED
   DISTRIBUTION_CREATED
   DISTRIBUTION_CLAIMED
+  DISTRIBUTION_PUSHED
   MEMBER_ADDED
   MEMBER_REMOVED
+  # Capital call activities
+  CAPITAL_CALL_CREATED
+  CAPITAL_CALL_CONTRIBUTION
+  CAPITAL_CALL_OFFCHAIN_CONTRIBUTION
+  CAPITAL_CALL_CANCELLED
+  CAPITAL_CALL_FUNDED
   # Authorized signer activities
   SIGNER_ADDED
   SIGNER_REMOVED

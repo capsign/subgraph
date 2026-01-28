@@ -603,8 +603,8 @@ templates:
         - name: WalletDocuments
           file: ./abis/WalletDocumentsFacet.json
         # New capital/investment facets (replaced Vehicle* facets)
-        - name: MemberCapitalFacet
-          file: ./abis/MemberCapitalFacet.json
+        - name: CapitalCallFacet
+          file: ./abis/CapitalCallFacet.json
         - name: TokenDistributionFacet
           file: ./abis/TokenDistributionFacet.json
         - name: InvestmentFacet
@@ -671,27 +671,24 @@ templates:
         - event: LEISet(indexed bytes20)
           handler: handleLEISet
           receipt: false
-        # MemberCapital events (from MemberCapitalFacet)
-        - event: MemberAdded(indexed address,uint256)
-          handler: handleMemberAdded
+        # CapitalCall events (from CapitalCallFacet)
+        - event: CapitalCallCreated(indexed uint256,uint256,uint256,bytes32,indexed address)
+          handler: handleCapitalCallCreated
           receipt: false
-        - event: MemberRemoved(indexed address)
-          handler: handleMemberRemoved
+        - event: ContributionReceived(indexed uint256,indexed address,uint256,bool)
+          handler: handleContributionReceived
           receipt: false
-        - event: OwnershipUpdated(indexed address,uint256,uint256)
-          handler: handleOwnershipUpdated
+        - event: CapitalCallCancelled(indexed uint256)
+          handler: handleCapitalCallCancelled
           receipt: false
-        - event: CapitalContributed(indexed address,uint256,indexed address,uint256)
-          handler: handleCapitalContributed
+        - event: CapitalCallFunded(indexed uint256,uint256)
+          handler: handleCapitalCallFunded
           receipt: false
-        - event: DistributionCreated(indexed uint256,uint256,indexed address,indexed address)
-          handler: handleMemberDistributionCreated
+        - event: CommitmentCalculated(indexed uint256,indexed address,uint256,uint256)
+          handler: handleCommitmentCalculated
           receipt: false
-        - event: DistributionClaimed(indexed uint256,indexed address,uint256)
-          handler: handleMemberDistributionClaimed
-          receipt: false
-        - event: DistributionCancelled(indexed uint256,uint256)
-          handler: handleMemberDistributionCancelled
+        - event: CommitmentsTransferred(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleCommitmentsTransferred
           receipt: false
         # TokenDistribution events (from TokenDistributionFacet)
         - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256)

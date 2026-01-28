@@ -45,15 +45,14 @@ export {
   handleLEISet,
 } from "./vehicles";
 
-// Re-export member capital handlers
+// Re-export capital call handlers
 export {
-  handleCapitalContributed,
-  handleOwnershipUpdated,
-  handleMemberAdded,
-  handleMemberRemoved,
-  handleMemberDistributionCreated,
-  handleMemberDistributionClaimed,
-  handleMemberDistributionCancelled,
+  handleCapitalCallCreated,
+  handleContributionReceived,
+  handleCapitalCallCancelled,
+  handleCapitalCallFunded,
+  handleCommitmentCalculated,
+  handleCommitmentsTransferred,
 } from "./vehicles";
 
 // Re-export token distribution handlers

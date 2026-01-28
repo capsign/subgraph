@@ -1,8 +1,13 @@
 [
   {
     "type": "function",
-    "name": "MemberCapital_init",
+    "name": "CapitalCall_init",
     "inputs": [
+      {
+        "name": "membershipToken",
+        "type": "address",
+        "internalType": "address"
+      },
       {
         "name": "paymentToken",
         "type": "address",
@@ -14,149 +19,130 @@
   },
   {
     "type": "function",
-    "name": "addMember",
+    "name": "cancelCapitalCall",
     "inputs": [
       {
-        "name": "member",
-        "type": "address",
-        "internalType": "address"
+        "name": "callId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "contributeToCall",
+    "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "internalType": "uint256"
       },
-      {
-        "name": "ownershipBps",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "cancelDistribution",
-    "inputs": [
-      {
-        "name": "distributionId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "claimDistribution",
-    "inputs": [
-      {
-        "name": "distributionId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
       {
         "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
+    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "claimMultipleDistributions",
+    "name": "createCapitalCall",
     "inputs": [
-      {
-        "name": "distributionIds",
-        "type": "uint256[]",
-        "internalType": "uint256[]"
-      }
-    ],
-    "outputs": [
       {
         "name": "totalAmount",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "dueDate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "purposeHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "members",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "createDistribution",
+    "name": "getCallCommitments",
     "inputs": [
       {
-        "name": "amount",
+        "name": "callId",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "paymentToken",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "outputs": [
       {
-        "name": "distributionId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "getClaimableAmount",
-    "inputs": [
-      {
-        "name": "distributionId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "member",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "commitments",
+        "type": "tuple[]",
+        "internalType": "struct ICapitalCall.CallCommitment[]",
+        "components": [
+          {
+            "name": "member",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "ownershipBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountDue",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountPaid",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "stateMutability": "view"
   },
   {
     "type": "function",
-    "name": "getDefaultPaymentToken",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "paymentToken",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getDistribution",
+    "name": "getCapitalCall",
     "inputs": [
       {
-        "name": "distributionId",
+        "name": "callId",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
     "outputs": [
       {
-        "name": "distribution",
+        "name": "call",
         "type": "tuple",
-        "internalType": "struct IMemberCapital.Distribution",
+        "internalType": "struct ICapitalCall.CapitalCall",
         "components": [
           {
             "name": "id",
@@ -164,29 +150,34 @@
             "internalType": "uint256"
           },
           {
-            "name": "paymentToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
             "name": "totalAmount",
             "type": "uint256",
             "internalType": "uint256"
           },
           {
-            "name": "totalClaimed",
+            "name": "totalReceived",
             "type": "uint256",
             "internalType": "uint256"
+          },
+          {
+            "name": "dueDate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "purposeHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
           },
           {
             "name": "createdAt",
             "type": "uint256",
             "internalType": "uint256"
-          },
-          {
-            "name": "createdBy",
-            "type": "address",
-            "internalType": "address"
           },
           {
             "name": "cancelled",
@@ -200,7 +191,7 @@
   },
   {
     "type": "function",
-    "name": "getDistributionCount",
+    "name": "getCapitalCallCount",
     "inputs": [],
     "outputs": [
       {
@@ -213,131 +204,10 @@
   },
   {
     "type": "function",
-    "name": "getMember",
+    "name": "getCommitment",
     "inputs": [
       {
-        "name": "member",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "position",
-        "type": "tuple",
-        "internalType": "struct IMemberCapital.MemberPosition",
-        "components": [
-          {
-            "name": "account",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "capitalContributed",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "distributionsReceived",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "ownershipBps",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "isActive",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "joinedAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "lastActivityAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMemberCount",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "count",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMembers",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "members",
-        "type": "address[]",
-        "internalType": "address[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTotalCapitalContributed",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "total",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTotalDistributed",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "total",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTotalOwnership",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "totalBps",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasClaimed",
-    "inputs": [
-      {
-        "name": "distributionId",
+        "name": "callId",
         "type": "uint256",
         "internalType": "uint256"
       },
@@ -349,7 +219,170 @@
     ],
     "outputs": [
       {
-        "name": "claimed",
+        "name": "commitment",
+        "type": "tuple",
+        "internalType": "struct ICapitalCall.CallCommitment",
+        "components": [
+          {
+            "name": "member",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "ownershipBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountDue",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amountPaid",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getComplianceModule",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "module",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFundCapitalSummary",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "summary",
+        "type": "tuple",
+        "internalType": "struct ICapitalCall.FundCapitalSummary",
+        "components": [
+          {
+            "name": "membershipToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "paymentToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "totalCommitted",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalContributed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalDistributed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "capitalCallCount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMemberOwnership",
+    "inputs": [
+      {
+        "name": "member",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ownershipBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMemberTotalContributed",
+    "inputs": [
+      {
+        "name": "member",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "total",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMembershipToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPaymentToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isCallFunded",
+    "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "funded",
         "type": "bool",
         "internalType": "bool"
       }
@@ -358,7 +391,7 @@
   },
   {
     "type": "function",
-    "name": "isMemberCapitalInitialized",
+    "name": "isCapitalCallInitialized",
     "inputs": [],
     "outputs": [
       {
@@ -371,8 +404,13 @@
   },
   {
     "type": "function",
-    "name": "recordContribution",
+    "name": "recordOffchainContribution",
     "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
       {
         "name": "member",
         "type": "address",
@@ -382,9 +420,17 @@
         "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
-      },
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setComplianceModule",
+    "inputs": [
       {
-        "name": "paymentToken",
+        "name": "module",
         "type": "address",
         "internalType": "address"
       }
@@ -394,28 +440,20 @@
   },
   {
     "type": "function",
-    "name": "removeMember",
+    "name": "transferCommitments",
     "inputs": [
       {
-        "name": "member",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "updateOwnership",
-    "inputs": [
-      {
-        "name": "member",
+        "name": "from",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "newOwnershipBps",
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenAmount",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -425,30 +463,12 @@
   },
   {
     "type": "event",
-    "name": "CapitalContributed",
+    "name": "CapitalCallCancelled",
     "inputs": [
       {
-        "name": "member",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
+        "name": "callId",
         "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "paymentToken",
-        "type": "address",
         "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
         "internalType": "uint256"
       }
     ],
@@ -456,54 +476,10 @@
   },
   {
     "type": "event",
-    "name": "DistributionCancelled",
+    "name": "CapitalCallCreated",
     "inputs": [
       {
-        "name": "distributionId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "refundedAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "DistributionClaimed",
-    "inputs": [
-      {
-        "name": "distributionId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "member",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "DistributionCreated",
-    "inputs": [
-      {
-        "name": "distributionId",
+        "name": "callId",
         "type": "uint256",
         "indexed": true,
         "internalType": "uint256"
@@ -515,13 +491,19 @@
         "internalType": "uint256"
       },
       {
-        "name": "paymentToken",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "name": "dueDate",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       },
       {
-        "name": "createdBy",
+        "name": "purposeHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "paymentToken",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -531,8 +513,33 @@
   },
   {
     "type": "event",
-    "name": "MemberAdded",
+    "name": "CapitalCallFunded",
     "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalReceived",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CommitmentCalculated",
+    "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
       {
         "name": "member",
         "type": "address",
@@ -544,16 +551,59 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      },
+      {
+        "name": "amountDue",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
   },
   {
     "type": "event",
-    "name": "MemberRemoved",
+    "name": "CommitmentsTransferred",
     "inputs": [
       {
-        "name": "member",
+        "name": "callId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amountDueTransferred",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountPaidTransferred",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ComplianceModuleSet",
+    "inputs": [
+      {
+        "name": "module",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -563,8 +613,14 @@
   },
   {
     "type": "event",
-    "name": "OwnershipUpdated",
+    "name": "ContributionReceived",
     "inputs": [
+      {
+        "name": "callId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
       {
         "name": "member",
         "type": "address",
@@ -572,16 +628,16 @@
         "internalType": "address"
       },
       {
-        "name": "oldOwnershipBps",
+        "name": "amount",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
       },
       {
-        "name": "newOwnershipBps",
-        "type": "uint256",
+        "name": "isOffchain",
+        "type": "bool",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "bool"
       }
     ],
     "anonymous": false
@@ -604,67 +660,67 @@
   },
   {
     "type": "error",
-    "name": "MemberCapital_AlreadyClaimed",
+    "name": "CapitalCall_AlreadyInitialized",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_AlreadyInitialized",
+    "name": "CapitalCall_CallCancelled",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_CannotCancel",
+    "name": "CapitalCall_CallFullyFunded",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_DistributionCancelled",
+    "name": "CapitalCall_CallNotFound",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_DistributionNotFound",
+    "name": "CapitalCall_ExceedsAmountDue",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_InvalidAmount",
+    "name": "CapitalCall_InvalidAmount",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_InvalidMember",
+    "name": "CapitalCall_InvalidDueDate",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_InvalidOwnership",
+    "name": "CapitalCall_InvalidMember",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_MemberExists",
+    "name": "CapitalCall_NoCommitment",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_MemberNotFound",
+    "name": "CapitalCall_NoMembershipToken",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_NotInitialized",
+    "name": "CapitalCall_NoTokenHolders",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_NothingToClaim",
+    "name": "CapitalCall_NotInitialized",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "MemberCapital_OwnershipExceeds100",
+    "name": "CapitalCall_UnauthorizedCaller",
     "inputs": []
   },
   {
