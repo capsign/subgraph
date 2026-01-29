@@ -318,11 +318,9 @@ export function handleCommitmentMade(event: CommitmentMade): void {
   investment.investedAt = event.block.timestamp;
   investment.investedTx = event.transaction.hash;
   investment.investedBlockNumber = event.block.number;
-  // Commitment-based investments are accepted immediately (no escrow)
-  investment.status = "ACCEPTED";
-  investment.countersignedAt = event.block.timestamp;
-  investment.countersignedTx = event.transaction.hash;
-  // Empty bytes32 for attestation UIDs (commitment-based uses on-chain compliance)
+  // Commitment-based investments are PENDING until issuer countersigns
+  investment.status = "PENDING";
+  // Subscription agreement reference is stored (investor's signed document)
   investment.identityUID = event.params.subscriptionAgreementRef;
   investment.qualificationUID = event.params.subscriptionAgreementRef;
   investment.isInvestmentDelegated = false;
@@ -336,24 +334,22 @@ export function handleCommitmentMade(event: CommitmentMade): void {
 
   // For commitment-based offerings, commitmentAmount is the commitment, not actual funds
   // totalInvested tracks actual funds received, so we don't update it here
-  // Instead, we should track totalCommitted separately (future enhancement)
+  // Investor count is updated when issuer accepts the commitment (InvestmentAccepted event)
   ensureOffchainFieldsInitialized(offering);
   
-  // Track unique investors - only increment count if this is a new investor
+  // Track investor relationship but don't count until accepted
   const offeringInvestorId = event.address.toHexString() + "-" + event.params.investor.toHexString();
   let offeringInvestor = OfferingInvestor.load(offeringInvestorId);
   
   if (!offeringInvestor) {
-    // New unique investor for this offering
+    // New potential investor for this offering (pending acceptance)
     offeringInvestor = new OfferingInvestor(offeringInvestorId);
     offeringInvestor.offering = offering.id;
     offeringInvestor.investor = event.params.investor.toHexString();
     offeringInvestor.firstInvestedAt = event.block.timestamp;
     offeringInvestor.investmentCount = 1;
     offeringInvestor.save();
-    
-    // Only increment investor count for new unique investors
-    offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+    // Don't increment investorCount yet - wait for InvestmentAccepted
   } else {
     // Existing investor making another commitment
     offeringInvestor.investmentCount = offeringInvestor.investmentCount + 1;
