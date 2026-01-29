@@ -65,6 +65,8 @@ export function handleOfferingCreated(event: OfferingCreated): void {
   offering.maxAmount = BigInt.fromI32(0);
   offering.deadline = BigInt.fromI32(0);
   offering.totalInvested = BigInt.fromI32(0);
+  offering.totalCommitted = BigInt.fromI32(0);
+  offering.isCommitmentBased = false; // Will be updated by OfferingInitialized
   offering.investorCount = BigInt.fromI32(0);
   offering.status = "ACTIVE";
   offering.uri = null;
