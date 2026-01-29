@@ -11,6 +11,7 @@ import {
   PricePerTokenUpdated,
   DeadlineExtended,
   MinMaxInvestmentUpdated,
+  OfferingCore,
 } from "../../generated/templates/OfferingDiamond/OfferingCore";
 import {
   DocumentSigned,
@@ -70,6 +71,9 @@ function ensureOffchainFieldsInitialized(offering: Offering): void {
   if (!offering.totalOffchainConfirmed) {
     offering.totalOffchainConfirmed = BigInt.fromI32(0);
   }
+  if (!offering.totalCommitted) {
+    offering.totalCommitted = BigInt.fromI32(0);
+  }
 }
 
 export function handleOfferingInitialized(event: OfferingInitialized): void {
@@ -99,10 +103,16 @@ export function handleOfferingInitialized(event: OfferingInitialized): void {
   offering.uri = event.params.uri; // Offering metadata URI
   
   offering.totalInvested = BigInt.fromI32(0);
+  offering.totalCommitted = BigInt.fromI32(0);
   offering.investorCount = BigInt.fromI32(0);
   offering.totalOffchainPending = BigInt.fromI32(0);
   offering.totalOffchainConfirmed = BigInt.fromI32(0);
   offering.status = "ACTIVE";
+  
+  // Check if this is a commitment-based offering via contract call
+  const offeringContract = OfferingCore.bind(event.address);
+  const isCommitmentBasedCall = offeringContract.try_isCommitmentBased();
+  offering.isCommitmentBased = isCommitmentBasedCall.reverted ? false : isCommitmentBasedCall.value;
   
   // Set default document eligibility mode (2 = COMPLIANT_ONLY)
   offering.documentEligibilityMode = 2;
@@ -332,10 +342,11 @@ export function handleCommitmentMade(event: CommitmentMade): void {
   lookup.investment = investmentId;
   lookup.save();
 
-  // For commitment-based offerings, commitmentAmount is the commitment, not actual funds
-  // totalInvested tracks actual funds received, so we don't update it here
+  // For commitment-based offerings, track totalCommitted (not totalInvested)
+  // totalInvested tracks actual capital contributions (via recordCapitalContribution)
   // Investor count is updated when issuer accepts the commitment (InvestmentAccepted event)
   ensureOffchainFieldsInitialized(offering);
+  offering.totalCommitted = offering.totalCommitted.plus(event.params.commitmentAmount);
   
   // Track investor relationship but don't count until accepted
   const offeringInvestorId = event.address.toHexString() + "-" + event.params.investor.toHexString();
