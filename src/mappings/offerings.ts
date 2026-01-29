@@ -3,6 +3,7 @@ import {
   FundsDeposited,
   InvestmentAccepted,
   InvestmentRejected,
+  CommitmentMade,
   OfferingStatusChanged,
   DocumentSignerRoleUpdated,
   OfferingURIUpdated,
@@ -290,6 +291,76 @@ export function handleInvestmentRejected(event: InvestmentRejected): void {
     
     offering.save();
   }
+}
+
+/**
+ * Handle commitment made event for commitment-based offerings.
+ * This is similar to FundsDeposited but for offerings where investors commit
+ * capital without immediate payment.
+ */
+export function handleCommitmentMade(event: CommitmentMade): void {
+  const offering = Offering.load(event.address.toHexString());
+  if (!offering) return;
+
+  // Use tx-hash-logIndex for globally unique ID
+  const investmentId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+  
+  // Create composite ID for protocol lookups (offering-investmentId)
+  const compositeId = event.address.toHexString() + "-" + event.params.investmentId.toString();
+  
+  const investment = new Investment(investmentId);
+  investment.compositeId = compositeId;
+  investment.offering = offering.id;
+  investment.investor = event.params.investor.toHexString();
+  investment.investmentId = event.params.investmentId;
+  investment.amount = event.params.commitmentAmount;
+  investment.tokenQuantity = event.params.tokenQuantity;
+  investment.investedAt = event.block.timestamp;
+  investment.investedTx = event.transaction.hash;
+  investment.investedBlockNumber = event.block.number;
+  // Commitment-based investments are accepted immediately (no escrow)
+  investment.status = "ACCEPTED";
+  investment.countersignedAt = event.block.timestamp;
+  investment.countersignedTx = event.transaction.hash;
+  // Empty bytes32 for attestation UIDs (commitment-based uses on-chain compliance)
+  investment.identityUID = event.params.subscriptionAgreementRef;
+  investment.qualificationUID = event.params.subscriptionAgreementRef;
+  investment.isInvestmentDelegated = false;
+  
+  investment.save();
+  
+  // Create lookup entity for composite ID queries
+  const lookup = new InvestmentLookup(compositeId);
+  lookup.investment = investmentId;
+  lookup.save();
+
+  // For commitment-based offerings, commitmentAmount is the commitment, not actual funds
+  // totalInvested tracks actual funds received, so we don't update it here
+  // Instead, we should track totalCommitted separately (future enhancement)
+  ensureOffchainFieldsInitialized(offering);
+  
+  // Track unique investors - only increment count if this is a new investor
+  const offeringInvestorId = event.address.toHexString() + "-" + event.params.investor.toHexString();
+  let offeringInvestor = OfferingInvestor.load(offeringInvestorId);
+  
+  if (!offeringInvestor) {
+    // New unique investor for this offering
+    offeringInvestor = new OfferingInvestor(offeringInvestorId);
+    offeringInvestor.offering = offering.id;
+    offeringInvestor.investor = event.params.investor.toHexString();
+    offeringInvestor.firstInvestedAt = event.block.timestamp;
+    offeringInvestor.investmentCount = 1;
+    offeringInvestor.save();
+    
+    // Only increment investor count for new unique investors
+    offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+  } else {
+    // Existing investor making another commitment
+    offeringInvestor.investmentCount = offeringInvestor.investmentCount + 1;
+    offeringInvestor.save();
+  }
+  
+  offering.save();
 }
 
 export function handleOfferingStatusChanged(

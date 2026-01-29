@@ -361,6 +361,10 @@ templates:
           handler: handleInvestmentAccepted
         - event: InvestmentRejected(indexed uint256,indexed address,indexed address)
           handler: handleInvestmentRejected
+        # Commitment-based offering events
+        - event: CommitmentMade(indexed address,indexed uint256,uint256,uint256,bytes32)
+          handler: handleCommitmentMade
+          receipt: false
         - event: DocumentSignerRoleUpdated(uint8)
           handler: handleDocumentSignerRoleUpdated
         - event: OfferingStatusChanged(uint8,uint8)
