@@ -252,14 +252,29 @@ export function handleInvestmentAccepted(
   
   // Check if countersigner is different from issuer (indicates representative countersigning)
   const offering = Offering.load(event.address.toHexString());
-  if (offering && event.transaction.from.toHexString() != offering.issuer.toHexString()) {
-    // This was countersigned by a representative
-    investment.countersignedBy = event.transaction.from.toHexString();
-    investment.countersignedOnBehalfOf = offering.issuer.toHexString();
-    investment.isCountersignDelegated = true;
-  } else {
-    // Direct countersigning by issuer
-    investment.isCountersignDelegated = false;
+  if (offering) {
+    if (event.transaction.from.toHexString() != offering.issuer.toHexString()) {
+      // This was countersigned by a representative
+      investment.countersignedBy = event.transaction.from.toHexString();
+      investment.countersignedOnBehalfOf = offering.issuer.toHexString();
+      investment.isCountersignDelegated = true;
+    } else {
+      // Direct countersigning by issuer
+      investment.isCountersignDelegated = false;
+    }
+    
+    // For commitment-based offerings, increment investor count on acceptance
+    // (For standard offerings, this happens in handleFundsDeposited)
+    if (offering.isCommitmentBased) {
+      const offeringInvestorId = event.address.toHexString() + "-" + investment.investor;
+      const offeringInvestor = OfferingInvestor.load(offeringInvestorId);
+      
+      // Only increment if this is the first accepted investment for this investor
+      if (offeringInvestor && offeringInvestor.investmentCount == 1) {
+        offering.investorCount = offering.investorCount.plus(BigInt.fromI32(1));
+        offering.save();
+      }
+    }
   }
   
   investment.save();
