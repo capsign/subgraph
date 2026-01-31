@@ -30,7 +30,6 @@ import {
 } from "../../generated/templates/WalletDiamond/WalletTypeFacet";
 import {
   Vehicle,
-  VehicleMember,
   CapitalContribution as CapitalContributionEntity,
   Distribution,
   DistributionClaim,
@@ -112,7 +111,6 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
-    vehicle.memberCount = 0;
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
     vehicle.save();
@@ -151,45 +149,17 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
 /**
  * Handle CommitmentCalculated event (CapitalCallFacet)
  * Creates commitment records for each member when a capital call is created
+ * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
  */
 export function handleCommitmentCalculated(event: CommitmentCalculated): void {
   const vehicleAddress = event.address.toHexString();
   const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
   const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
   const commitmentId = `${callId}-${memberAddress.toHexString()}`;
-  
-  // Load or create member
-  let member = VehicleMember.load(memberId);
-  if (!member) {
-    member = new VehicleMember(memberId);
-    member.vehicle = vehicleAddress;
-    member.memberAddress = memberAddress;
-    member.ownershipBps = event.params.ownershipBps.toI32();
-    member.capitalContributed = BigInt.fromI32(0);
-    member.distributionsReceived = BigInt.fromI32(0);
-    member.tokenBalance = BigInt.fromI32(0);
-    member.removed = false;
-    member.addedAt = event.block.timestamp;
-    member.addedTx = event.transaction.hash;
-    member.save();
-    
-    // Increment member count
-    let vehicle = Vehicle.load(vehicleAddress);
-    if (vehicle) {
-      vehicle.memberCount = vehicle.memberCount + 1;
-      vehicle.save();
-    }
-  } else {
-    // Update ownership if changed
-    member.ownershipBps = event.params.ownershipBps.toI32();
-    member.save();
-  }
   
   // Create commitment
   let commitment = new CallCommitment(commitmentId);
   commitment.capitalCall = callId;
-  commitment.member = memberId;
   commitment.memberAddress = memberAddress;
   commitment.amountDue = event.params.amountDue;
   commitment.amountPaid = BigInt.fromI32(0);
@@ -204,12 +174,12 @@ export function handleCommitmentCalculated(event: CommitmentCalculated): void {
 /**
  * Handle ContributionReceived event (CapitalCallFacet)
  * Records a member's contribution (on-chain or off-chain) to a capital call
+ * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
  */
 export function handleContributionReceived(event: ContributionReceived): void {
   const vehicleAddress = event.address.toHexString();
   const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
   const memberAddress = event.params.member;
-  const memberId = `${vehicleAddress}-${memberAddress.toHexString()}`;
   const commitmentId = `${callId}-${memberAddress.toHexString()}`;
   const contributionId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
   
@@ -226,23 +196,6 @@ export function handleContributionReceived(event: ContributionReceived): void {
     }
     capitalCall.save();
   }
-  
-  // Load or create member
-  let member = VehicleMember.load(memberId);
-  if (!member) {
-    member = new VehicleMember(memberId);
-    member.vehicle = vehicleAddress;
-    member.memberAddress = memberAddress;
-    member.ownershipBps = 0;
-    member.capitalContributed = BigInt.fromI32(0);
-    member.distributionsReceived = BigInt.fromI32(0);
-    member.tokenBalance = BigInt.fromI32(0);
-    member.removed = false;
-    member.addedAt = event.block.timestamp;
-    member.addedTx = event.transaction.hash;
-  }
-  member.capitalContributed = member.capitalContributed.plus(event.params.amount);
-  member.save();
   
   // Update commitment
   let commitment = CallCommitment.load(commitmentId);
@@ -264,7 +217,6 @@ export function handleContributionReceived(event: ContributionReceived): void {
   let contribution = new CallContribution(contributionId);
   contribution.capitalCall = callId;
   contribution.commitment = commitmentId;
-  contribution.member = memberId;
   contribution.memberAddress = memberAddress;
   contribution.amount = event.params.amount;
   contribution.isOffchain = event.params.isOffchain;
@@ -359,6 +311,7 @@ export function handleCapitalCallCancelled(event: CapitalCallCancelled): void {
 /**
  * Handle CommitmentsTransferred event (CapitalCallFacet)
  * Called when token transfers trigger commitment reallocation
+ * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
  */
 export function handleCommitmentsTransferred(event: CommitmentsTransferred): void {
   const vehicleAddress = event.address.toHexString();
@@ -367,8 +320,6 @@ export function handleCommitmentsTransferred(event: CommitmentsTransferred): voi
   const toAddress = event.params.to;
   const fromCommitmentId = `${callId}-${fromAddress.toHexString()}`;
   const toCommitmentId = `${callId}-${toAddress.toHexString()}`;
-  const fromMemberId = `${vehicleAddress}-${fromAddress.toHexString()}`;
-  const toMemberId = `${vehicleAddress}-${toAddress.toHexString()}`;
   
   // Update 'from' commitment (reduce amountDue and amountPaid)
   let fromCommitment = CallCommitment.load(fromCommitmentId);
@@ -395,36 +346,12 @@ export function handleCommitmentsTransferred(event: CommitmentsTransferred): voi
     // Create new commitment for recipient
     toCommitment = new CallCommitment(toCommitmentId);
     toCommitment.capitalCall = callId;
-    toCommitment.member = toMemberId;
     toCommitment.memberAddress = toAddress;
     toCommitment.amountDue = BigInt.fromI32(0);
     toCommitment.amountPaid = BigInt.fromI32(0);
     toCommitment.status = "PENDING";
     toCommitment.createdAt = event.block.timestamp;
     toCommitment.createdTx = event.transaction.hash;
-    
-    // Ensure member exists
-    let toMember = VehicleMember.load(toMemberId);
-    if (!toMember) {
-      toMember = new VehicleMember(toMemberId);
-      toMember.vehicle = vehicleAddress;
-      toMember.memberAddress = toAddress;
-      toMember.ownershipBps = 0;
-      toMember.capitalContributed = BigInt.fromI32(0);
-      toMember.distributionsReceived = BigInt.fromI32(0);
-      toMember.tokenBalance = BigInt.fromI32(0);
-      toMember.removed = false;
-      toMember.addedAt = event.block.timestamp;
-      toMember.addedTx = event.transaction.hash;
-      toMember.save();
-      
-      // Increment member count
-      let vehicle = Vehicle.load(vehicleAddress);
-      if (vehicle) {
-        vehicle.memberCount = vehicle.memberCount + 1;
-        vehicle.save();
-      }
-    }
   }
   toCommitment.amountDue = toCommitment.amountDue.plus(event.params.amountDueTransferred);
   toCommitment.amountPaid = toCommitment.amountPaid.plus(event.params.amountPaidTransferred);
@@ -463,7 +390,6 @@ export function handleTokenDistributionCreated(event: TokenDistributionCreated):
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
-    vehicle.memberCount = 0;
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
   }

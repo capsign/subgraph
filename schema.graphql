@@ -352,11 +352,8 @@ type Vehicle @entity {
   totalDistributionsClaimed: BigInt!
   
   # Token reference (for unit interest tokens)
+  # NOTE: Members are derived from token lots (lot.owner where quantity > 0)
   token: Token # The UNIT_INTEREST token representing ownership
-  
-  # Member tracking
-  memberCount: Int!
-  members: [VehicleMember!]! @derivedFrom(field: "vehicle")
   
   # Capital contributions
   contributions: [CapitalContribution!]! @derivedFrom(field: "vehicle")
@@ -380,38 +377,16 @@ enum VehicleType {
   DAO        # DAO LLC
 }
 
-type VehicleMember @entity {
-  id: ID! # vehicle-member-address
-  vehicle: Vehicle!
-  memberAddress: Bytes!
-  
-  # Ownership percentage in basis points (10000 = 100%)
-  ownershipBps: Int!
-  
-  # Capital accounting for this member
-  capitalContributed: BigInt!
-  distributionsReceived: BigInt!
-  
-  # Token ownership (derived from lots)
-  tokenBalance: BigInt! # Current token balance
-  
-  addedAt: BigInt!
-  addedTx: Bytes!
-  
-  # Track if member has been removed
-  removed: Boolean!
-  removedAt: BigInt
-  removedTx: Bytes
-  
-  # Contributions by this member
-  contributions: [CapitalContribution!]! @derivedFrom(field: "member")
-}
+# NOTE: VehicleMember entity has been deprecated.
+# Fund membership is now derived from token ownership (Lot entities where quantity > 0).
+# Ownership percentage = lot.quantity / token.totalSupply
+# Capital contributions are tracked via CallContribution entities.
+# Distributions received are tracked via DistributionClaim entities.
 
 type CapitalContribution @entity {
   id: ID! # tx-hash-logIndex
   vehicle: Vehicle!
-  member: VehicleMember!
-  memberAddress: Bytes! # Denormalized for filtering
+  memberAddress: Bytes! # Address of the contributing member
   amount: BigInt!
   
   # Context: where did this capital come from?
@@ -471,8 +446,7 @@ enum CapitalCallStatus {
 type CallCommitment @entity {
   id: ID! # capitalCall-memberAddress
   capitalCall: CapitalCall!
-  member: VehicleMember!
-  memberAddress: Bytes! # Denormalized for filtering
+  memberAddress: Bytes! # Address of the member with this commitment
   amountDue: BigInt! # Pro-rata amount calculated at call creation
   amountPaid: BigInt! # Amount contributed so far
   status: CommitmentStatus!
@@ -496,8 +470,7 @@ type CallContribution @entity {
   id: ID! # tx-logIndex
   capitalCall: CapitalCall!
   commitment: CallCommitment!
-  member: VehicleMember!
-  memberAddress: Bytes! # Denormalized for filtering
+  memberAddress: Bytes! # Address of the contributing member
   amount: BigInt!
   isOffchain: Boolean! # True if recorded via recordOffchainContribution
   
@@ -519,7 +492,7 @@ type IncomingTransfer @entity {
   # Auto-matching status
   matched: Boolean! # True if matched to a capital call
   matchedCall: CapitalCall # The capital call this was matched to (null if unmatched)
-  matchedMember: VehicleMember # The member this was matched to (null if unmatched)
+  matchedMemberAddress: Bytes # Address of the member this was matched to (null if unmatched)
   matchedAt: BigInt
   
   timestamp: BigInt!
@@ -572,7 +545,6 @@ type DistributionClaim @entity {
   amount: BigInt!
   
   # For vehicle distributions
-  vehicleMember: VehicleMember # Link to vehicle member (if vehicle distribution)
   isCarryRecipient: Boolean # True if this is a carry (GP) claim
   
   # For trust distributions
