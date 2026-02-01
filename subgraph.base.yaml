@@ -583,7 +583,6 @@ templates:
         - DocumentSignature
         - Attestation
         - Vehicle
-        - VehicleMember
         - CapitalContribution
         - Distribution
         - DistributionClaim

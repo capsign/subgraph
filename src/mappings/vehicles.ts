@@ -157,7 +157,7 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
 /**
  * Handle CommitmentCalculated event (CapitalCallFacet)
  * Creates commitment records for each member when a capital call is created
- * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
+ * Membership is derived from token lots (Lot entities where quantity > 0)
  */
 export function handleCommitmentCalculated(event: CommitmentCalculated): void {
   const vehicleAddress = event.address.toHexString();
@@ -182,7 +182,7 @@ export function handleCommitmentCalculated(event: CommitmentCalculated): void {
 /**
  * Handle ContributionReceived event (CapitalCallFacet)
  * Records a member's contribution (on-chain or off-chain) to a capital call
- * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
+ * Membership is derived from token lots (Lot entities where quantity > 0)
  */
 export function handleContributionReceived(event: ContributionReceived): void {
   const vehicleAddress = event.address.toHexString();
@@ -319,7 +319,7 @@ export function handleCapitalCallCancelled(event: CapitalCallCancelled): void {
 /**
  * Handle CommitmentsTransferred event (CapitalCallFacet)
  * Called when token transfers trigger commitment reallocation
- * NOTE: VehicleMember entity has been deprecated - membership is derived from token lots
+ * Membership is derived from token lots (Lot entities where quantity > 0)
  */
 export function handleCommitmentsTransferred(event: CommitmentsTransferred): void {
   const vehicleAddress = event.address.toHexString();

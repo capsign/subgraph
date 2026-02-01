@@ -377,8 +377,8 @@ enum VehicleType {
   DAO        # DAO LLC
 }
 
-# NOTE: VehicleMember entity has been deprecated.
-# Fund membership is now derived from token ownership (Lot entities where quantity > 0).
+# Fund Membership Model:
+# Membership is derived from token ownership (Lot entities where quantity > 0).
 # Ownership percentage = lot.quantity / token.totalSupply
 # Capital contributions are tracked via CallContribution entities.
 # Distributions received are tracked via DistributionClaim entities.
