@@ -599,6 +599,8 @@ templates:
         - InstalledFacet
         - DiamondCutEvent
         - EntityClassification
+        - AssetDisposal
+        - FundTaxYearSummary
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -629,6 +631,8 @@ templates:
           file: ./abis/AccessControlFacet.json
         - name: WalletRule701Facet
           file: ./abis/WalletRule701Facet.json
+        - name: AssetDisposalFacet
+          file: ./abis/AssetDisposalFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -716,6 +720,10 @@ templates:
           receipt: false
         - event: InvestmentExited(indexed uint256,uint256,uint256,uint256)
           handler: handleInvestmentExited
+          receipt: false
+        # Asset Disposal events (from AssetDisposalFacet)
+        - event: AssetDisposed(indexed address,indexed address,bytes32[],uint256[],uint256,indexed address,address,uint256,uint256,uint8,uint8)
+          handler: handleAssetDisposed
           receipt: false
         # Trust Core events (from TrustCoreFacet)
         - event: TrustInitialized(uint8,indexed address,indexed address,bool)

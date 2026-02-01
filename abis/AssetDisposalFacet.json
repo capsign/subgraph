@@ -1,0 +1,264 @@
+[
+  {
+    "type": "function",
+    "name": "calculateGainLoss",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "units",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "expectedProceeds",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "costBasis",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "realizedGain",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "isLongTerm",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "previewSale",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "units",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "lotIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "quantities",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "costBasis",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "taxStrategy",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "sellAsset",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "units",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "buyer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "price",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "lotIds",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "quantities",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "costBasis",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AssetDisposed",
+    "inputs": [
+      {
+        "name": "fundWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "lotIds",
+        "type": "bytes32[]",
+        "indexed": false,
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "quantities",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "totalUnits",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "counterparty",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "proceeds",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "costBasis",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "taxStrategy",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "disposalType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IAssetDisposal.DisposalType"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_InsufficientBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_InvalidBuyer",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_InvalidPrice",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_InvalidToken",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_PaymentFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetDisposal_TransferFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  }
+]

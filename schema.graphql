@@ -558,6 +558,82 @@ type DistributionClaim @entity {
   logIndex: BigInt
 }
 
+# ============ ASSET DISPOSAL & CAPITAL GAINS ============
+
+enum DisposalType {
+  SALE           # Sold to another party
+  REDEMPTION     # Redeemed back to issuer
+  DISTRIBUTION   # Distributed to members
+  LIQUIDATION    # Full position exit
+}
+
+enum TaxStrategy {
+  FIFO  # First In First Out
+  LIFO  # Last In First Out
+  HIFO  # Highest cost basis In First Out
+  LOFO  # Lowest cost basis In First Out
+}
+
+type AssetDisposal @entity {
+  id: ID!                           # txHash-logIndex
+  fundWallet: Vehicle!
+  token: Token!
+  tokenSymbol: String!
+  
+  # Lot details
+  lotIds: [Bytes!]!                 # Array of lot IDs that were disposed
+  quantities: [BigInt!]!            # Array of quantities from each lot
+  totalUnits: BigDecimal!
+  
+  # Cost basis (from lots)
+  costBasis: BigDecimal!            # Total cost basis
+  costBasisPerUnit: BigDecimal!
+  
+  # Proceeds
+  counterparty: Bytes!              # Buyer/recipient of the tokens
+  paymentToken: Bytes!
+  paymentTokenSymbol: String!
+  proceeds: BigDecimal!
+  proceedsPerUnit: BigDecimal!
+  
+  # Gain/Loss calculation
+  realizedGain: BigDecimal!         # proceeds - costBasis (can be negative)
+  realizedGainPerUnit: BigDecimal!
+  isLongTerm: Boolean!              # Based on oldest lot in selection (held > 1 year)
+  
+  # Tax strategy used
+  taxStrategy: TaxStrategy!
+  
+  # Disposal type
+  disposalType: DisposalType!
+  
+  # Metadata
+  timestamp: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
+}
+
+type FundTaxYearSummary @entity {
+  id: ID!                           # fundWallet-taxYear
+  fundWallet: Vehicle!
+  taxYear: Int!
+  
+  # Short-term gains (held <= 1 year) - K-1 Box 8
+  shortTermGains: BigDecimal!
+  shortTermLosses: BigDecimal!
+  netShortTermGain: BigDecimal!
+  
+  # Long-term gains (held > 1 year) - K-1 Box 9a
+  longTermGains: BigDecimal!
+  longTermLosses: BigDecimal!
+  netLongTermGain: BigDecimal!
+  
+  # All disposals this year
+  disposals: [AssetDisposal!]!
+  
+  lastUpdated: BigInt!
+}
+
 type VehicleInvestment @entity {
   id: ID! # vehicle-investmentId
   vehicle: Vehicle!

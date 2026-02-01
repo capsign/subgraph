@@ -710,3 +710,7 @@ export function handleDisclosureProvided(event: DisclosureProvided): void {
 
   status.save();
 }
+
+// Re-export asset disposal handler
+export { handleAssetDisposed } from "./asset-disposal";
+
