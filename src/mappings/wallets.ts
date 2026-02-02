@@ -81,6 +81,7 @@ export function handleWalletInitialized(event: WalletInitialized): void {
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
     wallet.deployer = event.transaction.from;
+    wallet.isFrozen = false;
 
     // Create fallback owner (EOA)
     const ownerId = walletAddress + "-" + event.transaction.from.toHexString();

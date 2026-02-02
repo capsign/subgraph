@@ -60,6 +60,7 @@ export function handleWalletCreated(event: WalletCreated): void {
   wallet.deployer = event.params.deployer;
   wallet.createdAt = event.block.timestamp;
   wallet.createdTx = event.transaction.hash;
+  wallet.isFrozen = false; // Initialize as not frozen
   wallet.save();
 
   // Create initial Owner entity

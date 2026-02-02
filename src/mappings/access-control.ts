@@ -101,6 +101,7 @@ export function handleAuthorityUpdated(event: AuthorityUpdatedEvent): void {
         wallet.deployer = event.transaction.from;
         wallet.createdAt = event.block.timestamp;
         wallet.createdTx = event.transaction.hash;
+        wallet.isFrozen = false;
         wallet.save();
       }
       

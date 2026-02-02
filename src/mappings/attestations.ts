@@ -20,6 +20,7 @@ export function handleAttested(event: Attested): void {
     wallet.deployer = event.params.attester;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
+    wallet.isFrozen = false;
     wallet.save();
   }
   

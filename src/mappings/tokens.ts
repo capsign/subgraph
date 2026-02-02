@@ -88,6 +88,7 @@ export function handleTokenAuthorityUpdated(event: AuthorityUpdated): void {
         wallet.deployer = event.transaction.from;
         wallet.createdAt = event.block.timestamp;
         wallet.createdTx = event.transaction.hash;
+        wallet.isFrozen = false;
         wallet.save();
       }
 
@@ -151,6 +152,7 @@ export function handleLotCreated(event: LotCreated): void {
     wallet.deployer = event.transaction.from;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
+    wallet.isFrozen = false;
     wallet.save();
   }
   
@@ -270,6 +272,7 @@ export function handleLotTransferred(event: LotTransferred): void {
     wallet.deployer = event.transaction.from;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
+    wallet.isFrozen = false;
     wallet.save();
   }
   
@@ -1243,6 +1246,7 @@ export function handleOptionGranted(event: OptionGranted): void {
     recipientWallet.deployer = event.transaction.from;
     recipientWallet.createdAt = event.block.timestamp;
     recipientWallet.createdTx = event.transaction.hash;
+    recipientWallet.isFrozen = false;
     recipientWallet.save();
   }
 

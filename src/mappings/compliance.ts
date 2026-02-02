@@ -55,6 +55,7 @@ export function handleKYCStatusUpdated(event: KYCStatusUpdated): void {
     wallet.deployer = event.params.verifiedBy;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
+    wallet.isFrozen = false;
     wallet.save();
   }
 
@@ -140,6 +141,7 @@ export function handleClassificationUpdated(event: ClassificationUpdated): void 
     wallet.deployer = event.params.verifiedBy;
     wallet.createdAt = event.block.timestamp;
     wallet.createdTx = event.transaction.hash;
+    wallet.isFrozen = false;
     wallet.save();
   }
 
