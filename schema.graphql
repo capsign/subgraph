@@ -103,6 +103,10 @@ type Wallet @entity {
   
   # Entity classification (GLEIF ELF codes)
   entityClassification: EntityClassification
+  
+  # Liens granted on this wallet's assets
+  liens: [Lien!]! @derivedFrom(field: "wallet")
+  isFrozen: Boolean! # Whether wallet is frozen by any lien
 }
 
 # ============ ENTITY CLASSIFICATION (GLEIF ELF Codes) ============
@@ -130,6 +134,73 @@ type EntityClassification @entity {
   createdTx: Bytes!
   lastUpdatedAt: BigInt!
   lastUpdatedTx: Bytes!
+}
+
+# ============ LIEN ENTITIES ============
+
+enum LienStatus {
+  ACTIVE
+  RELEASED
+  REVOKED
+}
+
+type Lien @entity {
+  id: ID! # wallet-lienId (e.g., "0xwallet-0xlienid")
+  wallet: Wallet! # The wallet with the lien
+  lienId: Bytes! # bytes32 lien identifier
+  lienHolder: Bytes! # Address with lien control
+  
+  # Collateral configuration
+  collateralTokens: [Bytes!]! # Token addresses (empty = all assets)
+  maxSeizureAmount: BigInt! # 0 = unlimited
+  totalSeized: BigInt! # Running total seized
+  
+  # Timing
+  grantedAt: BigInt!
+  grantedTx: Bytes!
+  expiresAt: BigInt! # 0 = no expiry
+  
+  # External reference (loan ID, UCC filing, etc.)
+  externalRef: String!
+  
+  # Status
+  status: LienStatus!
+  isFrozen: Boolean! # Whether this lien has frozen the wallet
+  
+  # Termination info (if released/revoked)
+  terminatedAt: BigInt
+  terminatedTx: Bytes
+  terminatedBy: Bytes
+  
+  # Seizure history
+  seizures: [AssetSeizure!]! @derivedFrom(field: "lien")
+  
+  # Freeze/unfreeze history
+  freezeEvents: [WalletFreezeEvent!]! @derivedFrom(field: "lien")
+}
+
+type AssetSeizure @entity {
+  id: ID! # tx-logIndex
+  lien: Lien!
+  token: Bytes! # Token address seized
+  amount: BigInt!
+  recipient: Bytes!
+  reason: String!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+type WalletFreezeEvent @entity {
+  id: ID! # tx-logIndex
+  lien: Lien!
+  wallet: Wallet!
+  isFrozen: Boolean! # true = freeze, false = unfreeze
+  actor: Bytes! # Who triggered the event
+  reason: String # Only for freeze events
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
 }
 
 # Tracks which wallet (AccessManager) has authority over a contract (AccessManaged)

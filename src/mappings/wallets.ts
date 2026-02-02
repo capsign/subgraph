@@ -714,3 +714,12 @@ export function handleDisclosureProvided(event: DisclosureProvided): void {
 // Re-export asset disposal handler
 export { handleAssetDisposed } from "./asset-disposal";
 
+// Re-export lien handlers
+export {
+  handleLienGranted,
+  handleLienReleased,
+  handleLienRevoked,
+  handleWalletFrozen,
+  handleWalletUnfrozen,
+  handleAssetsSeized,
+} from "./liens";

@@ -600,6 +600,9 @@ templates:
         - EntityClassification
         - AssetDisposal
         - FundTaxYearSummary
+        - Lien
+        - AssetSeizure
+        - WalletFreezeEvent
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -723,6 +726,25 @@ templates:
         # Asset Disposal events (from AssetDisposalFacet)
         - event: AssetDisposed(indexed address,indexed address,bytes32[],uint256[],uint256,indexed address,address,uint256,uint256,uint8,uint8)
           handler: handleAssetDisposed
+          receipt: false
+        # LienHolder events (from LienHolderFacet)
+        - event: LienGranted(indexed bytes32,indexed address,address[],uint256,uint256)
+          handler: handleLienGranted
+          receipt: false
+        - event: LienReleased(indexed bytes32,indexed address)
+          handler: handleLienReleased
+          receipt: false
+        - event: LienRevoked(indexed bytes32,indexed address)
+          handler: handleLienRevoked
+          receipt: false
+        - event: WalletFrozen(indexed bytes32,indexed address,string)
+          handler: handleWalletFrozen
+          receipt: false
+        - event: WalletUnfrozen(indexed bytes32,indexed address)
+          handler: handleWalletUnfrozen
+          receipt: false
+        - event: AssetsSeized(indexed bytes32,indexed address,uint256,address,string)
+          handler: handleAssetsSeized
           receipt: false
         # Trust Core events (from TrustCoreFacet)
         - event: TrustInitialized(uint8,indexed address,indexed address,bool)
