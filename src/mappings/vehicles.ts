@@ -548,7 +548,8 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
   
   investment.target = event.params.target;
   investment.amount = BigInt.fromI32(0); // Set when executed
-  investment.entryDate = BigInt.fromI32(0); // Set when executed
+  investment.entryDate = event.block.timestamp; // Created timestamp, updated when executed
+  investment.entryTx = event.transaction.hash; // Created tx, updated when executed
   investment.exited = false;
   investment.currentValuation = BigInt.fromI32(0);
   investment.lastValuationUpdate = BigInt.fromI32(0);
