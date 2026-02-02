@@ -995,3 +995,35 @@ templates:
         - event: VestingScheduleRevoked(indexed address,indexed bytes32)
           handler: handleVestingScheduleRevoked
       file: ./src/mappings/vesting-module.ts
+
+  # ROFR (Right of First Refusal) Module Template
+  - kind: ethereum/contract
+    name: ROFRModule
+    network: base
+    source:
+      abi: ROFRModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ROFRTransferRequest
+      abis:
+        - name: ROFRModule
+          file: ./abis/ROFRModule.json
+      eventHandlers:
+        - event: TransferRequested(indexed uint256,indexed address,indexed address,uint256,uint256,address)
+          handler: handleTransferRequested
+        - event: ROFRPeriodStarted(indexed uint256,uint256,uint256)
+          handler: handleROFRPeriodStarted
+        - event: ROFRExercised(indexed uint256,indexed address,indexed address)
+          handler: handleROFRExercised
+        - event: TransferApproved(indexed uint256,address)
+          handler: handleTransferApproved
+        - event: TransferRejected(indexed uint256,string)
+          handler: handleTransferRejected
+        - event: TransferCompleted(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferCompleted
+        - event: TransferCancelled(indexed uint256)
+          handler: handleTransferCancelled
+      file: ./src/mappings/rofr-module.ts

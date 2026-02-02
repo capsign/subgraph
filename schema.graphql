@@ -2486,3 +2486,38 @@ enum FactoryType {
   OFFERING
   WALLET
 }
+
+# ============ ROFR (Right of First Refusal) ENTITIES ============
+
+type ROFRTransferRequest @entity {
+  id: ID! # module-requestId
+  module: Bytes! # ROFR module address
+  token: Token! # Token being transferred
+  requestId: BigInt!
+  seller: Bytes!
+  proposedBuyer: Bytes!
+  currentBuyer: Bytes! # May differ if ROFR exercised
+  amount: BigInt!
+  pricePerToken: BigInt!
+  paymentToken: Bytes!
+  status: ROFRRequestStatus!
+  rofrExpiresAt: BigInt # When ROFR period ends
+  rofrExercisedBy: Bytes # Who exercised ROFR (if any)
+  rejectionReason: String
+  createdAt: BigInt!
+  createdTx: Bytes!
+  updatedAt: BigInt!
+  updatedTx: Bytes!
+  completedAt: BigInt
+  completedTx: Bytes
+}
+
+enum ROFRRequestStatus {
+  PENDING
+  ROFR_PERIOD
+  APPROVED
+  ROFR_EXERCISED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}

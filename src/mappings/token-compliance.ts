@@ -16,6 +16,7 @@ import {
   AffiliateStatusModule,
   LockupComplianceModule,
   VestingComplianceModule,
+  ROFRModule,
 } from "../../generated/templates";
 
 /**
@@ -75,6 +76,8 @@ export function handleComplianceModuleAdded(event: ComplianceModuleAdded): void 
       module.moduleType = "Vesting";
     } else if (moduleName.includes("Lockup")) {
       module.moduleType = "Lockup";
+    } else if (moduleName.includes("ROFR") || moduleName.includes("RightOfFirstRefusal")) {
+      module.moduleType = "ROFR";
     } else {
       module.moduleType = "Custom";
     }
@@ -94,6 +97,8 @@ export function handleComplianceModuleAdded(event: ComplianceModuleAdded): void 
       LockupComplianceModule.create(moduleAddress);
     } else if (module.moduleType == "Vesting") {
       VestingComplianceModule.create(moduleAddress);
+    } else if (module.moduleType == "ROFR") {
+      ROFRModule.create(moduleAddress);
     }
   }
   
