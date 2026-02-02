@@ -526,6 +526,20 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
   const vehicleAddress = event.address.toHexString();
   const investmentId = `${vehicleAddress}-${event.params.investmentId.toString()}`;
   
+  // Ensure Vehicle entity exists (required for investment.vehicle relation)
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (!vehicle) {
+    vehicle = new Vehicle(vehicleAddress);
+    vehicle.wallet = vehicleAddress;
+    vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalContributed = BigInt.fromI32(0);
+    vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
+    vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.createdAt = event.block.timestamp;
+    vehicle.createdTx = event.transaction.hash;
+    vehicle.save();
+  }
+  
   let investment = new VehicleInvestment(investmentId);
   investment.vehicle = vehicleAddress;
   investment.investmentId = event.params.investmentId;
