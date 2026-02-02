@@ -635,6 +635,8 @@ templates:
           file: ./abis/WalletRule701Facet.json
         - name: AssetDisposalFacet
           file: ./abis/AssetDisposalFacet.json
+        - name: IncomeReceivableFacet
+          file: ./abis/IncomeReceivableFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -726,6 +728,13 @@ templates:
         # Asset Disposal events (from AssetDisposalFacet)
         - event: AssetDisposed(indexed address,indexed address,bytes32[],uint256[],uint256,indexed address,address,uint256,uint256,uint8,uint8)
           handler: handleAssetDisposed
+          receipt: false
+        - event: WashSaleDetected(indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleWashSaleDetected
+          receipt: false
+        # Income Receivable events (from IncomeReceivableFacet)
+        - event: IncomeReceived(indexed address,indexed address,indexed address,uint256,uint8,string,uint256)
+          handler: handleIncomeReceived
           receipt: false
         # LienHolder events (from LienHolderFacet)
         - event: LienGranted(indexed bytes32,indexed address,address[],uint256,uint256)

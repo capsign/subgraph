@@ -1,12 +1,14 @@
 import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   AssetDisposed,
+  WashSaleDetected,
 } from "../../generated/templates/WalletDiamond/AssetDisposalFacet";
 import {
   AssetDisposal,
   FundTaxYearSummary,
   Vehicle,
   ShareClass,
+  WashSale,
 } from "../../generated/schema";
 import { createActivity } from "./activity";
 
@@ -36,7 +38,7 @@ function mapDisposalType(disposalType: i32): string {
  * Get tax year from timestamp (assumes calendar year)
  */
 // @ts-ignore: i32 is a valid AssemblyScript type
-function getTaxYear(timestamp: BigInt): i32 {
+export function getTaxYear(timestamp: BigInt): i32 {
   // Simple calculation: Unix timestamp / seconds per year + 1970
   const secondsPerYear = BigInt.fromI32(31536000);
   const yearsSince1970 = timestamp.div(secondsPerYear);
@@ -144,16 +146,16 @@ export function handleAssetDisposed(event: AssetDisposed): void {
 }
 
 /**
- * Update the fund's tax year summary with a new disposal
+ * Get or create FundTaxYearSummary
  */
-function updateFundTaxYearSummary(disposal: AssetDisposal, timestamp: BigInt): void {
+export function getOrCreateFundTaxYearSummary(fundWalletId: string, timestamp: BigInt): FundTaxYearSummary {
   const taxYear = getTaxYear(timestamp);
-  const summaryId = `${disposal.fundWallet}-${taxYear.toString()}`;
+  const summaryId = `${fundWalletId}-${taxYear.toString()}`;
   
   let summary = FundTaxYearSummary.load(summaryId);
   if (!summary) {
     summary = new FundTaxYearSummary(summaryId);
-    summary.fundWallet = disposal.fundWallet;
+    summary.fundWallet = fundWalletId;
     summary.taxYear = taxYear;
     summary.shortTermGains = BigDecimal.zero();
     summary.shortTermLosses = BigDecimal.zero();
@@ -161,8 +163,26 @@ function updateFundTaxYearSummary(disposal: AssetDisposal, timestamp: BigInt): v
     summary.longTermGains = BigDecimal.zero();
     summary.longTermLosses = BigDecimal.zero();
     summary.netLongTermGain = BigDecimal.zero();
+    // New income fields
+    summary.ordinaryIncome = BigDecimal.zero();
+    summary.interestIncome = BigDecimal.zero();
+    summary.dividendIncome = BigDecimal.zero();
+    summary.rentalIncome = BigDecimal.zero();
+    summary.otherIncome = BigDecimal.zero();
+    // Wash sale tracking
+    summary.washSaleDisallowed = BigDecimal.zero();
     summary.disposals = [];
+    summary.lastUpdated = timestamp;
   }
+  
+  return summary;
+}
+
+/**
+ * Update the fund's tax year summary with a new disposal
+ */
+function updateFundTaxYearSummary(disposal: AssetDisposal, timestamp: BigInt): void {
+  let summary = getOrCreateFundTaxYearSummary(disposal.fundWallet, timestamp);
   
   const gain = disposal.realizedGain;
   
@@ -189,4 +209,79 @@ function updateFundTaxYearSummary(disposal: AssetDisposal, timestamp: BigInt): v
   
   summary.lastUpdated = timestamp;
   summary.save();
+}
+
+/**
+ * Handle WashSaleDetected event (AssetDisposalFacet)
+ * Tracks wash sales for tax reporting - losses are disallowed and added to replacement lot basis
+ */
+export function handleWashSaleDetected(event: WashSaleDetected): void {
+  const fundWalletAddress = event.params.wallet.toHexString();
+  const washSaleId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  
+  // Find the most recent disposal for this wallet and token
+  // The wash sale event is emitted immediately after the AssetDisposed event
+  const disposalId = `${event.transaction.hash.toHexString()}-${event.logIndex.minus(BigInt.fromI32(1)).toString()}`;
+  let disposal = AssetDisposal.load(disposalId);
+  
+  // If we can't find it, try the same log index (in case they're emitted together)
+  if (!disposal) {
+    disposal = AssetDisposal.load(`${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`);
+  }
+  
+  // Create WashSale entity
+  let washSale = new WashSale(washSaleId);
+  washSale.fundWallet = fundWalletAddress;
+  
+  // Link to disposal if found
+  if (disposal) {
+    washSale.disposal = disposal.id;
+  } else {
+    // Create a placeholder - shouldn't happen in normal flow
+    washSale.disposal = disposalId;
+  }
+  
+  // Get tax year summary
+  const taxYear = getTaxYear(event.block.timestamp);
+  const summaryId = `${fundWalletAddress}-${taxYear.toString()}`;
+  let summary = getOrCreateFundTaxYearSummary(fundWalletAddress, event.block.timestamp);
+  washSale.taxYearSummary = summary.id;
+  
+  // Wash sale details
+  const disallowedLoss = event.params.disallowedLoss.toBigDecimal();
+  washSale.disallowedLoss = disallowedLoss;
+  washSale.basisAdjustment = disallowedLoss; // Added to replacement lot basis
+  
+  // Window timing
+  washSale.windowStart = event.params.windowStart;
+  washSale.windowEnd = event.params.windowEnd;
+  washSale.originalSaleDate = event.block.timestamp;
+  
+  // For now, we don't have the exact wash purchase info from the event
+  // The contract tracks this internally
+  washSale.washPurchaseDate = event.block.timestamp; // Placeholder
+  washSale.washPurchaseLotId = Bytes.empty();
+  
+  washSale.taxYear = taxYear;
+  washSale.detectedAt = event.block.timestamp;
+  washSale.txHash = event.transaction.hash;
+  washSale.blockNumber = event.block.number;
+  washSale.save();
+  
+  // Update tax year summary - add to disallowed losses
+  summary.washSaleDisallowed = summary.washSaleDisallowed.plus(disallowedLoss);
+  summary.lastUpdated = event.block.timestamp;
+  summary.save();
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}-washsale`;
+  let activity = createActivity(
+    activityId,
+    "WASH_SALE_DETECTED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
 }

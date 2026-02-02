@@ -200,6 +200,49 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "WashSaleDetected",
+    "inputs": [
+      {
+        "name": "wallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "disallowedLoss",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "windowStart",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "windowEnd",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recentAcquisitions",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AccessControl_CallerIsNotAuthorized",
     "inputs": [

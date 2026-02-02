@@ -699,10 +699,95 @@ type FundTaxYearSummary @entity {
   longTermLosses: BigDecimal!
   netLongTermGain: BigDecimal!
   
+  # Ordinary income totals - K-1 Box 1
+  ordinaryIncome: BigDecimal!
+  interestIncome: BigDecimal!
+  dividendIncome: BigDecimal!
+  rentalIncome: BigDecimal!
+  otherIncome: BigDecimal!
+  
+  # Wash sale adjustments
+  washSaleDisallowed: BigDecimal! # Total losses disallowed due to wash sales
+  
   # All disposals this year
   disposals: [AssetDisposal!]!
   
+  # Income events
+  incomeEvents: [IncomeEvent!]! @derivedFrom(field: "taxYearSummary")
+  
+  # Wash sales
+  washSales: [WashSale!]! @derivedFrom(field: "taxYearSummary")
+  
   lastUpdated: BigInt!
+}
+
+# ============ INCOME TRACKING ============
+
+enum IncomeType {
+  INTEREST     # Interest income (loans, DeFi yields)
+  DIVIDEND     # Dividend income from equity holdings
+  RENTAL       # Rental income from real estate
+  ROYALTY      # Royalty income
+  OTHER        # Other ordinary income
+}
+
+type IncomeEvent @entity {
+  id: ID!                           # txHash-logIndex
+  fundWallet: Vehicle!
+  taxYearSummary: FundTaxYearSummary
+  
+  # Income details
+  incomeType: IncomeType!
+  amount: BigDecimal!
+  paymentToken: Bytes!              # Token received (USDC, etc.)
+  paymentTokenSymbol: String!
+  
+  # Source tracking
+  sourceAsset: Bytes                # Asset generating income (token address, note address)
+  sourceDescription: String         # Human-readable description
+  
+  # Payer info
+  payer: Bytes!                     # Who paid the income
+  
+  # Timing
+  receivedAt: BigInt!
+  taxYear: Int!
+  
+  # Transaction
+  txHash: Bytes!
+  blockNumber: BigInt!
+}
+
+# ============ WASH SALE TRACKING ============
+
+type WashSale @entity {
+  id: ID!                           # txHash-logIndex
+  fundWallet: Vehicle!
+  taxYearSummary: FundTaxYearSummary
+  
+  # The disposal that triggered the wash sale
+  disposal: AssetDisposal!
+  
+  # Wash sale details
+  disallowedLoss: BigDecimal!       # Amount of loss disallowed
+  washPurchaseDate: BigInt!         # Date of the wash purchase
+  washPurchaseLotId: Bytes!         # Lot ID of the replacement shares
+  
+  # The loss is added to the basis of the replacement shares
+  basisAdjustment: BigDecimal!      # Amount added to replacement lot basis
+  
+  # 30-day window info
+  originalSaleDate: BigInt!
+  windowStart: BigInt!              # 30 days before sale
+  windowEnd: BigInt!                # 30 days after sale
+  
+  # Tax year
+  taxYear: Int!
+  
+  # Transaction
+  detectedAt: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
 }
 
 type VehicleInvestment @entity {
@@ -1014,6 +1099,10 @@ enum ActivityType {
   OPTION_GRANTED
   OPTION_EXERCISED
   RSA_GRANTED
+  # Tax tracking activities
+  ASSET_DISPOSED
+  INCOME_RECEIVED
+  WASH_SALE_DETECTED
 }
 
 type Offering @entity {
