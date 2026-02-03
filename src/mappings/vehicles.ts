@@ -191,14 +191,22 @@ export function handleCommitmentCalculated(event: CommitmentCalculated): void {
   const callId = `${vehicleAddress}-${event.params.callId.toString()}`;
   const memberAddress = event.params.member;
   const commitmentId = `${callId}-${memberAddress.toHexString()}`;
+  const memberCommitmentId = `${vehicleAddress}-${memberAddress.toHexString()}`;
+  
+  // Load the capital call to get dueDate
+  let capitalCall = CapitalCall.load(callId);
+  let dueDate = capitalCall ? capitalCall.dueDate : event.block.timestamp;
   
   // Create commitment
   let commitment = new CallCommitment(commitmentId);
   commitment.capitalCall = callId;
+  commitment.memberCommitment = memberCommitmentId;
   commitment.memberAddress = memberAddress;
   commitment.amountDue = event.params.amountDue;
   commitment.amountPaid = BigInt.fromI32(0);
+  commitment.tokensMinted = BigInt.fromI32(0);
   commitment.status = "PENDING";
+  commitment.dueDate = dueDate;
   commitment.createdAt = event.block.timestamp;
   commitment.createdTx = event.transaction.hash;
   commitment.lastUpdatedAt = event.block.timestamp;

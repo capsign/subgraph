@@ -5,11 +5,11 @@ dataSources:
   # Diamond Factory - tracks all diamond creation
   - kind: ethereum/contract
     name: DiamondFactory
-    network: base-sepolia
+    network: base
     source:
       address: "0x29b6EcCf401DDDC7B7A52cb5645380e6Fd9Cd687"
       abi: DiamondFactory
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40488499 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -47,11 +47,11 @@ dataSources:
   # New compliance data is tracked via ComplianceAdminFacet events in offering diamonds
   # - kind: ethereum/contract
   #   name: EAS
-  #   network: base-sepolia
+  #   network: base
   #   source:
   #     address: "0x4200000000000000000000000000000000000021"
   #     abi: EAS
-  #     startBlock: 31965997
+  #     startBlock: 39712238
   #   mapping:
   #     kind: ethereum/events
   #     apiVersion: 0.0.7
@@ -73,11 +73,11 @@ dataSources:
   # IMPORTANT: Must start from original deployment to capture all facet registrations
   - kind: ethereum/contract
     name: FacetRegistry
-    network: base-sepolia
+    network: base
     source:
       address: "0x4261A5238F3C90b404AfDC72Fb9eB75Ae506DeBd"
       abi: FacetRegistry
-      startBlock: 36158689 # Contract deployment block - captures all facet registrations
+      startBlock: 40488499 # Contract deployment block - captures all facet registrations
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -98,11 +98,11 @@ dataSources:
   # WalletFactory - tracks wallet creation with owner types (Permissionless)
   - kind: ethereum/contract
     name: WalletFactory
-    network: base-sepolia
+    network: base
     source:
       address: "0xE8ba6f7d0039074338027E43518BD89e2F1f2ac6"
       abi: WalletFactory
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -130,11 +130,11 @@ dataSources:
   # OfferingFactory - tracks offering creation (Permissionless)
   - kind: ethereum/contract
     name: OfferingFactory
-    network: base-sepolia
+    network: base
     source:
       address: "0x60880d3c604205A762B91Efd60a39D6F9BfE31AE"
       abi: OfferingFactory
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -177,11 +177,11 @@ dataSources:
   # TokenFactory - tracks token creation (Permissionless)
   - kind: ethereum/contract
     name: TokenFactory
-    network: base-sepolia
+    network: base
     source:
       address: "0x7eA89e9Dfb09Dcef1fb0c496Aae038f1c8300730"
       abi: TokenFactory
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -228,11 +228,11 @@ dataSources:
   # TODO: Add EscrowFactory ABI and mappings
   # - kind: ethereum/contract
   #   name: EscrowFactory
-  #   network: base-sepolia
+  #   network: base
   #   source:
   #     address: "0xa37E52Ddf9e3fD7e4806C8d442405ff5616E0E4A"
   #     abi: EscrowFactory
-  #     startBlock: 35999637 # Updated 2026-01-07 - Fresh deployment with new storage slots
+  #     startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
   #   mapping:
   #     kind: ethereum/events
   #     apiVersion: 0.0.7
@@ -250,11 +250,11 @@ dataSources:
   # USDC - tracks USDC transfers to/from CapSign wallets
   - kind: ethereum/contract
     name: USDC
-    network: base-sepolia
+    network: base
     source:
-      address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+      address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
       abi: ERC20
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40488499 # Updated 2026-01-07 - Match fresh deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -274,11 +274,11 @@ dataSources:
   # CapSignPaymaster - tracks gas sponsorship
   - kind: ethereum/contract
     name: CapSignPaymaster
-    network: base-sepolia
+    network: base
     source:
       address: "0x02b5830f17e9B9bfF476dfb2b382F3aA2d12430E"
       abi: CapSignPaymasterFacet
-      startBlock: 35119881 # Reverted to capture all historical data including offerings
+      startBlock: 40489259 # Updated 2026-01-07 - Fresh deployment with new storage slots
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -307,7 +307,7 @@ templates:
   # Offering Diamond Template
   - kind: ethereum/contract
     name: OfferingDiamond
-    network: base-sepolia
+    network: base
     source:
       abi: OfferingDiamond
     mapping:
@@ -436,7 +436,7 @@ templates:
   # Token Diamond Template
   - kind: ethereum/contract
     name: TokenDiamond
-    network: base-sepolia
+    network: base
     source:
       abi: TokenDiamond
     mapping:
@@ -567,7 +567,7 @@ templates:
   # Wallet Diamond Template
   - kind: ethereum/contract
     name: WalletDiamond
-    network: base-sepolia
+    network: base
     source:
       abi: WalletDiamond
     mapping:
@@ -880,7 +880,7 @@ templates:
   # Escrow Diamond Template
   - kind: ethereum/contract
     name: EscrowDiamond
-    network: base-sepolia
+    network: base
     source:
       abi: AcquisitionCoreFacet
     mapping:
@@ -910,7 +910,7 @@ templates:
   # Holding Period Module Template
   - kind: ethereum/contract
     name: HoldingPeriodModule
-    network: base-sepolia
+    network: base
     source:
       abi: HoldingPeriodModule
     mapping:
@@ -936,7 +936,7 @@ templates:
   # Volume Limit Module Template
   - kind: ethereum/contract
     name: VolumeLimitModule
-    network: base-sepolia
+    network: base
     source:
       abi: VolumeLimitModule
     mapping:
@@ -962,7 +962,7 @@ templates:
   # Affiliate Status Module Template
   - kind: ethereum/contract
     name: AffiliateStatusModule
-    network: base-sepolia
+    network: base
     source:
       abi: AffiliateStatusModule
     mapping:
@@ -987,7 +987,7 @@ templates:
   # Lockup Compliance Module Template (Lot-level)
   - kind: ethereum/contract
     name: LockupComplianceModule
-    network: base-sepolia
+    network: base
     source:
       abi: LockupComplianceModule
     mapping:
@@ -1011,7 +1011,7 @@ templates:
   # Vesting Compliance Module Template (Lot-level)
   - kind: ethereum/contract
     name: VestingComplianceModule
-    network: base-sepolia
+    network: base
     source:
       abi: VestingComplianceModule
     mapping:
@@ -1035,7 +1035,7 @@ templates:
   # ROFR (Right of First Refusal) Module Template
   - kind: ethereum/contract
     name: ROFRModule
-    network: base-sepolia
+    network: base
     source:
       abi: ROFRModule
     mapping:
