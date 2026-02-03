@@ -980,7 +980,8 @@ type TrustVestingSchedule @entity {
 type Activity @entity {
   id: ID! # tx-hash-logIndex or unique identifier
   type: ActivityType!
-  wallet: Bytes! # The wallet this activity relates to (for filtering)
+  wallet: Bytes! # The wallet that initiated/owns this activity
+  targetWallet: Bytes # The wallet that is the subject/target of this activity (e.g., fund wallet for capital calls)
   timestamp: BigInt! # Universal timestamp for sorting
   tx: Bytes!
   blockNumber: BigInt!

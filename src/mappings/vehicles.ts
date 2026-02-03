@@ -140,15 +140,17 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
   capitalCall.blockNumber = event.block.number;
   capitalCall.save();
   
-  // Create activity
+  // Create activity for the fund wallet (event.address)
+  // Also set targetWallet to the fund for queries from the initiator's perspective
   const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
   let activity = createActivity(
     activityId,
     "CAPITAL_CALL_CREATED",
-    event.address,
+    event.address, // Fund wallet as primary (for fund's activity feed)
     event.block.timestamp,
     event.transaction.hash,
-    event.block.number
+    event.block.number,
+    event.transaction.from // Initiator (GP) as target for their activity feed
   );
   activity.capitalCall = callId;
   activity.save();
@@ -241,15 +243,16 @@ export function handleContributionReceived(event: ContributionReceived): void {
     vehicle.save();
   }
   
-  // Create activity
+  // Create activity for the fund, with contributor as targetWallet
   const activityType = event.params.isOffchain ? "CAPITAL_CALL_OFFCHAIN_CONTRIBUTION" : "CAPITAL_CALL_CONTRIBUTION";
   let activity = createActivity(
     contributionId,
     activityType,
-    event.address,
+    event.address, // Fund wallet
     event.block.timestamp,
     event.transaction.hash,
-    event.block.number
+    event.block.number,
+    event.params.member // Contributor wallet as target
   );
   activity.capitalCall = callId;
   activity.callContribution = contributionId;
