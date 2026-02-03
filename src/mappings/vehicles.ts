@@ -8,6 +8,24 @@ import {
   CommitmentsTransferred,
 } from "../../generated/templates/WalletDiamond/CapitalCallFacet";
 
+// CommitmentFacet events
+import {
+  CommitmentCreated as CommitmentCreatedEvent,
+  CommitmentAccepted,
+  CommitmentCancelled as CommitmentCancelledEvent,
+  CommitmentDefaulted,
+  CapitalFunded,
+  CommitmentAdjusted,
+} from "../../generated/templates/WalletDiamond/CommitmentFacet";
+
+// FeeAccrualFacet events
+import {
+  FeeConfigUpdated,
+  ManagementFeeAccrued,
+  FeeSettled,
+  CarryCalculated,
+} from "../../generated/templates/WalletDiamond/FeeAccrualFacet";
+
 // TokenDistributionFacet events
 import {
   DistributionCreated as TokenDistributionCreated,
@@ -47,6 +65,9 @@ import {
   FundTaxYearSummary,
   ShareClass,
   CallContribution,
+  MemberCommitment,
+  FeeAccrualEvent,
+  FeeSettlementEvent,
 } from "../../generated/schema";
 import { BigInt, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
@@ -116,9 +137,13 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
     vehicle.save();
@@ -398,9 +423,13 @@ export function handleTokenDistributionCreated(event: TokenDistributionCreated):
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND"; // Token-based distributions are typically for funds
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
   }
@@ -535,9 +564,13 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
     vehicle.save();
@@ -681,9 +714,13 @@ export function handleAssetDisposed(event: AssetDisposed): void {
     vehicle = new Vehicle(fundWalletAddress);
     vehicle.wallet = fundWalletAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
     vehicle.save();
@@ -812,4 +849,335 @@ function updateFundTaxYearSummary(disposal: AssetDisposal, timestamp: BigInt): v
   
   summary.lastUpdated = timestamp;
   summary.save();
+}
+
+// ============ COMMITMENT HANDLERS (CommitmentFacet) ============
+
+/**
+ * Handle CommitmentCreated event (CommitmentFacet)
+ * Creates a new member commitment when investor subscribes
+ * Note: No tokens are minted yet - that happens at funding
+ */
+export function handleCommitmentCreated(event: CommitmentCreatedEvent): void {
+  const vehicleAddress = event.address.toHexString();
+  const memberAddress = event.params.member;
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  // Load or create Vehicle
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (!vehicle) {
+    vehicle = new Vehicle(vehicleAddress);
+    vehicle.wallet = vehicleAddress;
+    vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
+    vehicle.totalCapitalContributed = BigInt.fromI32(0);
+    vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
+    vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.createdAt = event.block.timestamp;
+    vehicle.createdTx = event.transaction.hash;
+  }
+  vehicle.totalCapitalCommitted = vehicle.totalCapitalCommitted.plus(event.params.amount);
+  vehicle.save();
+  
+  // Create MemberCommitment entity
+  let commitment = new MemberCommitment(commitmentId);
+  commitment.vehicle = vehicleAddress;
+  commitment.member = memberAddress.toHexString();
+  commitment.memberAddress = memberAddress;
+  commitment.totalCommitted = event.params.amount;
+  commitment.totalCalled = BigInt.fromI32(0);
+  commitment.totalFunded = BigInt.fromI32(0);
+  commitment.totalTokensMinted = BigInt.fromI32(0);
+  commitment.unfundedCommitment = event.params.amount;
+  commitment.ownershipBps = BigInt.fromI32(0);
+  commitment.status = "PENDING";
+  commitment.subscribedAt = event.params.timestamp;
+  commitment.createdAt = event.block.timestamp;
+  commitment.createdTx = event.transaction.hash;
+  commitment.lastUpdatedAt = event.block.timestamp;
+  commitment.lastUpdatedTx = event.transaction.hash;
+  commitment.save();
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "COMMITMENT_CREATED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number,
+    memberAddress
+  );
+  activity.save();
+}
+
+/**
+ * Handle CommitmentAccepted event (CommitmentFacet)
+ * GP accepts the subscription - investor is now an LP with unfunded commitment
+ */
+export function handleCommitmentAccepted(event: CommitmentAccepted): void {
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  let commitment = MemberCommitment.load(commitmentId);
+  if (commitment) {
+    commitment.status = "ACTIVE";
+    commitment.admittedAt = event.params.timestamp;
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "COMMITMENT_ACCEPTED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle CommitmentCancelled event (CommitmentFacet)
+ * GP cancels the commitment before any funding
+ */
+export function handleCommitmentCancelled(event: CommitmentCancelledEvent): void {
+  const vehicleAddress = event.address.toHexString();
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  let commitment = MemberCommitment.load(commitmentId);
+  if (commitment) {
+    // Update vehicle totals
+    let vehicle = Vehicle.load(vehicleAddress);
+    if (vehicle) {
+      vehicle.totalCapitalCommitted = vehicle.totalCapitalCommitted.minus(commitment.totalCommitted);
+      vehicle.save();
+    }
+    
+    commitment.status = "CANCELLED";
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "COMMITMENT_CANCELLED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle CommitmentDefaulted event (CommitmentFacet)
+ * Member failed to meet capital call obligation
+ */
+export function handleCommitmentDefaulted(event: CommitmentDefaulted): void {
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  let commitment = MemberCommitment.load(commitmentId);
+  if (commitment) {
+    commitment.status = "DEFAULTED";
+    commitment.defaultedAt = event.params.timestamp;
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "COMMITMENT_DEFAULTED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle CapitalFunded event (CommitmentFacet)
+ * Capital was contributed and tokens were minted
+ */
+export function handleCapitalFundedFromCommitment(event: CapitalFunded): void {
+  const vehicleAddress = event.address.toHexString();
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  // Update vehicle
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.totalCapitalContributed = vehicle.totalCapitalContributed.plus(event.params.amount);
+    vehicle.save();
+  }
+  
+  // Update commitment
+  let commitment = MemberCommitment.load(commitmentId);
+  if (commitment) {
+    if (commitment.firstFundingAt == null || commitment.firstFundingAt == BigInt.fromI32(0)) {
+      commitment.firstFundingAt = event.params.timestamp;
+    }
+    commitment.lastFundingAt = event.params.timestamp;
+    commitment.totalFunded = commitment.totalFunded.plus(event.params.amount);
+    commitment.totalTokensMinted = commitment.totalTokensMinted.plus(event.params.tokensMinted);
+    commitment.unfundedCommitment = commitment.totalCommitted.minus(commitment.totalFunded);
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  let activity = createActivity(
+    activityId,
+    "CAPITAL_FUNDED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle CommitmentAdjusted event (CommitmentFacet)
+ * Commitment amount was changed (side letter, amendment)
+ */
+export function handleCommitmentAdjusted(event: CommitmentAdjusted): void {
+  const vehicleAddress = event.address.toHexString();
+  const commitmentId = event.params.commitmentId.toHexString();
+  
+  // Update vehicle totals
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.totalCapitalCommitted = vehicle.totalCapitalCommitted
+      .minus(event.params.oldAmount)
+      .plus(event.params.newAmount);
+    vehicle.save();
+  }
+  
+  let commitment = MemberCommitment.load(commitmentId);
+  if (commitment) {
+    commitment.totalCommitted = event.params.newAmount;
+    commitment.unfundedCommitment = event.params.newAmount.minus(commitment.totalFunded);
+    commitment.lastUpdatedAt = event.block.timestamp;
+    commitment.lastUpdatedTx = event.transaction.hash;
+    commitment.save();
+  }
+}
+
+// ============ FEE ACCRUAL HANDLERS (FeeAccrualFacet) ============
+
+/**
+ * Handle FeeConfigUpdated event (FeeAccrualFacet)
+ * Updates fund fee configuration
+ */
+export function handleFeeConfigUpdated(event: FeeConfigUpdated): void {
+  const vehicleAddress = event.address.toHexString();
+  
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.managementFeeRate = event.params.managementFeeBps;
+    vehicle.carryRate = event.params.carryBps;
+    vehicle.hurdleRate = event.params.hurdleBps;
+    vehicle.save();
+  }
+}
+
+/**
+ * Handle ManagementFeeAccrued event (FeeAccrualFacet)
+ * Tracks fee accrual for NAV calculation
+ */
+export function handleManagementFeeAccrued(event: ManagementFeeAccrued): void {
+  const vehicleAddress = event.address.toHexString();
+  const accrualId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  
+  // Update vehicle
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.accruedManagementFees = event.params.totalAccrued;
+    vehicle.lastFeeAccrualAt = event.block.timestamp;
+    vehicle.save();
+  }
+  
+  // Create fee accrual event record
+  let feeEvent = new FeeAccrualEvent(accrualId);
+  feeEvent.vehicle = vehicleAddress;
+  feeEvent.amount = event.params.amount;
+  feeEvent.feeBase = event.params.feeBase;
+  feeEvent.daysAccrued = event.params.daysAccrued;
+  feeEvent.totalAccrued = event.params.totalAccrued;
+  feeEvent.timestamp = event.block.timestamp;
+  feeEvent.tx = event.transaction.hash;
+  feeEvent.save();
+}
+
+/**
+ * Handle FeeSettled event (FeeAccrualFacet)
+ * Management fees were paid in stablecoin to GP (cash model, not token dilution)
+ */
+export function handleFeeSettled(event: FeeSettled): void {
+  const vehicleAddress = event.address.toHexString();
+  const settlementId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
+  
+  // Update vehicle - reset accrued fees and track total paid
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.totalManagementFeesPaid = vehicle.totalManagementFeesPaid.plus(event.params.amount);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.save();
+  }
+  
+  // Create fee settlement record
+  let settlement = new FeeSettlementEvent(settlementId);
+  settlement.vehicle = vehicleAddress;
+  settlement.amount = event.params.amount;
+  settlement.recipient = event.params.recipient;
+  settlement.timestamp = event.block.timestamp;
+  settlement.tx = event.transaction.hash;
+  settlement.save();
+  
+  // Create activity
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}-fee`;
+  let activity = createActivity(
+    activityId,
+    "FEE_SETTLED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
+}
+
+/**
+ * Handle CarryCalculated event (FeeAccrualFacet)
+ * Carried interest calculated on distribution
+ */
+export function handleCarryCalculated(event: CarryCalculated): void {
+  const vehicleAddress = event.address.toHexString();
+  
+  // Just log for now - carry is typically tracked as part of distribution
+  const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}-carry`;
+  let activity = createActivity(
+    activityId,
+    "CARRY_CALCULATED",
+    event.address,
+    event.block.timestamp,
+    event.transaction.hash,
+    event.block.number
+  );
+  activity.save();
 }

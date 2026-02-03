@@ -51,9 +51,13 @@ export function handleIncomeReceived(event: IncomeReceived): void {
     vehicle = new Vehicle(fundWalletAddress);
     vehicle.wallet = fundWalletAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
     vehicle.save();

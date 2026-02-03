@@ -418,13 +418,26 @@ type Vehicle @entity {
   vehicleType: VehicleType! # SPV, FUND, DAO
   
   # Capital accounting totals
-  totalCapitalContributed: BigInt!
+  totalCapitalCommitted: BigInt! # Sum of all member commitments
+  totalCapitalCalled: BigInt! # Sum of all capital calls issued
+  totalCapitalContributed: BigInt! # Actual $ received
   totalDistributionsExecuted: BigInt!
   totalDistributionsClaimed: BigInt!
+  
+  # Fee tracking
+  managementFeeRate: BigInt # Basis points (200 = 2%)
+  carryRate: BigInt # Basis points (2000 = 20%)
+  hurdleRate: BigInt # Basis points (800 = 8%)
+  accruedManagementFees: BigInt! # Fees accrued but not yet settled
+  totalManagementFeesPaid: BigInt! # Total fees paid to GP (stablecoin)
+  lastFeeAccrualAt: BigInt # Timestamp of last fee accrual
   
   # Token reference (for unit interest tokens)
   # NOTE: Members are derived from token lots (lot.owner where quantity > 0)
   token: Token # The UNIT_INTEREST token representing ownership
+  
+  # Member commitments (subscription-level tracking)
+  memberCommitments: [MemberCommitment!]! @derivedFrom(field: "vehicle")
   
   # Capital contributions
   contributions: [CapitalContribution!]! @derivedFrom(field: "vehicle")
@@ -442,6 +455,82 @@ type Vehicle @entity {
   createdTx: Bytes!
 }
 
+# ============ MEMBER COMMITMENT (Subscription-Level) ============
+# Tracks an LP's overall commitment to a vehicle, spanning all capital calls.
+# Tokens are minted only when capital is actually funded, not at subscription.
+
+type MemberCommitment @entity {
+  id: ID! # vehicle-memberAddress
+  vehicle: Vehicle!
+  member: Wallet! # The LP's wallet
+  memberAddress: Bytes! # Address for easy querying
+  
+  # Amounts (in payment token, typically 6 decimals for USDC)
+  totalCommitted: BigInt! # Original subscription amount
+  totalCalled: BigInt! # Sum of capital calls issued to this member
+  totalFunded: BigInt! # Actual $ contributed
+  totalTokensMinted: BigInt! # LP tokens minted (should track with totalFunded)
+  
+  # Unfunded commitment
+  unfundedCommitment: BigInt! # totalCommitted - totalFunded
+  
+  # Ownership percentage (updated when tokens minted)
+  ownershipBps: BigInt! # Basis points of fund ownership (1000 = 10%)
+  
+  # Status
+  status: MemberCommitmentStatus!
+  
+  # Lifecycle timestamps
+  subscribedAt: BigInt! # When commitment was made
+  admittedAt: BigInt # When GP accepted subscription
+  firstFundingAt: BigInt # When first capital was contributed
+  lastFundingAt: BigInt # Most recent contribution
+  defaultedAt: BigInt # If defaulted on a capital call
+  withdrawnAt: BigInt # If withdrew from fund
+  
+  # Per-call tracking
+  callCommitments: [CallCommitment!]! @derivedFrom(field: "memberCommitment")
+  
+  # Contribution history
+  contributions: [CapitalContribution!]! @derivedFrom(field: "memberCommitment")
+  
+  # Metadata
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+enum MemberCommitmentStatus {
+  PENDING    # Subscription signed, awaiting GP acceptance
+  ACTIVE     # In good standing
+  DEFAULTED  # Failed to meet capital call obligation
+  CANCELLED  # GP cancelled before any funding
+  WITHDRAWN  # LP withdrew (redeemed all tokens)
+}
+
+# ============ FEE TRACKING ENTITIES ============
+
+type FeeAccrualEvent @entity {
+  id: ID! # tx-logIndex
+  vehicle: Vehicle!
+  amount: BigInt! # Fee amount accrued in this event
+  feeBase: BigInt! # Value fees were calculated on (NAV, committed, or called)
+  daysAccrued: BigInt! # Number of days in this accrual
+  totalAccrued: BigInt! # Total accrued fees after this event
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
+type FeeSettlementEvent @entity {
+  id: ID! # tx-logIndex
+  vehicle: Vehicle!
+  amount: BigInt! # Stablecoin fee amount paid
+  recipient: Bytes! # GP wallet that received payment
+  timestamp: BigInt!
+  tx: Bytes!
+}
+
 enum VehicleType {
   SPV        # Special Purpose Vehicle (single investment)
   FUND       # Multi-investment fund
@@ -457,12 +546,16 @@ enum VehicleType {
 type CapitalContribution @entity {
   id: ID! # tx-hash-logIndex
   vehicle: Vehicle!
+  memberCommitment: MemberCommitment # Link to subscription commitment
   memberAddress: Bytes! # Address of the contributing member
   amount: BigInt!
+  tokensMinted: BigInt! # LP tokens minted for this contribution
   
   # Context: where did this capital come from?
-  source: CapitalSource! # OFFERING, DIRECT, TRANSFER
+  source: CapitalSource! # OFFERING, DIRECT, TRANSFER, CAPITAL_CALL
   offering: Offering # If source = OFFERING, reference the offering
+  capitalCall: CapitalCall # If source = CAPITAL_CALL, reference the call
+  callCommitment: CallCommitment # If source = CAPITAL_CALL, reference the specific call commitment
   
   timestamp: BigInt!
   tx: Bytes!
@@ -517,13 +610,20 @@ enum CapitalCallStatus {
 type CallCommitment @entity {
   id: ID! # capitalCall-memberAddress
   capitalCall: CapitalCall!
+  memberCommitment: MemberCommitment! # Link to parent subscription commitment
   memberAddress: Bytes! # Address of the member with this commitment
   amountDue: BigInt! # Pro-rata amount calculated at call creation
   amountPaid: BigInt! # Amount contributed so far
-  status: CommitmentStatus!
+  tokensMinted: BigInt! # Tokens minted for this call contribution
+  status: CallCommitmentStatus!
   
   # Track individual contributions
   contributions: [CallContribution!]! @derivedFrom(field: "commitment")
+  
+  # Deadline tracking
+  dueDate: BigInt! # When payment is due
+  paidAt: BigInt # When fully paid
+  defaultedAt: BigInt # When marked as defaulted (if applicable)
   
   createdAt: BigInt!
   createdTx: Bytes!
@@ -531,10 +631,11 @@ type CallCommitment @entity {
   lastUpdatedTx: Bytes!
 }
 
-enum CommitmentStatus {
+enum CallCommitmentStatus {
   PENDING      # No contributions yet
   PARTIAL      # Some amount paid
   PAID         # Fully paid (amountPaid >= amountDue)
+  DEFAULTED    # Failed to pay by due date
 }
 
 type CallContribution @entity {
@@ -1070,6 +1171,15 @@ enum ActivityType {
   CAPITAL_CALL_OFFCHAIN_CONTRIBUTION
   CAPITAL_CALL_CANCELLED
   CAPITAL_CALL_FUNDED
+  # Commitment activities (mint-at-funding model)
+  COMMITMENT_CREATED
+  COMMITMENT_ACCEPTED
+  COMMITMENT_CANCELLED
+  COMMITMENT_DEFAULTED
+  CAPITAL_FUNDED
+  # Fee activities
+  FEE_SETTLED
+  CARRY_CALCULATED
   # Authorized signer activities
   SIGNER_ADDED
   SIGNER_REMOVED

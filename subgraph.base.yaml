@@ -613,6 +613,10 @@ templates:
         # New capital/investment facets (replaced Vehicle* facets)
         - name: CapitalCallFacet
           file: ./abis/CapitalCallFacet.json
+        - name: CommitmentFacet
+          file: ./abis/CommitmentFacet.json
+        - name: FeeAccrualFacet
+          file: ./abis/FeeAccrualFacet.json
         - name: TokenDistributionFacet
           file: ./abis/TokenDistributionFacet.json
         - name: InvestmentFacet
@@ -701,6 +705,38 @@ templates:
           receipt: false
         - event: CommitmentsTransferred(indexed uint256,indexed address,indexed address,uint256,uint256)
           handler: handleCommitmentsTransferred
+          receipt: false
+        # Commitment events (from CommitmentFacet - mint-at-funding model)
+        - event: CommitmentCreated(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleCommitmentCreated
+          receipt: false
+        - event: CommitmentAccepted(indexed bytes32,indexed address,uint256)
+          handler: handleCommitmentAccepted
+          receipt: false
+        - event: CommitmentCancelled(indexed bytes32,indexed address,string,uint256)
+          handler: handleCommitmentCancelled
+          receipt: false
+        - event: CommitmentDefaulted(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleCommitmentDefaulted
+          receipt: false
+        - event: CapitalFunded(indexed bytes32,indexed address,uint256,uint256,uint256)
+          handler: handleCapitalFundedFromCommitment
+          receipt: false
+        - event: CommitmentAdjusted(indexed bytes32,indexed address,uint256,uint256,string)
+          handler: handleCommitmentAdjusted
+          receipt: false
+        # FeeAccrual events (from FeeAccrualFacet - management fees and carry)
+        - event: FeeConfigUpdated(uint256,uint256,uint256,address,uint8)
+          handler: handleFeeConfigUpdated
+          receipt: false
+        - event: ManagementFeeAccrued(uint256,uint256,uint256,uint256)
+          handler: handleManagementFeeAccrued
+          receipt: false
+        - event: FeeSettled(uint256,address)
+          handler: handleFeeSettled
+          receipt: false
+        - event: CarryCalculated(uint256,uint256,uint256,address)
+          handler: handleCarryCalculated
           receipt: false
         # TokenDistribution events (from TokenDistributionFacet)
         - event: DistributionCreated(indexed uint256,indexed address,indexed address,uint256,uint256)

@@ -1,0 +1,553 @@
+[
+  {
+    "type": "function",
+    "name": "FeeAccrual_init",
+    "inputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IFeeAccrual.FeeConfig",
+        "components": [
+          {
+            "name": "managementFeeBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "carryBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "hurdleBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "feeBase",
+            "type": "uint8",
+            "internalType": "enum IFeeAccrual.FeeBase"
+          }
+        ]
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "accrueManagementFee",
+    "inputs": [
+      {
+        "name": "currentNAV",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "accruedAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "calculateCarry",
+    "inputs": [
+      {
+        "name": "distributionAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalContributed",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalPriorDistributions",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "carryAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "lpAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "calculatePendingAccrual",
+    "inputs": [
+      {
+        "name": "currentNAV",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "pendingFees",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAccruedFees",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "managementFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFeeConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IFeeAccrual.FeeConfig",
+        "components": [
+          {
+            "name": "managementFeeBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "carryBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "hurdleBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "feeBase",
+            "type": "uint8",
+            "internalType": "enum IFeeAccrual.FeeBase"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFeeState",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IFeeAccrual.FeeState",
+        "components": [
+          {
+            "name": "accruedManagementFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalManagementFeesPaid",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCarryPaid",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastAccrualTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastSettlementTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getNetNAV",
+    "inputs": [
+      {
+        "name": "grossNAV",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "netNAV",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPaymentToken",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalFeesPaid",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "managementFees",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "carry",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isFeeAccrualInitialized",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "recordCarryPaid",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setFeeConfig",
+    "inputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IFeeAccrual.FeeConfig",
+        "components": [
+          {
+            "name": "managementFeeBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "carryBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "hurdleBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "feeRecipient",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "feeBase",
+            "type": "uint8",
+            "internalType": "enum IFeeAccrual.FeeBase"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setFeeRecipient",
+    "inputs": [
+      {
+        "name": "recipient",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "settleManagementFee",
+    "inputs": [
+      {
+        "name": "currentNAV",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "feesPaid",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateFeeBaseValue",
+    "inputs": [
+      {
+        "name": "value",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CarryCalculated",
+    "inputs": [
+      {
+        "name": "distributionAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "profit",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "carryAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FeeConfigUpdated",
+    "inputs": [
+      {
+        "name": "managementFeeBps",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "carryBps",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "hurdleBps",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeRecipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "feeBase",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IFeeAccrual.FeeBase"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "FeeSettled",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "recipient",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ManagementFeeAccrued",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeBase",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "daysAccrued",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalAccrued",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AccessControl_CallerIsNotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "functionSig",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_AccrualTooRecent",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_InsufficientBalance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_InvalidFeeRate",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_InvalidRecipient",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_NoFeesToSettle",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "FeeAccrual_NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  }
+]
