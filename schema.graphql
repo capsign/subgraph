@@ -111,6 +111,10 @@ type Wallet @entity {
   # DeFi vault positions (treasury management)
   vaultPositions: [VaultPosition!]! @derivedFrom(field: "wallet")
   registeredVaults: [DeFiVault!]! @derivedFrom(field: "wallet")
+  
+  # Redemption control (gates, suspensions, side pockets)
+  redemptionRequests: [RedemptionRequest!]! @derivedFrom(field: "wallet")
+  sidePockets: [SidePocket!]! @derivedFrom(field: "wallet")
 }
 
 # ============ ENTITY CLASSIFICATION (GLEIF ELF Codes) ============
@@ -1238,6 +1242,15 @@ enum ActivityType {
   VAULT_DEPOSIT
   VAULT_WITHDRAWAL
   VAULT_VALUATION_UPDATED
+  # Redemption control activities
+  REDEMPTION_REQUESTED
+  REDEMPTION_PROCESSED
+  REDEMPTION_CANCELLED
+  REDEMPTIONS_SUSPENDED
+  REDEMPTIONS_RESUMED
+  SIDE_POCKET_CREATED
+  SIDE_POCKET_DISTRIBUTED
+  GATE_PERIOD_RESET
 }
 
 type Offering @entity {
@@ -2215,6 +2228,35 @@ type HoldingPeriodConfig @entity {
   lastUpdatedTx: Bytes!
 }
 
+# Minimum balance configuration for a token
+type MinimumBalanceConfig @entity {
+  id: ID! # token address (one config per token)
+  token: Token!
+  module: ComplianceModule! # Reference to the MinimumBalanceModule instance
+  minimumBalance: BigInt! # Minimum balance required (0 = no minimum)
+  autoExemptRoles: Bytes! # Bitmask of auto-exempt roles (e.g., admin/GP)
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Exemption from minimum balance for a specific holder
+type MinimumBalanceExemption @entity {
+  id: ID! # token-holder
+  token: Token!
+  holder: Bytes!
+  isExempt: Boolean!
+  
+  # Tracking
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
 # Volume Limit Module - tracks rolling volume limits for affiliates
 type VolumeLimitConfig @entity {
   id: ID! # token-holder
@@ -2743,4 +2785,82 @@ type VaultValuationUpdate @entity {
   timestamp: BigInt!
   tx: Bytes!
   blockNumber: BigInt!
+}
+
+# ============ REDEMPTION CONTROL ENTITIES ============
+
+enum RedemptionStatus {
+  PENDING
+  QUEUED
+  PARTIAL
+  FULFILLED
+  CANCELLED
+}
+
+enum SuspensionReason {
+  MARKET_STRESS
+  LIQUIDITY
+  NAV_UNCERTAINTY
+  REGULATORY
+  OTHER
+}
+
+# Redemption request from an investor
+type RedemptionRequest @entity {
+  id: ID! # wallet-requestId
+  wallet: Wallet!
+  requestId: BigInt!
+  investor: Bytes!
+  sharesRequested: BigInt!
+  sharesFulfilled: BigInt!
+  sharesRemaining: BigInt!
+  amountPaid: BigInt!
+  navPerShare: BigInt!
+  status: RedemptionStatus!
+  requestedAt: BigInt!
+  eligibleAt: BigInt!
+  processedAt: BigInt
+  cancelledAt: BigInt
+  cancelReason: String
+  transactionHash: Bytes!
+}
+
+# Suspension event
+type RedemptionSuspension @entity {
+  id: ID! # wallet-timestamp
+  wallet: Wallet!
+  reason: SuspensionReason!
+  description: String!
+  suspendedBy: Bytes!
+  suspendedAt: BigInt!
+  resumedAt: BigInt
+  resumedBy: Bytes
+  transactionHash: Bytes!
+}
+
+# Side pocket for illiquid assets
+type SidePocket @entity {
+  id: ID! # wallet-sidePocketId
+  wallet: Wallet!
+  sidePocketId: BigInt!
+  investmentId: BigInt!
+  reason: String!
+  isActive: Boolean!
+  createdAt: BigInt!
+  distributedAt: BigInt
+  totalDistributed: BigInt
+  recipientCount: BigInt
+  createdTx: Bytes!
+  distributedTx: Bytes
+}
+
+# Gate period summary
+type GatePeriod @entity {
+  id: ID! # wallet-periodStart
+  wallet: Wallet!
+  periodStart: BigInt!
+  periodEnd: BigInt!
+  gateLimit: BigInt!
+  totalFulfilled: BigInt!
+  transactionHash: Bytes!
 }

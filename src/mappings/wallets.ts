@@ -85,6 +85,18 @@ export {
   handleVaultValuationUpdated,
 } from "./defi";
 
+// Re-export Redemption control handlers (Gates/Suspension/Side Pockets)
+export {
+  handleRedemptionRequested,
+  handleRedemptionProcessed,
+  handleRedemptionCancelled,
+  handleRedemptionsSuspended,
+  handleRedemptionsResumed,
+  handleSidePocketCreated,
+  handleSidePocketDistributed,
+  handleGatePeriodReset,
+} from "./redemption";
+
 export function handleWalletInitialized(event: WalletInitialized): void {
   const walletAddress = event.address.toHexString();
 

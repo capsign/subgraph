@@ -608,6 +608,10 @@ templates:
         - VaultDeposit
         - VaultWithdrawal
         - VaultValuationUpdate
+        - RedemptionRequest
+        - RedemptionSuspension
+        - SidePocket
+        - GatePeriod
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -650,6 +654,8 @@ templates:
           file: ./abis/VehicleConfigFacet.json
         - name: DeFiIntegrationFacet
           file: ./abis/DeFiIntegrationFacet.json
+        - name: RedemptionControlFacet
+          file: ./abis/RedemptionControlFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -907,6 +913,31 @@ templates:
         - event: VaultValuationUpdated(indexed uint256,indexed address,uint256,uint256)
           handler: handleVaultValuationUpdated
           receipt: false
+        # Redemption Control events
+        - event: RedemptionRequested(indexed uint256,indexed address,uint256,uint256)
+          handler: handleRedemptionRequested
+          receipt: false
+        - event: RedemptionProcessed(indexed uint256,indexed address,uint256,uint256,uint256)
+          handler: handleRedemptionProcessed
+          receipt: false
+        - event: RedemptionCancelled(indexed uint256,indexed address,string)
+          handler: handleRedemptionCancelled
+          receipt: false
+        - event: RedemptionsSuspended(indexed uint8,string,indexed address)
+          handler: handleRedemptionsSuspended
+          receipt: false
+        - event: RedemptionsResumed(indexed address)
+          handler: handleRedemptionsResumed
+          receipt: false
+        - event: SidePocketCreated(indexed uint256,indexed uint256,string)
+          handler: handleSidePocketCreated
+          receipt: false
+        - event: SidePocketDistributed(indexed uint256,uint256,uint256)
+          handler: handleSidePocketDistributed
+          receipt: false
+        - event: GatePeriodReset(uint256,uint256,uint256)
+          handler: handleGatePeriodReset
+          receipt: false
       file: ./src/mappings/wallets.ts
 
   # Escrow Diamond Template
@@ -1095,3 +1126,28 @@ templates:
         - event: TransferCancelled(indexed uint256)
           handler: handleTransferCancelled
       file: ./src/mappings/rofr-module.ts
+
+  # Minimum Balance Module Template
+  - kind: ethereum/contract
+    name: MinimumBalanceModule
+    network: base
+    source:
+      abi: MinimumBalanceModule
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MinimumBalanceConfig
+        - MinimumBalanceExemption
+      abis:
+        - name: MinimumBalanceModule
+          file: ./abis/MinimumBalanceModule.json
+      eventHandlers:
+        - event: MinimumBalanceSet(indexed address,uint256)
+          handler: handleMinimumBalanceSet
+        - event: MinimumBalanceExemptionSet(indexed address,indexed address,bool)
+          handler: handleMinimumBalanceExemptionSet
+        - event: AutoExemptRoleSet(indexed address,uint8,bool)
+          handler: handleAutoExemptRoleSet
+      file: ./src/mappings/minimum-balance-module.ts
