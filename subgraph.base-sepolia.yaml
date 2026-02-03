@@ -603,6 +603,11 @@ templates:
         - Lien
         - AssetSeizure
         - WalletFreezeEvent
+        - DeFiVault
+        - VaultPosition
+        - VaultDeposit
+        - VaultWithdrawal
+        - VaultValuationUpdate
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -643,6 +648,8 @@ templates:
           file: ./abis/IncomeReceivableFacet.json
         - name: VehicleConfigFacet
           file: ./abis/VehicleConfigFacet.json
+        - name: DeFiIntegrationFacet
+          file: ./abis/DeFiIntegrationFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -886,6 +893,19 @@ templates:
         # UserOperation Execution audit trail
         - event: UserOperationExecuted(indexed bytes32,indexed bytes32,uint8,address,bytes4,bool)
           handler: handleUserOperationExecuted
+          receipt: false
+        # DeFi Integration events (Treasury/Yield management)
+        - event: VaultRegistered(indexed address,indexed address,string)
+          handler: handleVaultRegistered
+          receipt: false
+        - event: VaultDeposit(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleVaultDeposit
+          receipt: false
+        - event: VaultWithdrawal(indexed uint256,indexed address,uint256,uint256,uint256,bool)
+          handler: handleVaultWithdrawal
+          receipt: false
+        - event: VaultValuationUpdated(indexed uint256,indexed address,uint256,uint256)
+          handler: handleVaultValuationUpdated
           receipt: false
       file: ./src/mappings/wallets.ts
 

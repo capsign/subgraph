@@ -107,6 +107,10 @@ type Wallet @entity {
   # Liens granted on this wallet's assets
   liens: [Lien!]! @derivedFrom(field: "wallet")
   isFrozen: Boolean! # Whether wallet is frozen by any lien
+  
+  # DeFi vault positions (treasury management)
+  vaultPositions: [VaultPosition!]! @derivedFrom(field: "wallet")
+  registeredVaults: [DeFiVault!]! @derivedFrom(field: "wallet")
 }
 
 # ============ ENTITY CLASSIFICATION (GLEIF ELF Codes) ============
@@ -1121,6 +1125,11 @@ type Activity @entity {
   # Capital call references
   capitalCall: CapitalCall
   callContribution: CallContribution
+  
+  # DeFi/Treasury references
+  vaultPosition: VaultPosition
+  vaultDeposit: VaultDeposit
+  vaultWithdrawal: VaultWithdrawal
 }
 
 # Tracks native asset transfers (ETH, USDC, etc.)
@@ -1224,6 +1233,11 @@ enum ActivityType {
   ASSET_DISPOSED
   INCOME_RECEIVED
   WASH_SALE_DETECTED
+  # DeFi/Treasury activities
+  VAULT_REGISTERED
+  VAULT_DEPOSIT
+  VAULT_WITHDRAWAL
+  VAULT_VALUATION_UPDATED
 }
 
 type Offering @entity {
@@ -2641,4 +2655,92 @@ enum ROFRRequestStatus {
   REJECTED
   COMPLETED
   CANCELLED
+}
+
+# ============ DEFI INTEGRATION ENTITIES ============
+
+# Registered DeFi vault (e.g., Morpho, Aave)
+type DeFiVault @entity {
+  id: ID! # vault-walletAddress (e.g., "0xvault-0xwallet")
+  vault: Bytes! # ERC-4626 vault address
+  wallet: Wallet! # Wallet that registered this vault
+  asset: Bytes! # Underlying asset address
+  name: String!
+  
+  # All positions in this vault for this wallet
+  positions: [VaultPosition!]! @derivedFrom(field: "vault")
+  
+  registeredAt: BigInt!
+  registeredTx: Bytes!
+}
+
+# Individual vault position
+type VaultPosition @entity {
+  id: ID! # wallet-investmentId
+  wallet: Wallet!
+  vault: DeFiVault!
+  investmentId: BigInt! # ID from InvestmentFacet
+  
+  # Position state
+  sharesBalance: BigInt!
+  costBasis: BigInt! # Total deposited
+  currentValue: BigInt! # Latest valuation
+  unrealizedGain: BigInt! # currentValue - costBasis (signed, stored as BigInt)
+  lastUpdated: BigInt!
+  
+  # Status
+  isActive: Boolean! # False when fully exited
+  exitedAt: BigInt
+  exitedTx: Bytes
+  totalRealizedGain: BigInt! # Sum of all realized gains from withdrawals
+  
+  # History
+  deposits: [VaultDeposit!]! @derivedFrom(field: "position")
+  withdrawals: [VaultWithdrawal!]! @derivedFrom(field: "position")
+  valuationUpdates: [VaultValuationUpdate!]! @derivedFrom(field: "position")
+  
+  createdAt: BigInt!
+  createdTx: Bytes!
+}
+
+# Vault deposit event
+type VaultDeposit @entity {
+  id: ID! # tx-logIndex
+  position: VaultPosition!
+  wallet: Wallet!
+  vaultAddress: Bytes!
+  asset: Bytes!
+  assetsDeposited: BigInt!
+  sharesReceived: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+# Vault withdrawal event
+type VaultWithdrawal @entity {
+  id: ID! # tx-logIndex
+  position: VaultPosition!
+  wallet: Wallet!
+  vaultAddress: Bytes!
+  sharesRedeemed: BigInt!
+  assetsReceived: BigInt!
+  realizedGain: BigInt! # Can be negative for losses
+  isFullExit: Boolean!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+# Vault valuation update event
+type VaultValuationUpdate @entity {
+  id: ID! # tx-logIndex
+  position: VaultPosition!
+  wallet: Wallet!
+  vaultAddress: Bytes!
+  oldValue: BigInt!
+  newValue: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
 }

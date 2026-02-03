@@ -77,6 +77,14 @@ export {
   handleInvestmentExited,
 } from "./vehicles";
 
+// Re-export DeFi integration handlers (Treasury/Yield)
+export {
+  handleVaultRegistered,
+  handleVaultDeposit,
+  handleVaultWithdrawal,
+  handleVaultValuationUpdated,
+} from "./defi";
+
 export function handleWalletInitialized(event: WalletInitialized): void {
   const walletAddress = event.address.toHexString();
 
