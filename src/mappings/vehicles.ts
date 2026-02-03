@@ -51,6 +51,13 @@ import {
   EntityTypeSet,
   LEISet,
 } from "../../generated/templates/WalletDiamond/WalletTypeFacet";
+
+// VehicleConfigFacet events
+import {
+  VehicleConfigInitialized,
+  FundingModeSet,
+  OpenEndedSet,
+} from "../../generated/templates/WalletDiamond/VehicleConfigFacet";
 import {
   Vehicle,
   CapitalContribution as CapitalContributionEntity,
@@ -121,6 +128,76 @@ export function handleLEISet(event: LEISet): void {
   }
 }
 
+// ============ VEHICLE CONFIG HANDLERS ============
+
+/**
+ * Convert funding mode enum value to string
+ * 0 = COMMITMENT, 1 = DIRECT, 2 = HYBRID
+ */
+function fundingModeToString(mode: i32): string {
+  if (mode == 0) return "COMMITMENT";
+  if (mode == 1) return "DIRECT";
+  if (mode == 2) return "HYBRID";
+  return "COMMITMENT"; // Default
+}
+
+/**
+ * Handle VehicleConfigInitialized event (VehicleConfigFacet)
+ * Sets initial funding mode and open-ended status for a vehicle
+ */
+export function handleVehicleConfigInitialized(event: VehicleConfigInitialized): void {
+  const vehicleAddress = event.address.toHexString();
+  
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (!vehicle) {
+    // Create vehicle if it doesn't exist
+    vehicle = new Vehicle(vehicleAddress);
+    vehicle.wallet = vehicleAddress;
+    vehicle.vehicleType = "FUND";
+    vehicle.totalCapitalCommitted = BigInt.fromI32(0);
+    vehicle.totalCapitalCalled = BigInt.fromI32(0);
+    vehicle.totalCapitalContributed = BigInt.fromI32(0);
+    vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
+    vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
+    vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
+    vehicle.createdAt = event.block.timestamp;
+    vehicle.createdTx = event.transaction.hash;
+  }
+  
+  vehicle.fundingMode = fundingModeToString(event.params.fundingMode);
+  vehicle.isOpenEnded = event.params.isOpenEnded;
+  vehicle.save();
+}
+
+/**
+ * Handle FundingModeSet event (VehicleConfigFacet)
+ * Updates the funding mode for a vehicle
+ */
+export function handleFundingModeSet(event: FundingModeSet): void {
+  const vehicleAddress = event.address.toHexString();
+  
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.fundingMode = fundingModeToString(event.params.newMode);
+    vehicle.save();
+  }
+}
+
+/**
+ * Handle OpenEndedSet event (VehicleConfigFacet)
+ * Updates the open-ended status for a vehicle
+ */
+export function handleOpenEndedSet(event: OpenEndedSet): void {
+  const vehicleAddress = event.address.toHexString();
+  
+  let vehicle = Vehicle.load(vehicleAddress);
+  if (vehicle) {
+    vehicle.isOpenEnded = event.params.newValue;
+    vehicle.save();
+  }
+}
+
 // ============ CAPITAL CALL HANDLERS ============
 
 /**
@@ -137,6 +214,8 @@ export function handleCapitalCallCreated(event: CapitalCallCreated): void {
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.fundingMode = "COMMITMENT"; // Default to commitment mode
+    vehicle.isOpenEnded = false; // Default to closed-end
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
@@ -431,6 +510,8 @@ export function handleTokenDistributionCreated(event: TokenDistributionCreated):
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND"; // Token-based distributions are typically for funds
+    vehicle.fundingMode = "COMMITMENT";
+    vehicle.isOpenEnded = false;
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
@@ -572,6 +653,8 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.fundingMode = "COMMITMENT";
+    vehicle.isOpenEnded = false;
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
@@ -722,6 +805,8 @@ export function handleAssetDisposed(event: AssetDisposed): void {
     vehicle = new Vehicle(fundWalletAddress);
     vehicle.wallet = fundWalletAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.fundingMode = "COMMITMENT";
+    vehicle.isOpenEnded = false;
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
@@ -877,12 +962,15 @@ export function handleCommitmentCreated(event: CommitmentCreatedEvent): void {
     vehicle = new Vehicle(vehicleAddress);
     vehicle.wallet = vehicleAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.fundingMode = "COMMITMENT";
+    vehicle.isOpenEnded = false;
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
     vehicle.totalDistributionsExecuted = BigInt.fromI32(0);
     vehicle.totalDistributionsClaimed = BigInt.fromI32(0);
     vehicle.accruedManagementFees = BigInt.fromI32(0);
+    vehicle.totalManagementFeesPaid = BigInt.fromI32(0);
     vehicle.createdAt = event.block.timestamp;
     vehicle.createdTx = event.transaction.hash;
   }

@@ -641,6 +641,8 @@ templates:
           file: ./abis/AssetDisposalFacet.json
         - name: IncomeReceivableFacet
           file: ./abis/IncomeReceivableFacet.json
+        - name: VehicleConfigFacet
+          file: ./abis/VehicleConfigFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -686,6 +688,16 @@ templates:
           receipt: false
         - event: LEISet(indexed bytes20)
           handler: handleLEISet
+          receipt: false
+        # VehicleConfig events (from VehicleConfigFacet)
+        - event: VehicleConfigInitialized(uint8,bool)
+          handler: handleVehicleConfigInitialized
+          receipt: false
+        - event: FundingModeSet(indexed uint8,indexed uint8)
+          handler: handleFundingModeSet
+          receipt: false
+        - event: OpenEndedSet(bool,bool)
+          handler: handleOpenEndedSet
           receipt: false
         # CapitalCall events (from CapitalCallFacet)
         - event: CapitalCallCreated(indexed uint256,uint256,uint256,bytes32,indexed address)

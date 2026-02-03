@@ -417,6 +417,10 @@ type Vehicle @entity {
   wallet: Wallet! # The wallet that has vehicle facets
   vehicleType: VehicleType! # SPV, FUND, DAO
   
+  # Funding mode configuration
+  fundingMode: FundingMode! # COMMITMENT, DIRECT, or HYBRID
+  isOpenEnded: Boolean! # Whether investors can redeem at NAV
+  
   # Capital accounting totals
   totalCapitalCommitted: BigInt! # Sum of all member commitments
   totalCapitalCalled: BigInt! # Sum of all capital calls issued
@@ -535,6 +539,12 @@ enum VehicleType {
   SPV        # Special Purpose Vehicle (single investment)
   FUND       # Multi-investment fund
   DAO        # DAO LLC
+}
+
+enum FundingMode {
+  COMMITMENT   # Traditional PE/VC with capital calls
+  DIRECT       # Immediate investment at NAV
+  HYBRID       # Both modes available
 }
 
 # Fund Membership Model:

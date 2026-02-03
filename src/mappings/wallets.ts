@@ -45,6 +45,13 @@ export {
   handleLEISet,
 } from "./vehicles";
 
+// Re-export vehicle config handlers
+export {
+  handleVehicleConfigInitialized,
+  handleFundingModeSet,
+  handleOpenEndedSet,
+} from "./vehicles";
+
 // Re-export capital call handlers
 export {
   handleCapitalCallCreated,

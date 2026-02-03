@@ -60,6 +60,8 @@ export function handleAssetDisposed(event: AssetDisposed): void {
     vehicle = new Vehicle(fundWalletAddress);
     vehicle.wallet = fundWalletAddress;
     vehicle.vehicleType = "FUND";
+    vehicle.fundingMode = "COMMITMENT";
+    vehicle.isOpenEnded = false;
     vehicle.totalCapitalCommitted = BigInt.fromI32(0);
     vehicle.totalCapitalCalled = BigInt.fromI32(0);
     vehicle.totalCapitalContributed = BigInt.fromI32(0);
