@@ -102,6 +102,25 @@
     },
     {
       "type": "event",
+      "name": "AuthorityUpdated",
+      "inputs": [
+        {
+          "name": "oldAuthority",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newAuthority",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
       "name": "PaymentCollected",
       "inputs": [
         {
@@ -195,6 +214,25 @@
           "type": "bytes32",
           "indexed": false,
           "internalType": "bytes32"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "DiscountSet",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "discountBasisPoints",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
         }
       ],
       "anonymous": false
@@ -325,6 +363,19 @@
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "authority",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -756,6 +807,32 @@
     },
     {
       "type": "function",
+      "name": "setAuthority",
+      "inputs": [
+        {
+          "name": "newAuthority",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setDiamondFactory",
+      "inputs": [
+        {
+          "name": "newFactory",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
       "name": "getPaymentTokenConfig",
       "inputs": [
         {
@@ -833,6 +910,25 @@
     },
     {
       "type": "function",
+      "name": "getDiscount",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "discountBasisPoints",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "userRoles",
       "inputs": [
         {
@@ -873,6 +969,24 @@
         }
       ],
       "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "setDiscount",
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "discountBasisPoints",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
     },
     {
       "type": "function",
@@ -1125,6 +1239,11 @@
     {
       "type": "error",
       "name": "FactoryPayment_InsufficientAllowance",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "FactoryPayment_InvalidDiscount",
       "inputs": []
     },
     {
@@ -1393,25 +1512,6 @@
           "internalType": "string"
         }
       ]
-    },
-    {
-      "type": "event",
-      "name": "DiscountSet",
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "discountBasisPoints",
-          "type": "uint256",
-          "indexed": false,
-          "internalType": "uint256"
-        }
-      ],
-      "anonymous": false
     }
   ]
 }

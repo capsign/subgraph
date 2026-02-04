@@ -904,6 +904,9 @@ templates:
         - event: VaultRegistered(indexed address,indexed address,string)
           handler: handleVaultRegistered
           receipt: false
+        - event: VaultUnregistered(indexed address)
+          handler: handleVaultUnregistered
+          receipt: false
         - event: VaultDeposit(indexed uint256,indexed address,indexed address,uint256,uint256)
           handler: handleVaultDeposit
           receipt: false

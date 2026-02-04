@@ -63,6 +63,25 @@
     },
     {
       "type": "event",
+      "name": "AuthorityUpdated",
+      "inputs": [
+        {
+          "name": "oldAuthority",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newAuthority",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
       "name": "UserRoleUpdated",
       "inputs": [
         {
@@ -154,6 +173,19 @@
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "authority",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -346,6 +378,11 @@
               "name": "salt",
               "type": "bytes32",
               "internalType": "bytes32"
+            },
+            {
+              "name": "signature",
+              "type": "bytes",
+              "internalType": "bytes"
             }
           ]
         },
@@ -384,16 +421,9 @@
       ],
       "outputs": [
         {
-          "name": "result",
-          "type": "tuple",
-          "internalType": "struct IWalletFactory.DeploymentResult",
-          "components": [
-            {
-              "name": "walletDiamond",
-              "type": "address",
-              "internalType": "address"
-            }
-          ]
+          "name": "walletDiamond",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "payable"
@@ -441,6 +471,32 @@
         },
         {
           "name": "admin",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setAuthority",
+      "inputs": [
+        {
+          "name": "newAuthority",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setDiamondFactory",
+      "inputs": [
+        {
+          "name": "newFactory",
           "type": "address",
           "internalType": "address"
         }
@@ -625,6 +681,11 @@
     },
     {
       "type": "error",
+      "name": "ECDSAInvalidSignature",
+      "inputs": []
+    },
+    {
+      "type": "error",
       "name": "WalletFactory_AlreadyInitialized",
       "inputs": []
     },
@@ -641,6 +702,11 @@
     {
       "type": "error",
       "name": "WalletFactory_InvalidOwnerData",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "WalletFactory_InvalidSignature",
       "inputs": []
     },
     {
@@ -731,6 +797,17 @@
     },
     {
       "type": "error",
+      "name": "ECDSAInvalidSignatureS",
+      "inputs": [
+        {
+          "name": "s",
+          "type": "bytes32",
+          "internalType": "bytes32"
+        }
+      ]
+    },
+    {
+      "type": "error",
       "name": "AccessControl_CannotRemoveAdminFromCriticalFunction",
       "inputs": [
         {
@@ -814,6 +891,17 @@
           "name": "selectors",
           "type": "bytes4[]",
           "internalType": "bytes4[]"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "ECDSAInvalidSignatureLength",
+      "inputs": [
+        {
+          "name": "length",
+          "type": "uint256",
+          "internalType": "uint256"
         }
       ]
     }
