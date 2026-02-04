@@ -80,6 +80,7 @@ export {
 // Re-export DeFi integration handlers (Treasury/Yield)
 export {
   handleVaultRegistered,
+  handleVaultUnregistered,
   handleVaultDeposit,
   handleVaultWithdrawal,
   handleVaultValuationUpdated,
