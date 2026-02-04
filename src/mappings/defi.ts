@@ -75,6 +75,8 @@ export function handleVaultDeposit(event: VaultDeposit): void {
     position.unrealizedGain = BigInt.fromI32(0);
     position.totalRealizedGain = BigInt.fromI32(0);
     position.isActive = true;
+    position.createdAt = event.block.timestamp;
+    position.createdTx = event.transaction.hash;
     position.lastUpdated = event.block.timestamp;
   }
   
