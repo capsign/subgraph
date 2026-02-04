@@ -652,8 +652,8 @@ templates:
           file: ./abis/IncomeReceivableFacet.json
         - name: VehicleConfigFacet
           file: ./abis/VehicleConfigFacet.json
-        - name: DeFiIntegrationFacet
-          file: ./abis/DeFiIntegrationFacet.json
+        - name: VaultAdapterFacet
+          file: ./abis/VaultAdapterFacet.json
         - name: RedemptionControlFacet
           file: ./abis/RedemptionControlFacet.json
       eventHandlers:

@@ -1,11 +1,11 @@
-// DeFiIntegrationFacet events
+// VaultAdapterFacet events
 import {
   VaultRegistered,
   VaultUnregistered,
   VaultDeposit,
   VaultWithdrawal,
   VaultValuationUpdated,
-} from "../../generated/templates/WalletDiamond/DeFiIntegrationFacet";
+} from "../../generated/templates/WalletDiamond/VaultAdapterFacet";
 import {
   DeFiVault,
   VaultPosition,
@@ -20,7 +20,7 @@ import { createActivity } from "./activity";
 // ============ DEFI INTEGRATION HANDLERS ============
 
 /**
- * Handle VaultRegistered event (DeFiIntegrationFacet)
+ * Handle VaultRegistered event (VaultAdapterFacet)
  * Registers an ERC-4626 vault for treasury management
  */
 export function handleVaultRegistered(event: VaultRegistered): void {
@@ -52,7 +52,7 @@ export function handleVaultRegistered(event: VaultRegistered): void {
 }
 
 /**
- * Handle VaultUnregistered event (DeFiIntegrationFacet)
+ * Handle VaultUnregistered event (VaultAdapterFacet)
  * Removes a vault from the registered list
  */
 export function handleVaultUnregistered(event: VaultUnregistered): void {
@@ -82,7 +82,7 @@ export function handleVaultUnregistered(event: VaultUnregistered): void {
 }
 
 /**
- * Handle VaultDeposit event (DeFiIntegrationFacet)
+ * Handle VaultDeposit event (VaultAdapterFacet)
  * Records deposit to an ERC-4626 vault
  */
 export function handleVaultDeposit(event: VaultDeposit): void {
@@ -114,6 +114,9 @@ export function handleVaultDeposit(event: VaultDeposit): void {
   // Update position
   position.sharesBalance = position.sharesBalance.plus(event.params.sharesReceived);
   position.costBasis = position.costBasis.plus(event.params.assetsDeposited);
+  // At deposit time, currentValue equals costBasis (no yield yet)
+  position.currentValue = position.costBasis;
+  position.unrealizedGain = BigInt.fromI32(0);
   position.lastUpdated = event.block.timestamp;
   position.save();
   
@@ -146,7 +149,7 @@ export function handleVaultDeposit(event: VaultDeposit): void {
 }
 
 /**
- * Handle VaultWithdrawal event (DeFiIntegrationFacet)
+ * Handle VaultWithdrawal event (VaultAdapterFacet)
  * Records withdrawal from an ERC-4626 vault
  */
 export function handleVaultWithdrawal(event: VaultWithdrawal): void {
@@ -215,7 +218,7 @@ export function handleVaultWithdrawal(event: VaultWithdrawal): void {
 }
 
 /**
- * Handle VaultValuationUpdated event (DeFiIntegrationFacet)
+ * Handle VaultValuationUpdated event (VaultAdapterFacet)
  * Records valuation update for a vault position
  */
 export function handleVaultValuationUpdated(event: VaultValuationUpdated): void {
