@@ -48,6 +48,8 @@ export function handleVaultRegistered(event: VaultRegistered): void {
     event.transaction.hash,
     event.block.number
   );
+  activity.vault = vaultId;
+  activity.vaultName = event.params.name;
   activity.save();
 }
 
@@ -133,7 +135,7 @@ export function handleVaultDeposit(event: VaultDeposit): void {
   deposit.blockNumber = event.block.number;
   deposit.save();
   
-  // Create activity
+  // Create activity with vault details
   const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}-deposit`;
   let activity = createActivity(
     activityId,
@@ -145,6 +147,14 @@ export function handleVaultDeposit(event: VaultDeposit): void {
   );
   activity.vaultPosition = positionId;
   activity.vaultDeposit = depositId;
+  activity.vault = vaultId;
+  activity.vaultAmount = event.params.assetsDeposited;
+  
+  // Get vault name from the DeFiVault entity
+  let vaultEntity = DeFiVault.load(vaultId);
+  if (vaultEntity) {
+    activity.vaultName = vaultEntity.name;
+  }
   activity.save();
 }
 
@@ -203,6 +213,7 @@ export function handleVaultWithdrawal(event: VaultWithdrawal): void {
   withdrawal.save();
   
   // Create activity
+  // Create activity with vault details
   const activityId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}-withdrawal`;
   let activity = createActivity(
     activityId,
@@ -214,6 +225,14 @@ export function handleVaultWithdrawal(event: VaultWithdrawal): void {
   );
   activity.vaultPosition = positionId;
   activity.vaultWithdrawal = withdrawalId;
+  activity.vault = vaultId;
+  activity.vaultAmount = event.params.assetsReceived;
+  
+  // Get vault name from the DeFiVault entity
+  let vaultEntity = DeFiVault.load(vaultId);
+  if (vaultEntity) {
+    activity.vaultName = vaultEntity.name;
+  }
   activity.save();
 }
 

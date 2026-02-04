@@ -1134,6 +1134,9 @@ type Activity @entity {
   vaultPosition: VaultPosition
   vaultDeposit: VaultDeposit
   vaultWithdrawal: VaultWithdrawal
+  vault: DeFiVault # Direct reference for convenience
+  vaultName: String # Denormalized for faster queries
+  vaultAmount: BigInt # Amount deposited/withdrawn (in asset units)
 }
 
 # Tracks native asset transfers (ETH, USDC, etc.)
