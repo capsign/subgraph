@@ -134,6 +134,7 @@ export function handleLEISet(event: LEISet): void {
  * Convert funding mode enum value to string
  * 0 = COMMITMENT, 1 = DIRECT, 2 = HYBRID
  */
+// @ts-ignore i32 is a valid AssemblyScript type
 function fundingModeToString(mode: i32): string {
   if (mode == 0) return "COMMITMENT";
   if (mode == 1) return "DIRECT";
@@ -671,8 +672,8 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
   investment.vehicle = vehicleAddress;
   investment.investmentId = event.params.investmentId;
   
-  // Map AssetType enum from new facet
-  // EQUITY=0, REAL_ESTATE=1, DEBT=2, TOKEN=3, FUND=4, OTHER=5
+  // Map AssetType enum from InvestmentFacet
+  // EQUITY=0, REAL_ESTATE=1, DEBT=2, TOKEN=3, FUND=4, DEFI_YIELD=5, OTHER=6
   if (event.params.assetType == 0) {
     investment.assetType = "EQUITY";
   } else if (event.params.assetType == 1) {
@@ -682,7 +683,9 @@ export function handleInvestmentCreated(event: InvestmentCreated): void {
   } else if (event.params.assetType == 3) {
     investment.assetType = "CRYPTO"; // TOKEN maps to CRYPTO for compatibility
   } else if (event.params.assetType == 4) {
-    investment.assetType = "DEFI"; // FUND maps to DEFI for compatibility
+    investment.assetType = "FUND";
+  } else if (event.params.assetType == 5) {
+    investment.assetType = "DEFI"; // DEFI_YIELD maps to DEFI
   } else {
     investment.assetType = "OTHER";
   }
