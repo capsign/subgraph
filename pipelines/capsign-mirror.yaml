@@ -1,0 +1,1387 @@
+# Goldsky Mirror Pipeline: CAPsign → PostgreSQL
+# Streams all subgraph entities from Base Sepolia to Neon PostgreSQL.
+# Subgraph: capsign-base-sepolia/0.27.7
+# TODO: Add capsign-base (mainnet) sources once subgraph finishes syncing
+#
+# Deploy: goldsky pipeline apply pipelines/capsign-mirror.yaml --status ACTIVE
+# Monitor: goldsky pipeline monitor capsign-mirror
+
+name: capsign-mirror
+apiVersion: 3
+resource_size: m
+
+sources:
+  # ============ CORE INFRASTRUCTURE ============
+  capsign.diamond:
+    type: subgraph_entity
+    name: diamond
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.system_config:
+    type: subgraph_entity
+    name: system_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.wallet:
+    type: subgraph_entity
+    name: wallet
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.owner:
+    type: subgraph_entity
+    name: owner
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.facet:
+    type: subgraph_entity
+    name: facet
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.installed_facet:
+    type: subgraph_entity
+    name: installed_facet
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.diamond_cut_event:
+    type: subgraph_entity
+    name: diamond_cut_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.facet_registry_event:
+    type: subgraph_entity
+    name: facet_registry_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ ACCESS CONTROL ============
+  capsign.user_role:
+    type: subgraph_entity
+    name: user_role
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.user_role_history:
+    type: subgraph_entity
+    name: user_role_history
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.function_access:
+    type: subgraph_entity
+    name: function_access
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.authority_delegation:
+    type: subgraph_entity
+    name: authority_delegation
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.target_function_permission:
+    type: subgraph_entity
+    name: target_function_permission
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ WALLET OWNERS & SIGNERS ============
+  capsign.authorized_signer:
+    type: subgraph_entity
+    name: authorized_signer
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.user_operation_execution:
+    type: subgraph_entity
+    name: user_operation_execution
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ ENTITY CLASSIFICATION ============
+  capsign.entity_classification:
+    type: subgraph_entity
+    name: entity_classification
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ LIENS ============
+  capsign.lien:
+    type: subgraph_entity
+    name: lien
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.asset_seizure:
+    type: subgraph_entity
+    name: asset_seizure
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.wallet_freeze_event:
+    type: subgraph_entity
+    name: wallet_freeze_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ DOCUMENTS ============
+  capsign.document:
+    type: subgraph_entity
+    name: document
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.document_signature:
+    type: subgraph_entity
+    name: document_signature
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ PAYMASTER ============
+  capsign.paymaster_policy:
+    type: subgraph_entity
+    name: paymaster_policy
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.paymaster_policy_configuration:
+    type: subgraph_entity
+    name: paymaster_policy_configuration
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.role_policy:
+    type: subgraph_entity
+    name: role_policy
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.sponsored_transaction:
+    type: subgraph_entity
+    name: sponsored_transaction
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.paymaster_deposit:
+    type: subgraph_entity
+    name: paymaster_deposit
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.paymaster_withdrawal:
+    type: subgraph_entity
+    name: paymaster_withdrawal
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.policy_check_failure:
+    type: subgraph_entity
+    name: policy_check_failure
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ ACTIVITY FEED ============
+  capsign.activity:
+    type: subgraph_entity
+    name: activity
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.asset_transfer:
+    type: subgraph_entity
+    name: asset_transfer
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ OFFERINGS & INVESTMENTS ============
+  capsign.offering:
+    type: subgraph_entity
+    name: offering
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.investment:
+    type: subgraph_entity
+    name: investment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.offchain_investment:
+    type: subgraph_entity
+    name: offchain_investment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.investment_lookup:
+    type: subgraph_entity
+    name: investment_lookup
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.offering_investor:
+    type: subgraph_entity
+    name: offering_investor
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.offering_template:
+    type: subgraph_entity
+    name: offering_template
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.offering_document:
+    type: subgraph_entity
+    name: offering_document
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.offering_document_signature:
+    type: subgraph_entity
+    name: offering_document_signature
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.required_signer:
+    type: subgraph_entity
+    name: required_signer
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.document_requirement:
+    type: subgraph_entity
+    name: document_requirement
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ TOKENS ============
+  capsign.share_class:
+    type: subgraph_entity
+    name: share_class
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.safe:
+    type: subgraph_entity
+    name: safe
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.promissory_note:
+    type: subgraph_entity
+    name: promissory_note
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.lot:
+    type: subgraph_entity
+    name: lot
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.lot_adjustment:
+    type: subgraph_entity
+    name: lot_adjustment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.custom_id_update:
+    type: subgraph_entity
+    name: custom_id_update
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.token_role_member:
+    type: subgraph_entity
+    name: token_role_member
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.corporate_action:
+    type: subgraph_entity
+    name: corporate_action
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.token_claim:
+    type: subgraph_entity
+    name: token_claim
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ COMPLIANCE ============
+  capsign.kyc_status:
+    type: subgraph_entity
+    name: kyc_status
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.investor_classification:
+    type: subgraph_entity
+    name: investor_classification
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.attestation:
+    type: subgraph_entity
+    name: attestation
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.compliance_module:
+    type: subgraph_entity
+    name: compliance_module
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.token_compliance_config:
+    type: subgraph_entity
+    name: token_compliance_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.lot_compliance_config:
+    type: subgraph_entity
+    name: lot_compliance_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.holding_period_config:
+    type: subgraph_entity
+    name: holding_period_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.minimum_balance_config:
+    type: subgraph_entity
+    name: minimum_balance_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.minimum_balance_exemption:
+    type: subgraph_entity
+    name: minimum_balance_exemption
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.volume_limit_config:
+    type: subgraph_entity
+    name: volume_limit_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.affiliate_status:
+    type: subgraph_entity
+    name: affiliate_status
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.affiliate_status_change:
+    type: subgraph_entity
+    name: affiliate_status_change
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.lockup_config:
+    type: subgraph_entity
+    name: lockup_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vesting_config:
+    type: subgraph_entity
+    name: vesting_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.transfer_condition:
+    type: subgraph_entity
+    name: transfer_condition
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.safe_pre_approved_terms:
+    type: subgraph_entity
+    name: safe_pre_approved_terms
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.rofr_transfer_request:
+    type: subgraph_entity
+    name: rofr_transfer_request
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ VEHICLE / FUND ============
+  capsign.vehicle:
+    type: subgraph_entity
+    name: vehicle
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.member_commitment:
+    type: subgraph_entity
+    name: member_commitment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.capital_contribution:
+    type: subgraph_entity
+    name: capital_contribution
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.capital_call:
+    type: subgraph_entity
+    name: capital_call
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.call_commitment:
+    type: subgraph_entity
+    name: call_commitment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.call_contribution:
+    type: subgraph_entity
+    name: call_contribution
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.incoming_transfer:
+    type: subgraph_entity
+    name: incoming_transfer
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.distribution:
+    type: subgraph_entity
+    name: distribution
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.distribution_claim:
+    type: subgraph_entity
+    name: distribution_claim
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vehicle_investment:
+    type: subgraph_entity
+    name: vehicle_investment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vehicle_valuation:
+    type: subgraph_entity
+    name: vehicle_valuation
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.fee_accrual_event:
+    type: subgraph_entity
+    name: fee_accrual_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.fee_settlement_event:
+    type: subgraph_entity
+    name: fee_settlement_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ TAX / CAPITAL GAINS ============
+  capsign.asset_disposal:
+    type: subgraph_entity
+    name: asset_disposal
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.fund_tax_year_summary:
+    type: subgraph_entity
+    name: fund_tax_year_summary
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.income_event:
+    type: subgraph_entity
+    name: income_event
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.wash_sale:
+    type: subgraph_entity
+    name: wash_sale
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ TRUST ============
+  capsign.trust:
+    type: subgraph_entity
+    name: trust
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.trust_participant:
+    type: subgraph_entity
+    name: trust_participant
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.trust_milestone:
+    type: subgraph_entity
+    name: trust_milestone
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.trust_vesting_schedule:
+    type: subgraph_entity
+    name: trust_vesting_schedule
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ EQUITY COMPENSATION ============
+  capsign.option_grant:
+    type: subgraph_entity
+    name: option_grant
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.option_exercise:
+    type: subgraph_entity
+    name: option_exercise
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.rsu_grant:
+    type: subgraph_entity
+    name: rsu_grant
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.rsu_settlement:
+    type: subgraph_entity
+    name: rsu_settlement
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.safe_conversion:
+    type: subgraph_entity
+    name: safe_conversion
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.debt_payment:
+    type: subgraph_entity
+    name: debt_payment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ DEFI / TREASURY ============
+  capsign.de_fi_vault:
+    type: subgraph_entity
+    name: de_fi_vault
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vault_position:
+    type: subgraph_entity
+    name: vault_position
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vault_deposit:
+    type: subgraph_entity
+    name: vault_deposit
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vault_withdrawal:
+    type: subgraph_entity
+    name: vault_withdrawal
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.vault_valuation_update:
+    type: subgraph_entity
+    name: vault_valuation_update
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ REDEMPTION CONTROL ============
+  capsign.redemption_request:
+    type: subgraph_entity
+    name: redemption_request
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.redemption_suspension:
+    type: subgraph_entity
+    name: redemption_suspension
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.side_pocket:
+    type: subgraph_entity
+    name: side_pocket
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.gate_period:
+    type: subgraph_entity
+    name: gate_period
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ ESCROW ============
+  capsign.escrow:
+    type: subgraph_entity
+    name: escrow
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+  # ============ FACTORY PAYMENTS ============
+  capsign.payment_token:
+    type: subgraph_entity
+    name: payment_token
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.factory_payment_config:
+    type: subgraph_entity
+    name: factory_payment_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.factory_payment_token_config:
+    type: subgraph_entity
+    name: factory_payment_token_config
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.factory_payment:
+    type: subgraph_entity
+    name: factory_payment
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+  capsign.factory_payment_discount:
+    type: subgraph_entity
+    name: factory_payment_discount
+    subgraphs:
+      - name: capsign-base-sepolia
+        version: "0.27.7"
+
+transforms: {}
+
+sinks:
+  # ============ CORE INFRASTRUCTURE ============
+  pg_diamond:
+    type: postgres
+    from: capsign.diamond
+    table: diamond
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_system_config:
+    type: postgres
+    from: capsign.system_config
+    table: system_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_wallet:
+    type: postgres
+    from: capsign.wallet
+    table: wallet
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_owner:
+    type: postgres
+    from: capsign.owner
+    table: owner
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_facet:
+    type: postgres
+    from: capsign.facet
+    table: facet
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_installed_facet:
+    type: postgres
+    from: capsign.installed_facet
+    table: installed_facet
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_diamond_cut_event:
+    type: postgres
+    from: capsign.diamond_cut_event
+    table: diamond_cut_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_facet_registry_event:
+    type: postgres
+    from: capsign.facet_registry_event
+    table: facet_registry_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ ACCESS CONTROL ============
+  pg_user_role:
+    type: postgres
+    from: capsign.user_role
+    table: user_role
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_user_role_history:
+    type: postgres
+    from: capsign.user_role_history
+    table: user_role_history
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_function_access:
+    type: postgres
+    from: capsign.function_access
+    table: function_access
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_authority_delegation:
+    type: postgres
+    from: capsign.authority_delegation
+    table: authority_delegation
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_target_function_permission:
+    type: postgres
+    from: capsign.target_function_permission
+    table: target_function_permission
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ WALLET OWNERS & SIGNERS ============
+  pg_authorized_signer:
+    type: postgres
+    from: capsign.authorized_signer
+    table: authorized_signer
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_user_operation_execution:
+    type: postgres
+    from: capsign.user_operation_execution
+    table: user_operation_execution
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ ENTITY CLASSIFICATION ============
+  pg_entity_classification:
+    type: postgres
+    from: capsign.entity_classification
+    table: entity_classification
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ LIENS ============
+  pg_lien:
+    type: postgres
+    from: capsign.lien
+    table: lien
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_asset_seizure:
+    type: postgres
+    from: capsign.asset_seizure
+    table: asset_seizure
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_wallet_freeze_event:
+    type: postgres
+    from: capsign.wallet_freeze_event
+    table: wallet_freeze_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ DOCUMENTS ============
+  pg_document:
+    type: postgres
+    from: capsign.document
+    table: document
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_document_signature:
+    type: postgres
+    from: capsign.document_signature
+    table: document_signature
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ PAYMASTER ============
+  pg_paymaster_policy:
+    type: postgres
+    from: capsign.paymaster_policy
+    table: paymaster_policy
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_paymaster_policy_configuration:
+    type: postgres
+    from: capsign.paymaster_policy_configuration
+    table: paymaster_policy_configuration
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_role_policy:
+    type: postgres
+    from: capsign.role_policy
+    table: role_policy
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_sponsored_transaction:
+    type: postgres
+    from: capsign.sponsored_transaction
+    table: sponsored_transaction
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_paymaster_deposit:
+    type: postgres
+    from: capsign.paymaster_deposit
+    table: paymaster_deposit
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_paymaster_withdrawal:
+    type: postgres
+    from: capsign.paymaster_withdrawal
+    table: paymaster_withdrawal
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_policy_check_failure:
+    type: postgres
+    from: capsign.policy_check_failure
+    table: policy_check_failure
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ ACTIVITY FEED ============
+  pg_activity:
+    type: postgres
+    from: capsign.activity
+    table: activity
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_asset_transfer:
+    type: postgres
+    from: capsign.asset_transfer
+    table: asset_transfer
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ OFFERINGS & INVESTMENTS ============
+  pg_offering:
+    type: postgres
+    from: capsign.offering
+    table: offering
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_investment:
+    type: postgres
+    from: capsign.investment
+    table: investment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_offchain_investment:
+    type: postgres
+    from: capsign.offchain_investment
+    table: offchain_investment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_investment_lookup:
+    type: postgres
+    from: capsign.investment_lookup
+    table: investment_lookup
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_offering_investor:
+    type: postgres
+    from: capsign.offering_investor
+    table: offering_investor
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_offering_template:
+    type: postgres
+    from: capsign.offering_template
+    table: offering_template
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_offering_document:
+    type: postgres
+    from: capsign.offering_document
+    table: offering_document
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_offering_document_signature:
+    type: postgres
+    from: capsign.offering_document_signature
+    table: offering_document_signature
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_required_signer:
+    type: postgres
+    from: capsign.required_signer
+    table: required_signer
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_document_requirement:
+    type: postgres
+    from: capsign.document_requirement
+    table: document_requirement
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ TOKENS ============
+  pg_share_class:
+    type: postgres
+    from: capsign.share_class
+    table: share_class
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_safe:
+    type: postgres
+    from: capsign.safe
+    table: safe
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_promissory_note:
+    type: postgres
+    from: capsign.promissory_note
+    table: promissory_note
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_lot:
+    type: postgres
+    from: capsign.lot
+    table: lot
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_lot_adjustment:
+    type: postgres
+    from: capsign.lot_adjustment
+    table: lot_adjustment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_custom_id_update:
+    type: postgres
+    from: capsign.custom_id_update
+    table: custom_id_update
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_token_role_member:
+    type: postgres
+    from: capsign.token_role_member
+    table: token_role_member
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_corporate_action:
+    type: postgres
+    from: capsign.corporate_action
+    table: corporate_action
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_token_claim:
+    type: postgres
+    from: capsign.token_claim
+    table: token_claim
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ COMPLIANCE ============
+  pg_kyc_status:
+    type: postgres
+    from: capsign.kyc_status
+    table: kyc_status
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_investor_classification:
+    type: postgres
+    from: capsign.investor_classification
+    table: investor_classification
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_attestation:
+    type: postgres
+    from: capsign.attestation
+    table: attestation
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_compliance_module:
+    type: postgres
+    from: capsign.compliance_module
+    table: compliance_module
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_token_compliance_config:
+    type: postgres
+    from: capsign.token_compliance_config
+    table: token_compliance_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_lot_compliance_config:
+    type: postgres
+    from: capsign.lot_compliance_config
+    table: lot_compliance_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_holding_period_config:
+    type: postgres
+    from: capsign.holding_period_config
+    table: holding_period_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_minimum_balance_config:
+    type: postgres
+    from: capsign.minimum_balance_config
+    table: minimum_balance_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_minimum_balance_exemption:
+    type: postgres
+    from: capsign.minimum_balance_exemption
+    table: minimum_balance_exemption
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_volume_limit_config:
+    type: postgres
+    from: capsign.volume_limit_config
+    table: volume_limit_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_affiliate_status:
+    type: postgres
+    from: capsign.affiliate_status
+    table: affiliate_status
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_affiliate_status_change:
+    type: postgres
+    from: capsign.affiliate_status_change
+    table: affiliate_status_change
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_lockup_config:
+    type: postgres
+    from: capsign.lockup_config
+    table: lockup_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vesting_config:
+    type: postgres
+    from: capsign.vesting_config
+    table: vesting_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_transfer_condition:
+    type: postgres
+    from: capsign.transfer_condition
+    table: transfer_condition
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_safe_pre_approved_terms:
+    type: postgres
+    from: capsign.safe_pre_approved_terms
+    table: safe_pre_approved_terms
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_rofr_transfer_request:
+    type: postgres
+    from: capsign.rofr_transfer_request
+    table: rofr_transfer_request
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ VEHICLE / FUND ============
+  pg_vehicle:
+    type: postgres
+    from: capsign.vehicle
+    table: vehicle
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_member_commitment:
+    type: postgres
+    from: capsign.member_commitment
+    table: member_commitment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_capital_contribution:
+    type: postgres
+    from: capsign.capital_contribution
+    table: capital_contribution
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_capital_call:
+    type: postgres
+    from: capsign.capital_call
+    table: capital_call
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_call_commitment:
+    type: postgres
+    from: capsign.call_commitment
+    table: call_commitment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_call_contribution:
+    type: postgres
+    from: capsign.call_contribution
+    table: call_contribution
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_incoming_transfer:
+    type: postgres
+    from: capsign.incoming_transfer
+    table: incoming_transfer
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_distribution:
+    type: postgres
+    from: capsign.distribution
+    table: distribution
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_distribution_claim:
+    type: postgres
+    from: capsign.distribution_claim
+    table: distribution_claim
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vehicle_investment:
+    type: postgres
+    from: capsign.vehicle_investment
+    table: vehicle_investment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vehicle_valuation:
+    type: postgres
+    from: capsign.vehicle_valuation
+    table: vehicle_valuation
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_fee_accrual_event:
+    type: postgres
+    from: capsign.fee_accrual_event
+    table: fee_accrual_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_fee_settlement_event:
+    type: postgres
+    from: capsign.fee_settlement_event
+    table: fee_settlement_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ TAX / CAPITAL GAINS ============
+  pg_asset_disposal:
+    type: postgres
+    from: capsign.asset_disposal
+    table: asset_disposal
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_fund_tax_year_summary:
+    type: postgres
+    from: capsign.fund_tax_year_summary
+    table: fund_tax_year_summary
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_income_event:
+    type: postgres
+    from: capsign.income_event
+    table: income_event
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_wash_sale:
+    type: postgres
+    from: capsign.wash_sale
+    table: wash_sale
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ TRUST ============
+  pg_trust:
+    type: postgres
+    from: capsign.trust
+    table: trust
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_trust_participant:
+    type: postgres
+    from: capsign.trust_participant
+    table: trust_participant
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_trust_milestone:
+    type: postgres
+    from: capsign.trust_milestone
+    table: trust_milestone
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_trust_vesting_schedule:
+    type: postgres
+    from: capsign.trust_vesting_schedule
+    table: trust_vesting_schedule
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ EQUITY COMPENSATION ============
+  pg_option_grant:
+    type: postgres
+    from: capsign.option_grant
+    table: option_grant
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_option_exercise:
+    type: postgres
+    from: capsign.option_exercise
+    table: option_exercise
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_rsu_grant:
+    type: postgres
+    from: capsign.rsu_grant
+    table: rsu_grant
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_rsu_settlement:
+    type: postgres
+    from: capsign.rsu_settlement
+    table: rsu_settlement
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_safe_conversion:
+    type: postgres
+    from: capsign.safe_conversion
+    table: safe_conversion
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_debt_payment:
+    type: postgres
+    from: capsign.debt_payment
+    table: debt_payment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ DEFI / TREASURY ============
+  pg_de_fi_vault:
+    type: postgres
+    from: capsign.de_fi_vault
+    table: de_fi_vault
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vault_position:
+    type: postgres
+    from: capsign.vault_position
+    table: vault_position
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vault_deposit:
+    type: postgres
+    from: capsign.vault_deposit
+    table: vault_deposit
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vault_withdrawal:
+    type: postgres
+    from: capsign.vault_withdrawal
+    table: vault_withdrawal
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_vault_valuation_update:
+    type: postgres
+    from: capsign.vault_valuation_update
+    table: vault_valuation_update
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ REDEMPTION CONTROL ============
+  pg_redemption_request:
+    type: postgres
+    from: capsign.redemption_request
+    table: redemption_request
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_redemption_suspension:
+    type: postgres
+    from: capsign.redemption_suspension
+    table: redemption_suspension
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_side_pocket:
+    type: postgres
+    from: capsign.side_pocket
+    table: side_pocket
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_gate_period:
+    type: postgres
+    from: capsign.gate_period
+    table: gate_period
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ ESCROW ============
+  pg_escrow:
+    type: postgres
+    from: capsign.escrow
+    table: escrow
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+
+  # ============ FACTORY PAYMENTS ============
+  pg_payment_token:
+    type: postgres
+    from: capsign.payment_token
+    table: payment_token
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_factory_payment_config:
+    type: postgres
+    from: capsign.factory_payment_config
+    table: factory_payment_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_factory_payment_token_config:
+    type: postgres
+    from: capsign.factory_payment_token_config
+    table: factory_payment_token_config
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_factory_payment:
+    type: postgres
+    from: capsign.factory_payment
+    table: factory_payment
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
+  pg_factory_payment_discount:
+    type: postgres
+    from: capsign.factory_payment_discount
+    table: factory_payment_discount
+    schema: subgraph
+    secret_name: CAPSIGN_POSTGRES_SECRET
