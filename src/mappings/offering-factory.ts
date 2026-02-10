@@ -181,10 +181,16 @@ function getOrCreatePaymentToken(
     // Fetch ERC20 metadata
     // Handle zero address (ETH) as special case
     const zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000");
+    // Magic value for USD (off-chain currency) - ISO 4217 numeric code 840 = 0x348
+    const usdMagicAddress = Address.fromString("0x0000000000000000000000000000000000000348");
     if (tokenAddress.equals(zeroAddress)) {
       token.symbol = "ETH";
       token.decimals = 18;
       token.name = "Ether";
+    } else if (tokenAddress.equals(usdMagicAddress)) {
+      token.symbol = "USD";
+      token.decimals = 2;
+      token.name = "US Dollar";
     } else {
       let tokenContract = ERC20.bind(tokenAddress);
       
