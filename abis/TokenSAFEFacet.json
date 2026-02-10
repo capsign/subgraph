@@ -1,87 +1,45 @@
 [
   {
     "type": "function",
+    "name": "SAFE_TOKEN_ID",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "TokenSAFE_init",
     "inputs": [
       {
-        "name": "_defaultTerms",
-        "type": "tuple",
-        "internalType": "struct TokenSAFEFacet.SAFETerms",
-        "components": [
-          {
-            "name": "valuationCap",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "hasMFN",
-            "type": "bool",
-            "internalType": "bool"
-          }
-        ]
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "createLotWithTerms",
-    "inputs": [
-      {
-        "name": "owner",
+        "name": "admin",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "quantity",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "paymentCurrency",
+        "name": "issuer",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "costBasis",
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investmentAmount",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "acquisitionDate",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "uri",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
-        "name": "customId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
       },
       {
         "name": "terms",
@@ -94,252 +52,17 @@
             "internalType": "uint256"
           },
           {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "discountBasisPoints",
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "hasMFN",
             "type": "bool",
             "internalType": "bool"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "assignedCustomId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "defaultTerms",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct TokenSAFEFacet.SAFETerms",
-        "components": [
-          {
-            "name": "valuationCap",
-            "type": "uint256",
-            "internalType": "uint256"
           },
           {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "hasMFN",
-            "type": "bool",
-            "internalType": "bool"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getEquityLotId",
-    "inputs": [
-      {
-        "name": "safeLotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMFNProtectedLots",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getSAFEStats",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "totalInvested",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "totalConverted",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "lotsConverted",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "hasMFNProtection",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "lotConverted",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "lotTerms",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct TokenSAFEFacet.SAFETerms",
-        "components": [
-          {
-            "name": "valuationCap",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "hasMFN",
-            "type": "bool",
-            "internalType": "bool"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "setDefaultTerms",
-    "inputs": [
-      {
-        "name": "_defaultTerms",
-        "type": "tuple",
-        "internalType": "struct TokenSAFEFacet.SAFETerms",
-        "components": [
-          {
-            "name": "valuationCap",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "hasMFN",
+            "name": "hasProRata",
             "type": "bool",
             "internalType": "bool"
           }
@@ -351,12 +74,61 @@
   },
   {
     "type": "function",
-    "name": "setLotTerms",
+    "name": "activate",
     "inputs": [
       {
-        "name": "lotId",
+        "name": "agreementDocumentId",
         "type": "bytes32",
         "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "cancel",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "convert",
+    "inputs": [
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getSAFE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "investmentAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "internalType": "address"
       },
       {
         "name": "terms",
@@ -369,26 +141,172 @@
             "internalType": "uint256"
           },
           {
-            "name": "discountRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "targetEquityToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "proRataRight",
-            "type": "bool",
-            "internalType": "bool"
+            "name": "discountBasisPoints",
+            "type": "uint16",
+            "internalType": "uint16"
           },
           {
             "name": "hasMFN",
             "type": "bool",
             "internalType": "bool"
+          },
+          {
+            "name": "hasProRata",
+            "type": "bool",
+            "internalType": "bool"
           }
         ]
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum TokenSAFEFacet.SAFEStatus"
+      },
+      {
+        "name": "targetEquityToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "sharesReceived",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStatus",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum TokenSAFEFacet.SAFEStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTerms",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct TokenSAFEFacet.SAFETerms",
+        "components": [
+          {
+            "name": "valuationCap",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "discountBasisPoints",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "hasMFN",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "hasProRata",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isActive",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isConverted",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isTransferable",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "previewConversion",
+    "inputs": [
+      {
+        "name": "pricePerShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "effectivePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesWouldReceive",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setTargetEquityToken",
+    "inputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTransferable",
+    "inputs": [
+      {
+        "name": "_transferable",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [],
@@ -396,8 +314,95 @@
   },
   {
     "type": "event",
-    "name": "DefaultTermsSet",
+    "name": "SAFEActivated",
     "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "agreementDocumentId",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SAFECancelled",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "refundAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SAFEConverted",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "equityToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "conversionPrice",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesReceived",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SAFEInitialized",
+    "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investmentAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
       {
         "name": "valuationCap",
         "type": "uint256",
@@ -405,121 +410,23 @@
         "internalType": "uint256"
       },
       {
-        "name": "discountRate",
-        "type": "uint256",
+        "name": "discountBasisPoints",
+        "type": "uint16",
         "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetEquityToken",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "proRataRight",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "hasMFN",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
+        "internalType": "uint16"
       }
     ],
     "anonymous": false
   },
   {
     "type": "event",
-    "name": "LotCreated",
+    "name": "TargetEquityTokenSet",
     "inputs": [
       {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "customId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "owner",
+        "name": "equityToken",
         "type": "address",
         "indexed": true,
         "internalType": "address"
-      },
-      {
-        "name": "quantity",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "LotTermsSet",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "valuationCap",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "discountRate",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetEquityToken",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "hasMFN",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "MFNTermsUpdated",
-    "inputs": [
-      {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "newValuationCap",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "newDiscountRate",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -550,6 +457,31 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "UserRoleUpdated",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "role",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "uint8"
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AccessControl_CallerIsNotAuthorized",
     "inputs": [
@@ -567,47 +499,57 @@
   },
   {
     "type": "error",
-    "name": "TokenSAFE_AlreadyInitialized",
+    "name": "SAFE_AlreadyConverted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "TokenSAFE_InvalidDiscountRate",
+    "name": "SAFE_AlreadyInitialized",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "TokenSAFE_InvalidTargetEquityToken",
+    "name": "SAFE_AlreadyMinted",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "TokenSAFE_InvalidValuationCap",
+    "name": "SAFE_ConversionPriceNotSet",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "TokenSAFE_LotAlreadyConverted",
+    "name": "SAFE_InvalidDiscount",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "TokenSAFE_LotNotFound",
+    "name": "SAFE_NotActive",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "Token_InvalidAddress",
+    "name": "SAFE_NotInitialized",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "Token_InvalidCustomId",
+    "name": "SAFE_TargetEquityNotSet",
     "inputs": []
   },
   {
     "type": "error",
-    "name": "Token_InvalidQuantity",
+    "name": "SAFE_TransferNotAllowed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SAFE_ZeroAddress",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SAFE_ZeroAmount",
     "inputs": []
   }
 ]

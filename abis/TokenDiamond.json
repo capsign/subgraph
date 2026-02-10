@@ -244,8 +244,26 @@
   },
   {
     "type": "event",
-    "name": "DefaultTermsSet",
+    "name": "SAFEInitialized",
     "inputs": [
+      {
+        "name": "issuer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "investmentAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
       {
         "name": "valuationCap",
         "type": "uint256",
@@ -253,28 +271,10 @@
         "internalType": "uint256"
       },
       {
-        "name": "discountRate",
-        "type": "uint256",
+        "name": "discountBasisPoints",
+        "type": "uint16",
         "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetEquityToken",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "proRataRight",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      },
-      {
-        "name": "hasMFN",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
+        "internalType": "uint16"
       }
     ],
     "anonymous": false
@@ -382,37 +382,51 @@
   },
   {
     "type": "event",
-    "name": "LotTermsSet",
+    "name": "SAFEActivated",
     "inputs": [
       {
-        "name": "lotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "valuationCap",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "discountRate",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetEquityToken",
+        "name": "investor",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "hasMFN",
-        "type": "bool",
+        "name": "agreementDocumentId",
+        "type": "bytes32",
         "indexed": false,
-        "internalType": "bool"
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SAFECancelled",
+    "inputs": [
+      {
+        "name": "investor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "refundAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TargetEquityTokenSet",
+    "inputs": [
+      {
+        "name": "equityToken",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
@@ -621,52 +635,28 @@
     "name": "SAFEConverted",
     "inputs": [
       {
-        "name": "safeLotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
         "name": "investor",
         "type": "address",
         "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "equityLotId",
-        "type": "bytes32",
-        "indexed": true,
-        "internalType": "bytes32"
-      },
-      {
-        "name": "investmentAmount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "sharesIssued",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "effectivePrice",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "targetShareClass",
+        "name": "equityToken",
         "type": "address",
-        "indexed": false,
+        "indexed": true,
         "internalType": "address"
       },
       {
-        "name": "conversionNote",
-        "type": "string",
+        "name": "conversionPrice",
+        "type": "uint256",
         "indexed": false,
-        "internalType": "string"
+        "internalType": "uint256"
+      },
+      {
+        "name": "sharesReceived",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false

@@ -205,6 +205,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
+        - name: TokenSAFEFacet
+          file: ./abis/TokenSAFEFacet.json
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,address[],bytes32)
           handler: handleTokenCreated
@@ -526,12 +528,17 @@ templates:
           handler: handleTokenUnretired
         - event: TokenTypeSet(indexed bytes6,string)
           handler: handleTokenTypeSet
-        - event: DefaultTermsSet(uint256,uint256,address,bool,bool)
-          handler: handleDefaultTermsSet
-        - event: LotTermsSet(indexed bytes32,uint256,uint256,address,bool)
-          handler: handleLotTermsSet
-        - event: SAFEConverted(indexed bytes32,indexed address,indexed bytes32,uint256,uint256,uint256,address,string)
+        # Bilateral SAFE events
+        - event: SAFEInitialized(indexed address,indexed address,uint256,uint256,uint16)
+          handler: handleSAFEInitialized
+        - event: SAFEActivated(indexed address,bytes32)
+          handler: handleSAFEActivated
+        - event: SAFEConverted(indexed address,indexed address,uint256,uint256)
           handler: handleSAFEConverted
+        - event: SAFECancelled(indexed address,uint256)
+          handler: handleSAFECancelled
+        - event: TargetEquityTokenSet(indexed address)
+          handler: handleTargetEquityTokenSet
         - event: MaxSupplyUpdated(uint256)
           handler: handleMaxSupplyUpdated
         - event: BaseURIUpdated(string)

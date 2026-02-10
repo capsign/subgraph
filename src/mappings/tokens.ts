@@ -17,9 +17,11 @@ import {
   LotAdjusted,
   LotInvalidated,
   LotURIUpdated,
-  DefaultTermsSet,
-  LotTermsSet,
+  SAFEInitialized,
+  SAFEActivated,
   SAFEConverted,
+  SAFECancelled,
+  TargetEquityTokenSet,
   UserRoleUpdated,
   FunctionAccessChanged,
   LotModuleAdded,
@@ -46,7 +48,7 @@ import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { TokenNoteFacet } from "../../generated/templates/TokenDiamond/TokenNoteFacet";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, SAFEConversion, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
+import { ShareClass, Lot, CorporateAction, Wallet, Safe, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -207,10 +209,6 @@ export function handleLotCreated(event: LotCreated): void {
   const safe = Safe.load(tokenAddress);
   if (safe) {
     safe.totalSupply = safe.totalSupply.plus(event.params.quantity);
-    // For SAFEs, totalInvested = sum of all lot cost bases (investment amounts)
-    if (!lotDetails.reverted) {
-      safe.totalInvested = safe.totalInvested.plus(lotDetails.value.costBasis);
-    }
     safe.save();
   }
   
@@ -389,8 +387,6 @@ export function handleLotInvalidated(event: LotInvalidated): void {
     const safe = Safe.load(tokenAddress);
     if (safe) {
       safe.totalSupply = safe.totalSupply.minus(quantity);
-      // Also subtract from totalInvested (cost basis = investment amount)
-      safe.totalInvested = safe.totalInvested.minus(costBasis);
       safe.save();
     }
     
@@ -737,78 +733,121 @@ export function handleTokenTypeSet(event: TokenTypeSet): void {
 }
 
 /**
- * Handle DefaultTermsSet event (SAFE tokens)
+ * Handle SAFEInitialized event (bilateral SAFE)
+ * Emitted during TokenSAFE_init when the SAFE is first created
  */
-export function handleDefaultTermsSet(event: DefaultTermsSet): void {
+export function handleSAFEInitialized(event: SAFEInitialized): void {
   const tokenAddress = event.address.toHexString();
   const safe = Safe.load(tokenAddress);
   
   if (safe != null) {
-    safe.defaultValuationCap = event.params.valuationCap;
-    safe.defaultDiscountRate = event.params.discountRate.toI32();
-    safe.defaultTargetEquityToken = event.params.targetEquityToken;
-    safe.defaultProRataRight = event.params.proRataRight;
-    safe.defaultHasMFN = event.params.hasMFN;
+    safe.issuer = event.params.issuer;
+    safe.investor = event.params.investor;
+    safe.investmentAmount = event.params.investmentAmount;
+    safe.valuationCap = event.params.valuationCap;
+    safe.discountBasisPoints = event.params.discountBasisPoints;
+    safe.status = "INITIALIZED";
     safe.save();
   }
 }
 
 /**
- * Handle LotTermsSet event (SAFE tokens)
+ * Handle SAFEActivated event (bilateral SAFE)
+ * Emitted when investor signs and NFT is minted
  */
-export function handleLotTermsSet(event: LotTermsSet): void {
-  const lotId = event.params.lotId.toHexString();
-  const lot = Lot.load(lotId);
+export function handleSAFEActivated(event: SAFEActivated): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
   
-  if (lot != null) {
-    // Store SAFE-specific lot terms in the lot's data field or create a separate entity
-    // For now, we'll just log it - you may want to extend the Lot entity or create SAFELotTerms entity
-    log.info("SAFE lot terms set for lot {}: cap={}, discount={}, target={}", [
-      lotId,
-      event.params.valuationCap.toString(),
-      event.params.discountRate.toString(),
-      event.params.targetEquityToken.toHexString()
-    ]);
+  if (safe != null) {
+    safe.status = "ACTIVE";
+    safe.agreementDocumentId = event.params.agreementDocumentId;
+    safe.activatedAt = event.block.timestamp;
+    safe.activatedTx = event.transaction.hash;
+    safe.save();
+    
+    const activityId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+    let activity = createActivity(
+      activityId,
+      "SAFE_ACTIVATED",
+      event.params.investor,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.save();
   }
 }
 
 /**
- * Handle SAFEConverted event
+ * Handle SAFEConverted event (bilateral SAFE)
+ * Emitted when SAFE converts to equity on a priced round
  */
 export function handleSAFEConverted(event: SAFEConverted): void {
   const tokenAddress = event.address.toHexString();
   const safe = Safe.load(tokenAddress);
   
   if (safe != null) {
-    // Update SAFE stats
-    safe.totalConverted = safe.totalConverted.plus(event.params.investmentAmount);
-    safe.lotsConverted = safe.lotsConverted + 1;
+    safe.status = "CONVERTED";
+    safe.targetEquityToken = event.params.equityToken;
+    safe.conversionPrice = event.params.conversionPrice;
+    safe.sharesReceived = event.params.sharesReceived;
+    safe.convertedAt = event.block.timestamp;
+    safe.convertedTx = event.transaction.hash;
     safe.save();
     
-    // Create conversion record
-    const conversionId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
-    const conversion = new SAFEConversion(conversionId);
-    conversion.safe = tokenAddress;
-    conversion.safeLot = event.params.safeLotId.toHexString();
-    conversion.investor = event.params.investor;
-    conversion.investmentAmount = event.params.investmentAmount;
-    conversion.sharesIssued = event.params.sharesIssued;
-    conversion.effectivePrice = event.params.effectivePrice;
-    conversion.targetShareClass = event.params.targetShareClass;
-    conversion.equityLotId = event.params.equityLotId;
-    conversion.conversionNote = event.params.conversionNote;
-    conversion.convertedAt = event.block.timestamp;
-    conversion.convertedTx = event.transaction.hash;
-    conversion.blockNumber = event.block.number;
-    conversion.logIndex = event.logIndex;
-    conversion.save();
+    const activityId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+    let activity = createActivity(
+      activityId,
+      "SAFE_CONVERTED",
+      event.params.investor,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.save();
+  }
+}
+
+/**
+ * Handle SAFECancelled event (bilateral SAFE)
+ * Emitted when agreement is cancelled and funds refunded
+ */
+export function handleSAFECancelled(event: SAFECancelled): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    safe.status = "CANCELLED";
+    safe.refundAmount = event.params.refundAmount;
+    safe.cancelledAt = event.block.timestamp;
+    safe.cancelledTx = event.transaction.hash;
+    safe.save();
     
-    // Mark the SAFE lot as converted (invalidated)
-    const safeLot = Lot.load(event.params.safeLotId.toHexString());
-    if (safeLot != null) {
-      safeLot.isValid = false;
-      safeLot.save();
-    }
+    const activityId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+    let activity = createActivity(
+      activityId,
+      "SAFE_CANCELLED",
+      event.params.investor,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.save();
+  }
+}
+
+/**
+ * Handle TargetEquityTokenSet event (bilateral SAFE)
+ * Emitted when the target equity token for conversion is set or updated
+ */
+export function handleTargetEquityTokenSet(event: TargetEquityTokenSet): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    safe.targetEquityToken = event.params.equityToken;
+    safe.save();
   }
 }
 

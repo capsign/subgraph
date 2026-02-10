@@ -1943,10 +1943,10 @@ enum TokenAssetType {
   # StockAppreciationRight
 }
 
-# SAFE Token Type
+# Bilateral SAFE Token Type (one issuer, one investor per diamond)
 type Safe implements Token @entity {
   # Token interface fields
-  id: ID! # Token address
+  id: ID! # Token address (diamond)
   name: String!
   symbol: String!
   decimals: Int!
@@ -1978,38 +1978,49 @@ type Safe implements Token @entity {
   # Metadata URI (from TokenMetadataFacet)
   baseURI: String # Base URI for token metadata
   
-  # SAFE-specific fields
-  defaultValuationCap: BigInt! # Default valuation cap (0 = uncapped)
-  defaultDiscountRate: Int! # Default discount rate in basis points
-  defaultTargetEquityToken: Bytes! # Default ShareClass to convert into
-  defaultProRataRight: Boolean! # Default pro-rata participation rights
-  defaultHasMFN: Boolean! # Default Most Favored Nation clause
+  # Bilateral SAFE parties
+  issuer: Bytes! # Company wallet address
+  investor: Bytes! # Investor wallet address
   
-  # Statistics
-  totalInvested: BigInt!
-  totalConverted: BigInt!
-  lotsConverted: Int!
+  # Investment
+  investmentAmount: BigInt! # Amount invested (in paymentToken units)
+  paymentToken: Bytes! # Payment currency address (0x0 = ETH, 0x348 = USD)
   
-  # Conversions
-  conversions: [SAFEConversion!]! @derivedFrom(field: "safe")
+  # SAFE terms
+  valuationCap: BigInt! # Valuation cap (0 = uncapped)
+  discountBasisPoints: Int! # Discount rate in basis points (e.g. 2000 = 20%)
+  hasMFN: Boolean! # Most Favored Nation clause
+  hasProRata: Boolean! # Pro-rata participation rights
+  
+  # Target equity token for conversion
+  targetEquityToken: Bytes! # ShareClass token address to convert into
+  
+  # Lifecycle status
+  status: SAFEStatus!
+  isTransferable: Boolean! # Whether NFT can be transferred (default: soulbound)
+  
+  # Activation
+  agreementDocumentId: Bytes # Document hash set on activation
+  activatedAt: BigInt
+  activatedTx: Bytes
+  
+  # Conversion results
+  conversionPrice: BigInt # Effective price per share at conversion
+  sharesReceived: BigInt # Number of equity shares received
+  convertedAt: BigInt
+  convertedTx: Bytes
+  
+  # Cancellation
+  refundAmount: BigInt # Amount refunded on cancellation
+  cancelledAt: BigInt
+  cancelledTx: Bytes
 }
 
-# SAFE Conversion tracking
-type SAFEConversion @entity {
-  id: ID! # tx-hash-logIndex
-  safe: Safe!
-  safeLot: Lot! # The SAFE lot being converted
-  investor: Bytes!
-  investmentAmount: BigInt!
-  sharesIssued: BigInt!
-  effectivePrice: BigInt!
-  targetShareClass: Bytes! # ShareClass token address
-  equityLotId: Bytes! # The new equity lot created
-  conversionNote: String!
-  convertedAt: BigInt!
-  convertedTx: Bytes!
-  blockNumber: BigInt!
-  logIndex: BigInt!
+enum SAFEStatus {
+  INITIALIZED # Created but not yet activated
+  ACTIVE # Investor has signed, NFT minted
+  CONVERTED # Converted to equity on priced round
+  CANCELLED # Agreement cancelled, funds refunded
 }
 
 # ============ PROMISSORY NOTE TOKEN TYPE ============

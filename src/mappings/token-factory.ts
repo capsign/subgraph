@@ -12,8 +12,9 @@ import { Diamond, ShareClass, Safe, PromissoryNote, UserRole } from "../../gener
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
 import { DiamondLoupe } from "../../generated/TokenFactory/DiamondLoupe";
+import { TokenSAFEFacet } from "../../generated/TokenFactory/TokenSAFEFacet";
 import { ERC20 } from "../../generated/TokenFactory/ERC20";
-import { BigInt, Bytes, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, Address, log } from "@graphprotocol/graph-ts";
 import {
   FactoryPaymentConfig,
   FactoryPaymentTokenConfig,
@@ -59,25 +60,25 @@ export function handleTokenCreated(event: TokenCreated): void {
   const decimals = decimalsResult.reverted ? 18 : decimalsResult.value;
 
   if (tokenType === "Safe") {
-    // Create Safe entity
+    // Create bilateral Safe entity
     let safe = new Safe(tokenAddress);
     safe.name = event.params.name;
     safe.symbol = event.params.symbol;
     safe.decimals = decimals;
     safe.totalSupply = BigInt.fromI32(0);
-    safe.creator = event.params.admin; // Kept for backwards compatibility
+    safe.creator = event.params.admin;
     safe.admin = event.params.admin;
     safe.deployer = event.params.admin;
     safe.createdAt = event.block.timestamp;
     safe.createdTx = event.transaction.hash;
     safe.assetType = "Safe";
-    safe.tokenCategory = "CONVERTIBLE"; // SAFEs are convertible instruments
+    safe.tokenCategory = "CONVERTIBLE";
     
     // Read baseURI for metadata
     let safeBaseURIResult = tokenContract.try_baseURI();
     safe.baseURI = safeBaseURIResult.reverted ? null : safeBaseURIResult.value;
     
-    // Initialize compliance (AssemblyScript empty array)
+    // Initialize compliance
     safe.complianceConditions = new Array<Bytes>();
     
     // Initialize admin state
@@ -89,16 +90,64 @@ export function handleTokenCreated(event: TokenCreated): void {
     safe.transferController = null;
     safe.hasTransferConditions = false;
     
-    // Initialize SAFE-specific fields with defaults
-    // These will be updated when DefaultTermsSet event is emitted
-    safe.defaultValuationCap = BigInt.fromI32(0);
-    safe.defaultDiscountRate = 0;
-    safe.defaultTargetEquityToken = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
-    safe.defaultProRataRight = false;
-    safe.defaultHasMFN = false;
-    safe.totalInvested = BigInt.fromI32(0);
-    safe.totalConverted = BigInt.fromI32(0);
-    safe.lotsConverted = 0;
+    // Read bilateral SAFE data from on-chain via getSAFE()
+    const zeroAddr = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+    const safeFacet = TokenSAFEFacet.bind(event.params.tokenDiamond);
+    const safeResult = safeFacet.try_getSAFE();
+    
+    if (!safeResult.reverted) {
+      safe.issuer = safeResult.value.getIssuer();
+      safe.investor = safeResult.value.getInvestor();
+      safe.investmentAmount = safeResult.value.getInvestmentAmount();
+      safe.paymentToken = safeResult.value.getPaymentToken();
+      
+      const terms = safeResult.value.getTerms();
+      safe.valuationCap = terms.valuationCap;
+      safe.discountBasisPoints = terms.discountBasisPoints;
+      safe.hasMFN = terms.hasMFN;
+      safe.hasProRata = terms.hasProRata;
+      
+      safe.targetEquityToken = safeResult.value.getTargetEquityToken();
+      safe.sharesReceived = safeResult.value.getSharesReceived();
+      
+      // Map status enum: 0=INITIALIZED, 1=ACTIVE, 2=CONVERTED, 3=CANCELLED
+      const statusVal = safeResult.value.getStatus();
+      if (statusVal == 0) {
+        safe.status = "INITIALIZED";
+      } else if (statusVal == 1) {
+        safe.status = "ACTIVE";
+      } else if (statusVal == 2) {
+        safe.status = "CONVERTED";
+      } else {
+        safe.status = "CANCELLED";
+      }
+    } else {
+      log.warning("Failed to read getSAFE() for token {}", [tokenAddress]);
+      // Initialize with safe defaults
+      safe.issuer = zeroAddr;
+      safe.investor = zeroAddr;
+      safe.investmentAmount = BigInt.fromI32(0);
+      safe.paymentToken = zeroAddr;
+      safe.valuationCap = BigInt.fromI32(0);
+      safe.discountBasisPoints = 0;
+      safe.hasMFN = false;
+      safe.hasProRata = false;
+      safe.targetEquityToken = zeroAddr;
+      safe.sharesReceived = null;
+      safe.status = "INITIALIZED";
+    }
+    
+    // Lifecycle fields (set via events)
+    safe.isTransferable = false;
+    safe.agreementDocumentId = null;
+    safe.activatedAt = null;
+    safe.activatedTx = null;
+    safe.conversionPrice = null;
+    safe.convertedAt = null;
+    safe.convertedTx = null;
+    safe.refundAmount = null;
+    safe.cancelledAt = null;
+    safe.cancelledTx = null;
     
     safe.save();
     
@@ -232,8 +281,8 @@ function detectTokenType(tokenAddress: Address): string {
   let facets = facetsResult.value;
   
   // Check each facet for type-specific function selectors
-  // TokenSAFEFacet implements: defaultTerms(): 0x43e30c7f
-  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x43e30c7f");
+  // Bilateral TokenSAFEFacet implements: getSAFE(): 0x18795539
+  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x18795539");
   // TokenNoteFacet implements: getNote(): 0xdf3ac476
   const NOTE_FACET_SELECTOR = Bytes.fromHexString("0xdf3ac476");
   // TokenDebtFacet (deprecated) implements: applyLotTerms(bytes32,bytes): 0x510b2d24
