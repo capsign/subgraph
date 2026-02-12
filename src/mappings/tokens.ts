@@ -31,7 +31,6 @@ import {
   ComplianceModuleAdded,
   ComplianceModuleRemoved,
   AuthorityUpdated,
-  DebtTermsSet,
   NoteInitialized
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import {
@@ -53,7 +52,7 @@ import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export DiamondCut handler for this template
-export { handleDiamondCut } from "./diamond-cut";
+export { handleDiamondFunctionAdded, handleDiamondFunctionRemoved, handleDiamondFunctionReplaced } from "./diamond-upgrade";
 
 /**
  * Handle AuthorityUpdated events for tokens
@@ -1092,48 +1091,7 @@ export {
   handleComplianceModuleRemoved
 } from "./token-compliance";
 
-/**
- * Handle DebtTermsSet event for promissory notes
- * Event: DebtTermsSet(uint256 principalAmount, uint256 interestRate, uint256 issuanceDate, uint256 maturityDate, address paymentCurrency, uint8 paymentType, bool isSubordinated)
- */
-export function handleDebtTermsSet(event: DebtTermsSet): void {
-  const tokenAddress = event.address.toHexString();
-  
-  let note = PromissoryNote.load(tokenAddress);
-  if (!note) {
-    log.warning("DebtTermsSet event for unknown PromissoryNote: {}", [tokenAddress]);
-    return;
-  }
-  
-  // Update debt terms
-  note.principalAmount = event.params.principalAmount;
-  note.interestRate = event.params.interestRate.toI32(); // Convert BigInt to i32
-  note.issuanceDate = event.params.issuanceDate;
-  note.maturityDate = event.params.maturityDate;
-  note.paymentCurrency = event.params.paymentCurrency;
-  
-  // Map payment type enum (0=BULLET, 1=AMORTIZING, 2=INTEREST_ONLY)
-  if (event.params.paymentType == 0) {
-    note.paymentType = "BULLET";
-  } else if (event.params.paymentType == 1) {
-    note.paymentType = "AMORTIZING";
-  } else {
-    note.paymentType = "INTEREST_ONLY";
-  }
-  
-  note.isSubordinated = event.params.isSubordinated;
-  
-  // Initialize outstanding balance to principal amount
-  note.outstandingBalance = event.params.principalAmount;
-  
-  note.save();
-  
-  log.info("Debt terms set for PromissoryNote: token={}, principal={}, rate={}", [
-    tokenAddress,
-    event.params.principalAmount.toString(),
-    event.params.interestRate.toString()
-  ]);
-}
+// handleDebtTermsSet removed (event no longer exists in protocol)
 
 /**
  * Handle NoteInitialized events from TokenNoteFacet

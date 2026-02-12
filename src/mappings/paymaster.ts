@@ -38,18 +38,18 @@ import { log } from "@graphprotocol/graph-ts";
 // ============================================
 
 export function handleDeposited(event: DepositedEvent): void {
-  const entityAddress = event.params.entity;
+  const sponsor = event.params.sponsor;
   const amount = event.params.amount;
 
-  log.info("💰 Paymaster deposit: entity={}, amount={}", [
-    entityAddress.toHexString(),
+  log.info("Paymaster deposit: sponsor={}, amount={}", [
+    sponsor.toHexString(),
     amount.toString(),
   ]);
 
   // Create deposit record
   const depositId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const deposit = new PaymasterDeposit(depositId);
-  deposit.entity = entityAddress;
+  deposit.entity = sponsor;
   deposit.amount = amount;
   deposit.timestamp = event.block.timestamp;
   deposit.tx = event.transaction.hash;
@@ -58,12 +58,12 @@ export function handleDeposited(event: DepositedEvent): void {
 }
 
 export function handleWithdrawn(event: WithdrawnEvent): void {
-  const entityAddress = event.params.entity;
+  const sponsor = event.params.sponsor;
   const recipient = event.params.recipient;
   const amount = event.params.amount;
 
-  log.info("💸 Paymaster withdrawal: entity={}, recipient={}, amount={}", [
-    entityAddress.toHexString(),
+  log.info("Paymaster withdrawal: sponsor={}, recipient={}, amount={}", [
+    sponsor.toHexString(),
     recipient.toHexString(),
     amount.toString(),
   ]);
@@ -71,7 +71,7 @@ export function handleWithdrawn(event: WithdrawnEvent): void {
   // Create withdrawal record
   const withdrawalId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const withdrawal = new PaymasterWithdrawal(withdrawalId);
-  withdrawal.entity = entityAddress;
+  withdrawal.entity = sponsor;
   withdrawal.recipient = recipient;
   withdrawal.amount = amount;
   withdrawal.timestamp = event.block.timestamp;
@@ -81,22 +81,22 @@ export function handleWithdrawn(event: WithdrawnEvent): void {
 }
 
 export function handleSponsored(event: SponsoredEvent): void {
-  const entityAddress = event.params.entity;
+  const sponsor = event.params.sponsor;
   const user = event.params.user;
   const actualCost = event.params.actualCost;
   const refunded = event.params.refunded;
 
-  log.info("⛽ Transaction sponsored: entity={}, user={}, cost={}, refunded={}", [
-    entityAddress.toHexString(),
+  log.info("Transaction sponsored: sponsor={}, user={}, cost={}, refunded={}", [
+    sponsor.toHexString(),
     user.toHexString(),
     actualCost.toString(),
     refunded.toString(),
   ]);
 
   // Get or create policy
-  let policy = PaymasterPolicy.load(entityAddress.toHexString());
+  let policy = PaymasterPolicy.load(sponsor.toHexString());
   if (!policy) {
-    log.warning("PaymasterPolicy not found for entity: {}", [entityAddress.toHexString()]);
+    log.warning("PaymasterPolicy not found for sponsor: {}", [sponsor.toHexString()]);
     return;
   }
 
@@ -104,7 +104,7 @@ export function handleSponsored(event: SponsoredEvent): void {
   const txId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const sponsoredTx = new SponsoredTransaction(txId);
   sponsoredTx.entityPolicy = policy.id;
-  sponsoredTx.entity = entityAddress;
+  sponsoredTx.entity = sponsor;
   sponsoredTx.user = user;
   sponsoredTx.actualCost = actualCost;
   sponsoredTx.refunded = refunded;
@@ -119,12 +119,12 @@ export function handleSponsored(event: SponsoredEvent): void {
 }
 
 export function handlePolicyCheckFailed(event: PolicyCheckFailedEvent): void {
-  const entityAddress = event.params.entity;
+  const sponsor = event.params.sponsor;
   const user = event.params.user;
   const reason = event.params.reason;
 
-  log.warning("❌ Policy check failed: entity={}, user={}, reason={}", [
-    entityAddress.toHexString(),
+  log.warning("Policy check failed: sponsor={}, user={}, reason={}", [
+    sponsor.toHexString(),
     user.toHexString(),
     reason,
   ]);
@@ -132,7 +132,7 @@ export function handlePolicyCheckFailed(event: PolicyCheckFailedEvent): void {
   // Create failure record
   const failureId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
   const failure = new PolicyCheckFailure(failureId);
-  failure.entity = entityAddress;
+  failure.entity = sponsor;
   failure.user = user;
   failure.reason = reason;
   failure.timestamp = event.block.timestamp;

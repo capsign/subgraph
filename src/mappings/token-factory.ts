@@ -11,7 +11,7 @@ import {
 import { Diamond, ShareClass, Safe, PromissoryNote, UserRole } from "../../generated/schema";
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
-import { DiamondLoupe } from "../../generated/TokenFactory/DiamondLoupe";
+import { DiamondInspect } from "../../generated/TokenFactory/DiamondInspect";
 import { TokenSAFEFacet } from "../../generated/TokenFactory/TokenSAFEFacet";
 import { ERC20 } from "../../generated/TokenFactory/ERC20";
 import { BigInt, Bytes, Address, log } from "@graphprotocol/graph-ts";
@@ -268,54 +268,35 @@ export function handleTokenCreated(event: TokenCreated): void {
  * @returns Token type string ("Safe", "PromissoryNote", or "ShareClass")
  */
 function detectTokenType(tokenAddress: Address): string {
-  // Create a DiamondLoupe binding to query facets
-  let loupe = DiamondLoupe.bind(tokenAddress);
+  // Create a DiamondInspect binding to query facets via facetAddress(bytes4)
+  let inspect = DiamondInspect.bind(tokenAddress);
   
-  // Get all facet addresses
-  let facetsResult = loupe.try_facets();
-  if (facetsResult.reverted) {
-    // If we can't query facets, default to ShareClass
-    return "ShareClass";
-  }
-  
-  let facets = facetsResult.value;
-  
-  // Check each facet for type-specific function selectors
+  // Type-specific function selectors
   // Bilateral TokenSAFEFacet implements: getSAFE(): 0x18795539
-  const SAFE_FACET_SELECTOR = Bytes.fromHexString("0x18795539");
+  let SAFE_FACET_SELECTOR = Bytes.fromHexString("0x18795539");
   // TokenNoteFacet implements: getNote(): 0xdf3ac476
-  const NOTE_FACET_SELECTOR = Bytes.fromHexString("0xdf3ac476");
+  let NOTE_FACET_SELECTOR = Bytes.fromHexString("0xdf3ac476");
   // TokenDebtFacet (deprecated) implements: applyLotTerms(bytes32,bytes): 0x510b2d24
-  const DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
+  let DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
   
-  // First pass: Check for SAFE facet (highest priority)
-  for (let i = 0; i < facets.length; i++) {
-    let facetSelectors = facets[i].functionSelectors;
-    for (let j = 0; j < facetSelectors.length; j++) {
-      if (facetSelectors[j].equals(SAFE_FACET_SELECTOR)) {
-        return "Safe";
-      }
-    }
+  let ZERO_ADDRESS = Address.fromString("0x0000000000000000000000000000000000000000");
+  
+  // Check for SAFE facet (highest priority)
+  let safeFacetResult = inspect.try_facetAddress(SAFE_FACET_SELECTOR);
+  if (!safeFacetResult.reverted && !safeFacetResult.value.equals(ZERO_ADDRESS)) {
+    return "Safe";
   }
   
-  // Second pass: Check for Note facet (TokenNoteFacet - bilateral promissory note)
-  for (let i = 0; i < facets.length; i++) {
-    let facetSelectors = facets[i].functionSelectors;
-    for (let j = 0; j < facetSelectors.length; j++) {
-      if (facetSelectors[j].equals(NOTE_FACET_SELECTOR)) {
-        return "PromissoryNote";
-      }
-    }
+  // Check for Note facet (TokenNoteFacet - bilateral promissory note)
+  let noteFacetResult = inspect.try_facetAddress(NOTE_FACET_SELECTOR);
+  if (!noteFacetResult.reverted && !noteFacetResult.value.equals(ZERO_ADDRESS)) {
+    return "PromissoryNote";
   }
   
-  // Third pass: Check for legacy Debt facet (deprecated TokenDebtFacet)
-  for (let i = 0; i < facets.length; i++) {
-    let facetSelectors = facets[i].functionSelectors;
-    for (let j = 0; j < facetSelectors.length; j++) {
-      if (facetSelectors[j].equals(DEBT_FACET_SELECTOR)) {
-        return "PromissoryNote";
-      }
-    }
+  // Check for legacy Debt facet (deprecated TokenDebtFacet)
+  let debtFacetResult = inspect.try_facetAddress(DEBT_FACET_SELECTOR);
+  if (!debtFacetResult.reverted && !debtFacetResult.value.equals(ZERO_ADDRESS)) {
+    return "PromissoryNote";
   }
   
   // Default to ShareClass if no specific facet found

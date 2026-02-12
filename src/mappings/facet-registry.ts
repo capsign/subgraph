@@ -3,11 +3,9 @@ import {
   FacetRemoved
 } from "../../generated/FacetRegistry/FacetRegistry";
 import { Facet, FacetRegistryEvent } from "../../generated/schema";
-import { FacetRegistry } from "../../generated/FacetRegistry/FacetRegistry";
 
 export function handleFacetRegistered(event: FacetRegistered): void {
   const facetAddress = event.params.facetAddress.toHexString();
-  const registry = FacetRegistry.bind(event.address);
   
   // Create or update Facet entity
   let facet = Facet.load(facetAddress);
@@ -21,15 +19,10 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   facet.version = event.params.version;
   facet.removed = false;
   
-  // Query the selectors from the contract
-  const selectorsResult = registry.try_getFacetSelectors(
-    event.params.name,
-    event.params.version
-  );
-  
-  if (!selectorsResult.reverted) {
-    facet.selectors = selectorsResult.value.map<string>((selector) => selector.toHexString());
-  } else {
+  // Selectors are discovered via packedSelectors() on each facet,
+  // not stored on the registry. They'll be populated when
+  // DiamondFunctionAdded events fire during diamond upgrades.
+  if (!facet.selectors) {
     facet.selectors = [];
   }
   

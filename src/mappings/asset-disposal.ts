@@ -50,7 +50,7 @@ export function getTaxYear(timestamp: BigInt): i32 {
  * Tracks asset sales and calculates capital gains for K-1 reporting
  */
 export function handleAssetDisposed(event: AssetDisposed): void {
-  const fundWalletAddress = event.params.fundWallet.toHexString();
+  const fundWalletAddress = event.params.wallet.toHexString();
   const disposalId = `${event.transaction.hash.toHexString()}-${event.logIndex.toString()}`;
   
   // Load vehicle (fund wallet)

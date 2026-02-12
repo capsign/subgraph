@@ -7,9 +7,9 @@ dataSources:
     name: DiamondFactory
     network: base
     source:
-      address: "0x29b6EcCf401DDDC7B7A52cb5645380e6Fd9Cd687"
+      address: "0x7d649b6B7613dC300e65007CC9d30a99D01768eF"
       abi: DiamondFactory
-      startBlock: 40488499 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 42042469 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -75,9 +75,9 @@ dataSources:
     name: FacetRegistry
     network: base
     source:
-      address: "0x4261A5238F3C90b404AfDC72Fb9eB75Ae506DeBd"
+      address: "0x01cdbAcb482Ee98c74e9e70Dbc485cFCAE794849"
       abi: FacetRegistry
-      startBlock: 40488499 # Contract deployment block - captures all facet registrations
+      startBlock: 42042469 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -89,7 +89,7 @@ dataSources:
         - name: FacetRegistry
           file: ./abis/FacetRegistry.json
       eventHandlers:
-        - event: FacetRegistered(string,indexed uint256,indexed address,uint256)
+        - event: FacetRegistered(string,indexed uint256,indexed address)
           handler: handleFacetRegistered
         - event: FacetRemoved(string,indexed uint256)
           handler: handleFacetRemoved
@@ -100,9 +100,9 @@ dataSources:
     name: WalletFactory
     network: base
     source:
-      address: "0xE8ba6f7d0039074338027E43518BD89e2F1f2ac6"
+      address: "0xd638662A6C58bfD53741bdE183cd75F8eD975159"
       abi: WalletFactory
-      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 42042499 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -132,9 +132,9 @@ dataSources:
     name: OfferingFactory
     network: base
     source:
-      address: "0x60880d3c604205A762B91Efd60a39D6F9BfE31AE"
+      address: "0xBE488e39dB5157ae7BBc60fE359ABC4157FBadb7"
       abi: OfferingFactory
-      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 42042499 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -179,9 +179,9 @@ dataSources:
     name: TokenFactory
     network: base
     source:
-      address: "0x7eA89e9Dfb09Dcef1fb0c496Aae038f1c8300730"
+      address: "0xB9a72e2c95f2088F65c72a7eB6c8FE88FAD64339"
       abi: TokenFactory
-      startBlock: 40489103 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 42042499 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -199,8 +199,8 @@ dataSources:
           file: ./abis/TokenFactory.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
-        - name: DiamondLoupe
-          file: ./abis/DiamondLoupe.json
+        - name: DiamondInspect
+          file: ./abis/DiamondInspectFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: AccessControl
@@ -256,7 +256,7 @@ dataSources:
     source:
       address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
       abi: ERC20
-      startBlock: 40488499 # Updated 2026-01-07 - Match fresh deployment
+      startBlock: 42042469 # Match fresh deployment
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -278,9 +278,9 @@ dataSources:
     name: CapSignPaymaster
     network: base
     source:
-      address: "0x02b5830f17e9B9bfF476dfb2b382F3aA2d12430E"
+      address: "0x839386C819B610BcDeC1546299fAe3E649af5e41"
       abi: CapSignPaymasterFacet
-      startBlock: 40489259 # Updated 2026-01-07 - Fresh deployment with new storage slots
+      startBlock: 42042528 # Fresh deployment with ERC-8109 declarative upgrades
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -349,9 +349,15 @@ templates:
         - name: AccessControl
           file: ./abis/AccessControlFacet.json
       eventHandlers:
-        # Diamond cut tracking (for deployment config audit trail)
-        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
-          handler: handleDiamondCut
+        # Diamond upgrade tracking (ERC-8109 declarative upgrades)
+        - event: DiamondFunctionAdded(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionAdded
+          receipt: false
+        - event: DiamondFunctionReplaced(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionReplaced
+          receipt: false
+        - event: DiamondFunctionRemoved(indexed bytes4)
+          handler: handleDiamondFunctionRemoved
           receipt: false
         - event: AuthorityUpdated(indexed address,indexed address)
           handler: handleOfferingAuthorityUpdated
@@ -383,11 +389,7 @@ templates:
           handler: handleMinMaxInvestmentUpdated
         - event: DocumentEligibilityModeSet(uint8)
           handler: handleDocumentEligibilityModeSet
-        - event: TemplateRegistered(indexed bytes32,indexed bytes32,string,indexed address)
-          handler: handleTemplateRegistered
-          receipt: true
-        - event: RequiredDocumentSet(indexed bytes32,uint8)
-          handler: handleRequiredDocumentSet
+        # TemplateRegistered and RequiredDocumentSet removed (events no longer exist in protocol)
         - event: DocumentCreated(indexed bytes32,indexed bytes32,indexed address,string)
           handler: handleDocumentCreated
           receipt: true
@@ -494,9 +496,15 @@ templates:
           handler: handleValuation409ARecorded
         - event: Valuation409AInvalidated(indexed uint256,string)
           handler: handleValuation409AInvalidated
-        # Diamond cut tracking (for deployment config audit trail)
-        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
-          handler: handleDiamondCut
+        # Diamond upgrade tracking (ERC-8109 declarative upgrades)
+        - event: DiamondFunctionAdded(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionAdded
+          receipt: false
+        - event: DiamondFunctionReplaced(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionReplaced
+          receipt: false
+        - event: DiamondFunctionRemoved(indexed bytes4)
+          handler: handleDiamondFunctionRemoved
           receipt: false
         - event: AuthorityUpdated(indexed address,indexed address)
           handler: handleTokenAuthorityUpdated
@@ -567,8 +575,7 @@ templates:
           handler: handleComplianceModuleRemoved
         - event: LotModuleAdded(indexed bytes32,indexed address)
           handler: handleLotModuleAdded
-        - event: DebtTermsSet(uint256,uint256,uint256,uint256,address,uint8,bool)
-          handler: handleDebtTermsSet
+        # DebtTermsSet removed (event no longer exists in protocol)
       file: ./src/mappings/tokens.ts
   
   # Wallet Diamond Template
@@ -675,9 +682,15 @@ templates:
           handler: handleRule701GrantRegistered
         - event: DisclosureProvided(bytes32)
           handler: handleDisclosureProvided
-        # Diamond cut tracking (for deployment config audit trail)
-        - event: DiamondCut((address,uint8,bytes4[])[],address,bytes)
-          handler: handleDiamondCut
+        # Diamond upgrade tracking (ERC-8109 declarative upgrades)
+        - event: DiamondFunctionAdded(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionAdded
+          receipt: false
+        - event: DiamondFunctionReplaced(indexed bytes4,indexed address)
+          handler: handleDiamondFunctionReplaced
+          receipt: false
+        - event: DiamondFunctionRemoved(indexed bytes4)
+          handler: handleDiamondFunctionRemoved
           receipt: false
         - event: UserRoleUpdated(indexed address,indexed uint8,bool)
           handler: handleUserRoleUpdated

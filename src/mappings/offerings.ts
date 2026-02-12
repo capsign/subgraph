@@ -26,10 +26,7 @@ import {
   RequiredSignerRemoved,
   OfferingDocuments,
 } from "../../generated/templates/OfferingDiamond/OfferingDocuments";
-import {
-  TemplateRegistered,
-  RequiredDocumentSet,
-} from "../../generated/templates/OfferingDiamond/OfferingDiamond";
+// TemplateRegistered and RequiredDocumentSet events removed (no longer in protocol)
 import {
   ComplianceInitialized,
   AllowsGeneralSolicitationUpdated,
@@ -61,7 +58,7 @@ import { BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export DiamondCut handler for this template
-export { handleDiamondCut } from "./diamond-cut";
+export { handleDiamondFunctionAdded, handleDiamondFunctionRemoved, handleDiamondFunctionReplaced } from "./diamond-upgrade";
 
 // Helper function to ensure offering has offchain fields initialized
 function ensureOffchainFieldsInitialized(offering: Offering): void {
@@ -403,52 +400,7 @@ export function handleOfferingStatusChanged(
  * Handle template registration in offering contracts
  * Templates are stored in the offering contract and used to create document instances
  */
-export function handleTemplateRegistered(event: TemplateRegistered): void {
-  const templateId = event.params.templateId.toHexString();
-  const offeringAddress = event.address.toHexString();
-  
-  // Create template entity
-  let template = new OfferingTemplate(templateId);
-  template.offering = offeringAddress;
-  template.contentHash = event.params.contentHash;
-  template.title = event.params.title;
-  template.creator = event.params.creator;
-  template.createdAt = event.block.timestamp;
-  template.createdTx = event.transaction.hash;
-  
-  template.save();
-}
-
-/**
- * Handle required document set (links template to offering and sets eligibility)
- */
-export function handleRequiredDocumentSet(event: RequiredDocumentSet): void {
-  const templateId = event.params.templateId.toHexString();
-  const offeringAddress = event.address.toHexString();
-  
-  // Load offering and set required template
-  let offering = Offering.load(offeringAddress);
-  if (offering) {
-    offering.requiredTemplate = templateId;
-    offering.save();
-  }
-  
-  // Load template and set eligibility
-  let template = OfferingTemplate.load(templateId);
-  if (template) {
-    const eligibilityMode = event.params.eligibility;
-    if (eligibilityMode == 0) {
-      template.eligibility = "COMPLIANT_ONLY";
-    } else if (eligibilityMode == 1) {
-      template.eligibility = "WHITELISTED_ONLY";
-    } else if (eligibilityMode == 2) {
-      template.eligibility = "CUSTOM_MODULE";
-    } else if (eligibilityMode == 3) {
-      template.eligibility = "EXPLICIT_LIST";
-    }
-    template.save();
-  }
-}
+// handleTemplateRegistered and handleRequiredDocumentSet removed (events no longer exist in protocol)
 
 /**
  * Handle document creation from template

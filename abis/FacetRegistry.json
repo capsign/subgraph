@@ -2,48 +2,6 @@
   "abi": [
     {
       "type": "event",
-      "name": "DiamondCut",
-      "inputs": [
-        {
-          "name": "diamondCut",
-          "type": "tuple[]",
-          "indexed": false,
-          "internalType": "struct IDiamondCut.FacetCut[]",
-          "components": [
-            {
-              "name": "facetAddress",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "action",
-              "type": "uint8",
-              "internalType": "enum IDiamondCut.FacetCutAction"
-            },
-            {
-              "name": "functionSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
-        },
-        {
-          "name": "init",
-          "type": "address",
-          "indexed": false,
-          "internalType": "address"
-        },
-        {
-          "name": "data",
-          "type": "bytes",
-          "indexed": false,
-          "internalType": "bytes"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
       "name": "FacetDeprecated",
       "inputs": [
         {
@@ -101,12 +59,6 @@
           "type": "address",
           "indexed": true,
           "internalType": "address"
-        },
-        {
-          "name": "selectorCount",
-          "type": "uint256",
-          "indexed": false,
-          "internalType": "uint256"
         }
       ],
       "anonymous": false
@@ -181,8 +133,59 @@
       "anonymous": false
     },
     {
+      "type": "event",
+      "name": "DiamondFunctionRemoved",
+      "inputs": [
+        {
+          "name": "selector",
+          "type": "bytes4",
+          "indexed": true,
+          "internalType": "bytes4"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "DiamondFunctionAdded",
+      "inputs": [
+        {
+          "name": "selector",
+          "type": "bytes4",
+          "indexed": true,
+          "internalType": "bytes4"
+        },
+        {
+          "name": "facet",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "DiamondFunctionReplaced",
+      "inputs": [
+        {
+          "name": "selector",
+          "type": "bytes4",
+          "indexed": true,
+          "internalType": "bytes4"
+        },
+        {
+          "name": "facet",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
       "type": "function",
-      "name": "DiamondLoupe_init",
+      "name": "DiamondInspect_init",
       "inputs": [],
       "outputs": [],
       "stateMutability": "nonpayable"
@@ -215,38 +218,13 @@
     },
     {
       "type": "function",
-      "name": "facetAddresses",
+      "name": "functionFacetPairs",
       "inputs": [],
       "outputs": [
         {
-          "name": "facetAddresses_",
-          "type": "address[]",
-          "internalType": "address[]"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "facets",
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "facets_",
-          "type": "tuple[]",
-          "internalType": "struct IDiamondLoupe.Facet[]",
-          "components": [
-            {
-              "name": "facetAddress",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "functionSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
+          "name": "pairs",
+          "type": "bytes",
+          "internalType": "bytes"
         }
       ],
       "stateMutability": "view"
@@ -266,98 +244,16 @@
     },
     {
       "type": "function",
-      "name": "diamondCut",
-      "inputs": [
+      "name": "packedSelectors",
+      "inputs": [],
+      "outputs": [
         {
-          "name": "_diamondCut",
-          "type": "tuple[]",
-          "internalType": "struct IDiamondCut.FacetCut[]",
-          "components": [
-            {
-              "name": "facetAddress",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "action",
-              "type": "uint8",
-              "internalType": "enum IDiamondCut.FacetCutAction"
-            },
-            {
-              "name": "functionSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
-        },
-        {
-          "name": "_init",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
-          "name": "_calldata",
+          "name": "",
           "type": "bytes",
           "internalType": "bytes"
         }
       ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "validateFacetCuts",
-      "inputs": [
-        {
-          "name": "cuts",
-          "type": "tuple[]",
-          "internalType": "struct IDiamondCut.FacetCut[]",
-          "components": [
-            {
-              "name": "facetAddress",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "action",
-              "type": "uint8",
-              "internalType": "enum IDiamondCut.FacetCutAction"
-            },
-            {
-              "name": "functionSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool",
-          "internalType": "bool"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "facetFunctionSelectors",
-      "inputs": [
-        {
-          "name": "_facet",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "_facetFunctionSelectors",
-          "type": "bytes4[]",
-          "internalType": "bytes4[]"
-        }
-      ],
-      "stateMutability": "view"
+      "stateMutability": "pure"
     },
     {
       "type": "function",
@@ -533,10 +429,52 @@
     },
     {
       "type": "function",
+      "name": "upgradeDiamond",
+      "inputs": [
+        {
+          "name": "_facets",
+          "type": "address[]",
+          "internalType": "address[]"
+        },
+        {
+          "name": "_init",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_calldata",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "validateFacets",
+      "inputs": [
+        {
+          "name": "facets",
+          "type": "address[]",
+          "internalType": "address[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "facetAddress",
       "inputs": [
         {
-          "name": "_functionSelector",
+          "name": "_selector",
           "type": "bytes4",
           "internalType": "bytes4"
         }
@@ -662,11 +600,6 @@
           "name": "facetAddress",
           "type": "address",
           "internalType": "address"
-        },
-        {
-          "name": "selectors",
-          "type": "bytes4[]",
-          "internalType": "bytes4[]"
         }
       ],
       "outputs": [
@@ -677,108 +610,6 @@
         }
       ],
       "stateMutability": "nonpayable"
-    },
-    {
-      "type": "function",
-      "name": "getUpgradeCuts",
-      "inputs": [
-        {
-          "name": "name",
-          "type": "string",
-          "internalType": "string"
-        },
-        {
-          "name": "oldVersion",
-          "type": "uint256",
-          "internalType": "uint256"
-        },
-        {
-          "name": "newVersion",
-          "type": "uint256",
-          "internalType": "uint256"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "cuts",
-          "type": "tuple[]",
-          "internalType": "struct IDiamondCut.FacetCut[]",
-          "components": [
-            {
-              "name": "facetAddress",
-              "type": "address",
-              "internalType": "address"
-            },
-            {
-              "name": "action",
-              "type": "uint8",
-              "internalType": "enum IDiamondCut.FacetCutAction"
-            },
-            {
-              "name": "functionSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
-      "name": "getUpgradeInfo",
-      "inputs": [
-        {
-          "name": "name",
-          "type": "string",
-          "internalType": "string"
-        },
-        {
-          "name": "oldVersion",
-          "type": "uint256",
-          "internalType": "uint256"
-        },
-        {
-          "name": "newVersion",
-          "type": "uint256",
-          "internalType": "uint256"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "info",
-          "type": "tuple",
-          "internalType": "struct IFacetRegistry.UpgradeInfo",
-          "components": [
-            {
-              "name": "oldVersion",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "newVersion",
-              "type": "uint256",
-              "internalType": "uint256"
-            },
-            {
-              "name": "addedSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            },
-            {
-              "name": "removedSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            },
-            {
-              "name": "replacedSelectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
-            }
-          ]
-        }
-      ],
-      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -824,30 +655,6 @@
     },
     {
       "type": "function",
-      "name": "getFacetSelectors",
-      "inputs": [
-        {
-          "name": "name",
-          "type": "string",
-          "internalType": "string"
-        },
-        {
-          "name": "version",
-          "type": "uint256",
-          "internalType": "uint256"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "",
-          "type": "bytes4[]",
-          "internalType": "bytes4[]"
-        }
-      ],
-      "stateMutability": "view"
-    },
-    {
-      "type": "function",
       "name": "getFacetVersion",
       "inputs": [
         {
@@ -876,11 +683,6 @@
               "name": "deprecated",
               "type": "bool",
               "internalType": "bool"
-            },
-            {
-              "name": "selectors",
-              "type": "bytes4[]",
-              "internalType": "bytes4[]"
             }
           ]
         }
@@ -931,7 +733,7 @@
     },
     {
       "type": "error",
-      "name": "DiamondCut_NoSelectorsGivenToAdd",
+      "name": "Diamond_InvalidFacetAddress",
       "inputs": []
     },
     {
@@ -947,11 +749,6 @@
     {
       "type": "error",
       "name": "Registry_InvalidVersion",
-      "inputs": []
-    },
-    {
-      "type": "error",
-      "name": "Registry_NoSelectorsProvided",
       "inputs": []
     },
     {
@@ -972,7 +769,7 @@
     },
     {
       "type": "error",
-      "name": "DiamondCut_NoSelectorsProvidedForFacet",
+      "name": "Diamond_FacetHasNoCode",
       "inputs": [
         {
           "name": "facet",
@@ -983,28 +780,12 @@
     },
     {
       "type": "error",
-      "name": "DiamondCut_RemoveFacetAddressMustBeZeroAddress",
+      "name": "Diamond_NoSelectorsFromFacet",
       "inputs": [
         {
           "name": "facet",
           "type": "address",
           "internalType": "address"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_NoBytecodeAtAddress",
-      "inputs": [
-        {
-          "name": "facet",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
-          "name": "message",
-          "type": "string",
-          "internalType": "string"
         }
       ]
     },
@@ -1021,26 +802,26 @@
     },
     {
       "type": "error",
-      "name": "DiamondCut_InitializationFunctionReverted",
+      "name": "Registry_InvalidFacet",
       "inputs": [
         {
-          "name": "initAddress",
+          "name": "facetAddress",
           "type": "address",
           "internalType": "address"
-        },
-        {
-          "name": "data",
-          "type": "bytes",
-          "internalType": "bytes"
         }
       ]
     },
     {
       "type": "error",
-      "name": "Diamond_InitializationFailed",
+      "name": "Diamond_InitReverted",
       "inputs": [
         {
-          "name": "error",
+          "name": "init",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "data",
           "type": "bytes",
           "internalType": "bytes"
         }
@@ -1054,83 +835,6 @@
           "name": "functionSig",
           "type": "bytes4",
           "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_CannotRemoveFunctionThatDoesNotExist",
-      "inputs": [
-        {
-          "name": "selector",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_CannotReplaceFunctionThatDoesNotExist",
-      "inputs": [
-        {
-          "name": "selector",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_CannotReplaceFunctionWithSameFunctionFromSameFacet",
-      "inputs": [
-        {
-          "name": "selector",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_FunctionAlreadyExists",
-      "inputs": [
-        {
-          "name": "selector",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "Diamond_FunctionDoesNotExist",
-      "inputs": [
-        {
-          "name": "selector",
-          "type": "bytes4",
-          "internalType": "bytes4"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_CannotAddSelectorsToZeroAddress",
-      "inputs": [
-        {
-          "name": "selectors",
-          "type": "bytes4[]",
-          "internalType": "bytes4[]"
-        }
-      ]
-    },
-    {
-      "type": "error",
-      "name": "DiamondCut_CannotReplaceFunctionsFromZeroAddress",
-      "inputs": [
-        {
-          "name": "selectors",
-          "type": "bytes4[]",
-          "internalType": "bytes4[]"
         }
       ]
     },

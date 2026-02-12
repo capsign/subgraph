@@ -35,7 +35,7 @@ import { WalletDocuments } from "../../generated/templates/WalletDiamond/WalletD
 import { Wallet, Owner, Diamond, Document, DocumentSignature, Attestation, TargetFunctionPermission, UserRole, UserRoleHistory, FunctionAccess, AuthorizedSigner, UserOperationExecution, Rule701Status, Rule701EquityToken, Rule701Grant } from "../../generated/schema";
 
 // Re-export DiamondCut handler for this template
-export { handleDiamondCut } from "./diamond-cut";
+export { handleDiamondFunctionAdded, handleDiamondFunctionRemoved, handleDiamondFunctionReplaced } from "./diamond-upgrade";
 import { Bytes, BigInt } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 

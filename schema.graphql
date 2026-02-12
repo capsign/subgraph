@@ -2581,7 +2581,7 @@ type DiamondCutEvent @entity {
   blockNumber: BigInt!
   
   # Cut details
-  facetAddress: Bytes!
+  facetAddress: Bytes # Nullable for DiamondFunctionRemoved (no facet in event)
   action: FacetCutAction!
   selectors: [String!]!
   
