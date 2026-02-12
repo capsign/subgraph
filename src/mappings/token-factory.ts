@@ -12,6 +12,7 @@ import { Diamond, ShareClass, Safe, PromissoryNote, UserRole } from "../../gener
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
 import { DiamondInspect } from "../../generated/TokenFactory/DiamondInspect";
+import { TokenTypeFacet } from "../../generated/TokenFactory/TokenTypeFacet";
 import { TokenSAFEFacet } from "../../generated/TokenFactory/TokenSAFEFacet";
 import { ERC20 } from "../../generated/TokenFactory/ERC20";
 import { BigInt, Bytes, Address, log } from "@graphprotocol/graph-ts";
@@ -263,43 +264,45 @@ export function handleTokenCreated(event: TokenCreated): void {
 }
 
 /**
- * Detect token type by checking which facets are installed
+ * Detect token type using TokenTypeFacet.getAssetType() which returns the
+ * human-readable type directly (e.g. "ShareClass", "Safe", "PromissoryNote").
+ * Falls back to selector-sniffing for legacy tokens deployed before TokenTypeFacet existed.
+ *
  * @param tokenAddress - Address of the token diamond
  * @returns Token type string ("Safe", "PromissoryNote", or "ShareClass")
  */
 function detectTokenType(tokenAddress: Address): string {
-  // Create a DiamondInspect binding to query facets via facetAddress(bytes4)
+  // Primary: query TokenTypeFacet.getAssetType() directly
+  let typeFacet = TokenTypeFacet.bind(tokenAddress);
+  let assetTypeResult = typeFacet.try_getAssetType();
+  if (!assetTypeResult.reverted && assetTypeResult.value.length > 0) {
+    log.info("Token {} type from TokenTypeFacet: {}", [
+      tokenAddress.toHexString(),
+      assetTypeResult.value,
+    ]);
+    return assetTypeResult.value;
+  }
+
+  // Fallback: selector-sniffing for legacy tokens without TokenTypeFacet
+  log.info("Token {} has no TokenTypeFacet, falling back to selector detection", [
+    tokenAddress.toHexString(),
+  ]);
   let inspect = DiamondInspect.bind(tokenAddress);
-  
-  // Type-specific function selectors
-  // Bilateral TokenSAFEFacet implements: getSAFE(): 0x18795539
-  let SAFE_FACET_SELECTOR = Bytes.fromHexString("0x18795539");
-  // TokenNoteFacet implements: getNote(): 0xdf3ac476
-  let NOTE_FACET_SELECTOR = Bytes.fromHexString("0xdf3ac476");
-  // TokenDebtFacet (deprecated) implements: applyLotTerms(bytes32,bytes): 0x510b2d24
-  let DEBT_FACET_SELECTOR = Bytes.fromHexString("0x510b2d24");
-  
   let ZERO_ADDRESS = Address.fromString("0x0000000000000000000000000000000000000000");
-  
-  // Check for SAFE facet (highest priority)
-  let safeFacetResult = inspect.try_facetAddress(SAFE_FACET_SELECTOR);
+
+  // TokenSAFEFacet: getSAFE() = 0x18795539
+  let safeFacetResult = inspect.try_facetAddress(Bytes.fromHexString("0x18795539"));
   if (!safeFacetResult.reverted && !safeFacetResult.value.equals(ZERO_ADDRESS)) {
     return "Safe";
   }
-  
-  // Check for Note facet (TokenNoteFacet - bilateral promissory note)
-  let noteFacetResult = inspect.try_facetAddress(NOTE_FACET_SELECTOR);
+
+  // TokenNoteFacet: getNote() = 0xdf3ac476
+  let noteFacetResult = inspect.try_facetAddress(Bytes.fromHexString("0xdf3ac476"));
   if (!noteFacetResult.reverted && !noteFacetResult.value.equals(ZERO_ADDRESS)) {
     return "PromissoryNote";
   }
-  
-  // Check for legacy Debt facet (deprecated TokenDebtFacet)
-  let debtFacetResult = inspect.try_facetAddress(DEBT_FACET_SELECTOR);
-  if (!debtFacetResult.reverted && !debtFacetResult.value.equals(ZERO_ADDRESS)) {
-    return "PromissoryNote";
-  }
-  
-  // Default to ShareClass if no specific facet found
+
+  // Default to ShareClass
   return "ShareClass";
 }
 

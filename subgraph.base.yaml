@@ -201,6 +201,8 @@ dataSources:
           file: ./abis/TokenMetadataFacet.json
         - name: DiamondInspect
           file: ./abis/DiamondInspectFacet.json
+        - name: TokenTypeFacet
+          file: ./abis/TokenTypeFacet.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: AccessControl
