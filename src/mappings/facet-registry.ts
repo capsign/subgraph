@@ -13,18 +13,13 @@ export function handleFacetRegistered(event: FacetRegistered): void {
     facet = new Facet(facetAddress);
     facet.createdAt = event.block.timestamp;
     facet.createdTx = event.transaction.hash;
+    // Initialize required array field immediately to avoid null access
+    facet.selectors = [];
   }
   
   facet.name = event.params.name;
   facet.version = event.params.version;
   facet.removed = false;
-  
-  // Selectors are discovered via packedSelectors() on each facet,
-  // not stored on the registry. They'll be populated when
-  // DiamondFunctionAdded events fire during diamond upgrades.
-  if (!facet.selectors) {
-    facet.selectors = [];
-  }
   
   facet.save();
   
