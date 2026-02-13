@@ -1577,14 +1577,14 @@ interface Token {
 }
 
 enum TokenCategory {
-  EQUITY      # Represents ownership: ShareClass, MembershipUnit, FundUnit, SPVUnit
+  EQUITY      # Represents ownership: EquityToken, MembershipUnit, FundUnit, SPVUnit
   DEBT        # Represents liability: PromissoryNote, Bond, ConvertibleNote
   CONVERTIBLE # Hybrid instruments: SAFE (converts to equity)
   DERIVATIVE  # Options and warrants: EmployeeStockOption, Warrant, StockAppreciationRight
 }
 
-# ShareClass tokens (equity shares and membership units)
-type ShareClass implements Token @entity {
+# Equity tokens (shares, membership units, unit interests, fund units, etc.)
+type EquityToken implements Token @entity {
   id: ID!
   name: String!
   symbol: String!
@@ -1611,7 +1611,7 @@ type ShareClass implements Token @entity {
   # Metadata URI (from TokenMetadataFacet)
   baseURI: String # Base URI for token metadata
   
-  # ShareClass-specific fields (from TokenAdminFacet)
+  # EquityToken-specific fields (from TokenAdminFacet)
   maxSupply: BigInt! # 0 = unlimited (from TokenAdminFacet)
   
   # Corporate actions (from TokenCorporateActionsFacet)
@@ -1636,7 +1636,7 @@ type ShareClass implements Token @entity {
 # Token role membership tracking
 type TokenRoleMember @entity {
   id: ID! # token-user-role (e.g., "0x123...abc-0x456...def-1")
-  token: ShareClass!
+  token: EquityToken!
   user: Bytes!
   role: Int! # uint8 role ID
   enabled: Boolean!
@@ -1649,7 +1649,7 @@ type TokenRoleMember @entity {
 # Corporate action history tracking
 type CorporateAction @entity {
   id: ID! # tx-logIndex (e.g., "0x123...abc-5")
-  token: ShareClass!
+  token: EquityToken!
   actionType: CorporateActionType!
   numerator: BigInt! # Split/dividend numerator
   denominator: BigInt! # Split/dividend denominator
@@ -1666,7 +1666,7 @@ enum CorporateActionType {
 # Email-gated token claims
 type TokenClaim @entity {
   id: ID! # claimId (bytes32)
-  token: ShareClass!
+  token: EquityToken!
   emailHash: Bytes!
   quantity: BigInt!
   expiresAt: BigInt!
@@ -1685,7 +1685,7 @@ type TokenClaim @entity {
 # 409A Valuation tracking for equity tokens
 type Valuation409A @entity {
   id: ID! # token-valuationId
-  token: ShareClass!
+  token: EquityToken!
   valuationId: BigInt!
   pricePerShare: BigInt!
   effectiveDate: BigInt!
@@ -1703,7 +1703,7 @@ type Valuation409A @entity {
 # Stock Option grants
 type OptionGrant @entity {
   id: ID! # token-grantId
-  equityToken: ShareClass! # Token diamond address (named for UI compatibility)
+  equityToken: EquityToken! # Token diamond address
   grantId: BigInt!
   lotId: Bytes! # Associated lot ID
   recipient: Wallet! # Recipient wallet
@@ -1759,7 +1759,7 @@ type RSUGrant @entity {
   rsuPlan: Bytes! # Address of the RSU plan diamond
   grantId: BigInt!
   recipient: Bytes!
-  equityToken: ShareClass!
+  equityToken: EquityToken!
   companyWallet: Wallet
   status: RSUStatus!
   totalShares: BigInt!
@@ -1819,7 +1819,7 @@ type Rule701Status @entity {
 type Rule701EquityToken @entity {
   id: ID! # companyWallet-token
   rule701Status: Rule701Status!
-  token: ShareClass!
+  token: EquityToken!
   registeredAt: BigInt!
   registeredTx: Bytes!
 }
@@ -1828,7 +1828,7 @@ type Rule701Grant @entity {
   id: ID! # companyWallet-grantId
   rule701Status: Rule701Status!
   internalGrantId: BigInt!
-  equityToken: ShareClass!
+  equityToken: EquityToken!
   grantValue: BigInt!
   grantType: String! # "ISO_option", "NSO_option", "RSU"
   recipient: Bytes!
@@ -1899,7 +1899,7 @@ type Rule701Grant @entity {
 #   
 #   # ESO-specific fields (from TokenESOFacet)
 #   issuer: Bytes!
-#   underlyingShareClass: ShareClass # Which share class these options are for
+#   underlyingEquityToken: EquityToken # Which equity token these options are for
 #   defaultExercisePrice: BigInt!
 #   defaultExpirationPeriod: BigInt! # Seconds after grant
 #   poolSize: BigInt! # Total options allocated to pool
@@ -1934,7 +1934,7 @@ type Rule701Grant @entity {
 #   
 #   # SAR-specific fields (from TokenSARFacet)
 #   issuer: Bytes!
-#   underlyingShareClass: ShareClass # Which share class these SARs reference
+#   underlyingEquityToken: EquityToken # Which equity token these SARs reference
 #   basePrice: BigInt! # Base price for appreciation calculation
 #   settlementType: String! # "Cash" or "Shares"
 #   poolSize: BigInt! # Total SARs allocated to pool
@@ -2009,7 +2009,7 @@ type Safe implements Token @entity {
   hasProRata: Boolean! # Pro-rata participation rights
   
   # Target equity token for conversion
-  targetEquityToken: Bytes! # ShareClass token address to convert into
+  targetEquityToken: Bytes! # EquityToken address to convert into
   
   # Lifecycle status
   status: SAFEStatus!

@@ -8,7 +8,7 @@ import {
   DiscountSet,
   UserRoleUpdated
 } from "../../generated/TokenFactory/TokenFactory";
-import { Diamond, ShareClass, Safe, PromissoryNote, UserRole } from "../../generated/schema";
+import { Diamond, EquityToken, Safe, PromissoryNote, UserRole } from "../../generated/schema";
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
 import { DiamondInspect } from "../../generated/TokenFactory/DiamondInspect";
@@ -214,45 +214,45 @@ export function handleTokenCreated(event: TokenCreated): void {
     diamond.token = tokenAddress;
     diamond.save();
   } else {
-    // Create ShareClass entity (default for equity tokens)
-    let shareClass = new ShareClass(tokenAddress);
-    shareClass.name = event.params.name;
-    shareClass.symbol = event.params.symbol;
-    shareClass.admin = event.params.admin;
-    shareClass.createdAt = event.block.timestamp;
-  shareClass.createdTx = event.transaction.hash;
-  shareClass.decimals = decimals;
-  shareClass.totalSupply = BigInt.fromI32(0);
-  shareClass.assetType = "ShareClass";
-  shareClass.tokenCategory = "EQUITY"; // Share classes are equity instruments
+    // Create EquityToken entity (default for equity tokens)
+    let equityToken = new EquityToken(tokenAddress);
+    equityToken.name = event.params.name;
+    equityToken.symbol = event.params.symbol;
+    equityToken.admin = event.params.admin;
+    equityToken.createdAt = event.block.timestamp;
+  equityToken.createdTx = event.transaction.hash;
+  equityToken.decimals = decimals;
+  equityToken.totalSupply = BigInt.fromI32(0);
+  equityToken.assetType = "ShareClass";
+  equityToken.tokenCategory = "EQUITY"; // Share classes are equity instruments
   
   // Read baseURI for metadata
-  let shareClassBaseURIResult = tokenContract.try_baseURI();
-  shareClass.baseURI = shareClassBaseURIResult.reverted ? null : shareClassBaseURIResult.value;
+  let equityTokenBaseURIResult = tokenContract.try_baseURI();
+  equityToken.baseURI = equityTokenBaseURIResult.reverted ? null : equityTokenBaseURIResult.value;
   
   // Initialize compliance
-  shareClass.complianceConditions = new Array<Bytes>();
+  equityToken.complianceConditions = new Array<Bytes>();
   
   // Initialize admin state
-  shareClass.paused = false;
-    shareClass.frozenAccounts = new Array<Bytes>();
-    shareClass.frozenLots = new Array<Bytes>();
-    shareClass.retired = false;
-    shareClass.retiredAt = null;
-  shareClass.transferController = null;
-  shareClass.hasTransferConditions = false;
+  equityToken.paused = false;
+    equityToken.frozenAccounts = new Array<Bytes>();
+    equityToken.frozenLots = new Array<Bytes>();
+    equityToken.retired = false;
+    equityToken.retiredAt = null;
+  equityToken.transferController = null;
+  equityToken.hasTransferConditions = false;
   
-  // Initialize ShareClass-specific fields
-    shareClass.maxSupply = BigInt.fromI32(0); // 0 = unlimited
-  shareClass.splitNum = BigInt.fromI32(1);
-  shareClass.splitDen = BigInt.fromI32(1);
-  shareClass.divNum = BigInt.fromI32(1);
-  shareClass.divDen = BigInt.fromI32(1);
-  shareClass.totalSplits = 0;
-  shareClass.totalDividends = 0;
-  shareClass.isPublic = false;
+  // Initialize EquityToken-specific fields
+    equityToken.maxSupply = BigInt.fromI32(0); // 0 = unlimited
+  equityToken.splitNum = BigInt.fromI32(1);
+  equityToken.splitDen = BigInt.fromI32(1);
+  equityToken.divNum = BigInt.fromI32(1);
+  equityToken.divDen = BigInt.fromI32(1);
+  equityToken.totalSplits = 0;
+  equityToken.totalDividends = 0;
+  equityToken.isPublic = false;
 
-  shareClass.save();
+  equityToken.save();
 
   // Link token to diamond
   diamond.token = tokenAddress;
@@ -276,11 +276,12 @@ function detectTokenType(tokenAddress: Address): string {
   let typeFacet = TokenTypeFacet.bind(tokenAddress);
   let assetTypeResult = typeFacet.try_getAssetType();
   if (!assetTypeResult.reverted && assetTypeResult.value.length > 0) {
+    let rawType = assetTypeResult.value;
     log.info("Token {} type from TokenTypeFacet: {}", [
       tokenAddress.toHexString(),
-      assetTypeResult.value,
+      rawType,
     ]);
-    return assetTypeResult.value;
+    return rawType;
   }
 
   // Fallback: selector-sniffing for legacy tokens without TokenTypeFacet
@@ -302,7 +303,7 @@ function detectTokenType(tokenAddress: Address): string {
     return "PromissoryNote";
   }
 
-  // Default to ShareClass
+  // Default to ShareClass (most common equity type)
   return "ShareClass";
 }
 

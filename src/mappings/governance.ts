@@ -13,6 +13,9 @@ import {
   ProposalExecuted,
 } from "../../generated/templates/WalletDiamond/GovernanceExecuteFacet";
 import {
+  GovernanceInitialized,
+} from "../../generated/templates/WalletDiamond/GovernanceConfigFacet";
+import {
   GovernanceConfig,
   ProposalType,
   Proposal,
@@ -44,6 +47,25 @@ function voteTypeToString(support: i32): string {
   if (support === 0) return "AGAINST";
   if (support === 1) return "FOR";
   return "ABSTAIN";
+}
+
+// ============ INITIALIZATION HANDLER ============
+
+/**
+ * Handle GovernanceInitialized event
+ * Event: GovernanceInitialized(address indexed votingToken, uint256 proposalThreshold, uint32 votingDelay, uint32 votingPeriod)
+ */
+export function handleGovernanceInitialized(event: GovernanceInitialized): void {
+  const walletAddress = event.address.toHexString();
+
+  const config = getOrCreateGovernanceConfig(walletAddress, event.block.timestamp, event.transaction.hash);
+  config.defaultVotingToken = event.params.votingToken;
+  config.defaultProposalThreshold = event.params.proposalThreshold;
+  config.defaultVotingDelay = event.params.votingDelay;
+  config.defaultVotingPeriod = event.params.votingPeriod;
+  config.lastUpdatedAt = event.block.timestamp;
+  config.lastUpdatedTx = event.transaction.hash;
+  config.save();
 }
 
 // ============ PROPOSAL TYPE HANDLERS ============

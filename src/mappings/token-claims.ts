@@ -5,7 +5,7 @@ import {
   ClaimCancelled as ClaimCancelledEvent,
 } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
-import { TokenClaim, ShareClass } from "../../generated/schema";
+import { TokenClaim, EquityToken } from "../../generated/schema";
 
 /**
  * Handle ClaimCreated event
@@ -41,7 +41,7 @@ export function handleClaimCreated(event: ClaimCreatedEvent): void {
   claim.save();
   
   // Update token to track claim
-  let token = ShareClass.load(event.address.toHexString());
+  let token = EquityToken.load(event.address.toHexString());
   if (token) {
     // Could add claim count tracking here if needed
     token.save();

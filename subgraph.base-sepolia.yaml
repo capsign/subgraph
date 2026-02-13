@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0x7d649b6B7613dC300e65007CC9d30a99D01768eF"
       abi: DiamondFactory
-      startBlock: 37552882 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -18,7 +18,7 @@ dataSources:
         - Diamond
         - Wallet
         - Offering
-        - ShareClass
+        - EquityToken
         - UserRole
       abis:
         - name: DiamondFactory
@@ -77,7 +77,7 @@ dataSources:
     source:
       address: "0x01cdbAcb482Ee98c74e9e70Dbc485cFCAE794849"
       abi: FacetRegistry
-      startBlock: 37552882 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -102,7 +102,7 @@ dataSources:
     source:
       address: "0xd638662A6C58bfD53741bdE183cd75F8eD975159"
       abi: WalletFactory
-      startBlock: 37552959 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -134,7 +134,7 @@ dataSources:
     source:
       address: "0xBE488e39dB5157ae7BBc60fE359ABC4157FBadb7"
       abi: OfferingFactory
-      startBlock: 37552959 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -181,13 +181,13 @@ dataSources:
     source:
       address: "0xB9a72e2c95f2088F65c72a7eB6c8FE88FAD64339"
       abi: TokenFactory
-      startBlock: 37552959 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - ShareClass
+        - EquityToken
         - Safe
         - Diamond
         - FactoryPaymentConfig
@@ -258,7 +258,7 @@ dataSources:
     source:
       address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
       abi: ERC20
-      startBlock: 37552882 # Match fresh deployment
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -282,7 +282,7 @@ dataSources:
     source:
       address: "0x839386C819B610BcDeC1546299fAe3E649af5e41"
       abi: CapSignPaymasterFacet
-      startBlock: 37552989 # Fresh deployment with ERC-8109 declarative upgrades
+      startBlock: 37624000 # Demo reset - clean slate
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -450,7 +450,7 @@ templates:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - ShareClass
+        - EquityToken
         - Lot
         - Token
         - TokenClaim
@@ -976,6 +976,9 @@ templates:
           handler: handleGatePeriodReset
           receipt: false
         # Governance events (from GovernanceCoreFacet, GovernanceVoteFacet, GovernanceExecuteFacet, GovernanceConfigFacet)
+        - event: GovernanceInitialized(indexed address,uint256,uint32,uint32)
+          handler: handleGovernanceInitialized
+          receipt: false
         - event: ProposalCreated(indexed uint256,indexed bytes32,indexed address,address[],uint256[],bytes[],uint256,uint256,string)
           handler: handleProposalCreated
           receipt: false

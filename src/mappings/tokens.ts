@@ -47,7 +47,7 @@ import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { TokenNoteFacet } from "../../generated/templates/TokenDiamond/TokenNoteFacet";
-import { ShareClass, Lot, CorporateAction, Wallet, Safe, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
+import { EquityToken, Lot, CorporateAction, Wallet, Safe, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
 import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
@@ -137,11 +137,11 @@ export function handleLotCreated(event: LotCreated): void {
   const ownerAddress = event.params.owner.toHexString();
   
   // Check if token entity exists - skip lots from tokens not created via factory
-  const tokenShareClass = ShareClass.load(tokenAddress);
+  const tokenEquityToken = EquityToken.load(tokenAddress);
   const tokenSafe = Safe.load(tokenAddress);
   const tokenPromissoryNote = PromissoryNote.load(tokenAddress);
   
-  if (!tokenShareClass && !tokenSafe && !tokenPromissoryNote) {
+  if (!tokenEquityToken && !tokenSafe && !tokenPromissoryNote) {
     // Token entity doesn't exist - skip creating orphaned lot
     return;
   }
@@ -198,11 +198,11 @@ export function handleLotCreated(event: LotCreated): void {
   lot.transferType = "INTERNAL";
   lot.save();
   
-  // Update total supply for ShareClass, Safe, and PromissoryNote tokens
-  const shareClass = ShareClass.load(tokenAddress);
-  if (shareClass) {
-    shareClass.totalSupply = shareClass.totalSupply.plus(event.params.quantity);
-    shareClass.save();
+  // Update total supply for EquityToken, Safe, and PromissoryNote tokens
+  const equityToken = EquityToken.load(tokenAddress);
+  if (equityToken) {
+    equityToken.totalSupply = equityToken.totalSupply.plus(event.params.quantity);
+    equityToken.save();
   }
   
   const safe = Safe.load(tokenAddress);
@@ -232,8 +232,8 @@ export function handleLotCreated(event: LotCreated): void {
   // Create activity for issuer (lot issued)
   // Get the issuer (admin) from the token entity
   let issuerAddress: Bytes | null = null;
-  if (shareClass) {
-    issuerAddress = shareClass.admin;
+  if (equityToken) {
+    issuerAddress = equityToken.admin;
   } else if (safe) {
     issuerAddress = safe.admin;
   } else if (promissoryNote) {
@@ -376,11 +376,11 @@ export function handleLotInvalidated(event: LotInvalidated): void {
     lot.isValid = false;
     lot.save();
     
-    // Update total supply for both ShareClass and Safe tokens
-    const shareClass = ShareClass.load(tokenAddress);
-    if (shareClass) {
-      shareClass.totalSupply = shareClass.totalSupply.minus(quantity);
-      shareClass.save();
+    // Update total supply for both EquityToken and Safe tokens
+    const equityToken = EquityToken.load(tokenAddress);
+    if (equityToken) {
+      equityToken.totalSupply = equityToken.totalSupply.minus(quantity);
+      equityToken.save();
     }
     
     const safe = Safe.load(tokenAddress);
@@ -405,11 +405,11 @@ export function handleLotInvalidated(event: LotInvalidated): void {
  */
 export function handleMaxSupplyUpdated(event: MaxSupplyUpdated): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    shareClass.maxSupply = event.params.maxSupply;
-    shareClass.save();
+  if (equityToken) {
+    equityToken.maxSupply = event.params.maxSupply;
+    equityToken.save();
   }
 }
 
@@ -420,11 +420,11 @@ export function handleBaseURIUpdated(event: BaseURIUpdated): void {
   const tokenAddress = event.address.toHexString();
   const newBaseURI = event.params.newBaseURI;
   
-  // Try loading as ShareClass first
-  let shareClass = ShareClass.load(tokenAddress);
-  if (shareClass != null) {
-    shareClass.baseURI = newBaseURI;
-    shareClass.save();
+  // Try loading as EquityToken first
+  let equityToken = EquityToken.load(tokenAddress);
+  if (equityToken != null) {
+    equityToken.baseURI = newBaseURI;
+    equityToken.save();
     return;
   }
   
@@ -472,11 +472,11 @@ export function handleLotURIUpdated(event: LotURIUpdated): void {
  */
 export function handlePaused(event: Paused): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    shareClass.paused = true;
-    shareClass.save();
+  if (equityToken) {
+    equityToken.paused = true;
+    equityToken.save();
   }
 }
 
@@ -485,11 +485,11 @@ export function handlePaused(event: Paused): void {
  */
 export function handleUnpaused(event: Unpaused): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    shareClass.paused = false;
-    shareClass.save();
+  if (equityToken) {
+    equityToken.paused = false;
+    equityToken.save();
   }
 }
 
@@ -498,16 +498,16 @@ export function handleUnpaused(event: Unpaused): void {
  */
 export function handleAccountFrozen(event: AccountFrozen): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    const frozenAccounts = shareClass.frozenAccounts;
+  if (equityToken) {
+    const frozenAccounts = equityToken.frozenAccounts;
     const accountBytes = event.params.account as Bytes;
     
     if (!frozenAccounts.includes(accountBytes)) {
       frozenAccounts.push(accountBytes);
-      shareClass.frozenAccounts = frozenAccounts;
-      shareClass.save();
+      equityToken.frozenAccounts = frozenAccounts;
+      equityToken.save();
     }
   }
 }
@@ -517,17 +517,17 @@ export function handleAccountFrozen(event: AccountFrozen): void {
  */
 export function handleAccountUnfrozen(event: AccountUnfrozen): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    const frozenAccounts = shareClass.frozenAccounts;
+  if (equityToken) {
+    const frozenAccounts = equityToken.frozenAccounts;
     const accountBytes = event.params.account as Bytes;
     
     const index = frozenAccounts.indexOf(accountBytes);
     if (index > -1) {
       frozenAccounts.splice(index, 1);
-      shareClass.frozenAccounts = frozenAccounts;
-      shareClass.save();
+      equityToken.frozenAccounts = frozenAccounts;
+      equityToken.save();
     }
   }
 }
@@ -563,16 +563,16 @@ export function handleLotUnfrozen(event: LotUnfrozen): void {
  */
 export function handleStockSplitApplied(event: StockSplitApplied): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    shareClass.splitNum = event.params.splitNum;
-    shareClass.splitDen = event.params.splitDen;
-    shareClass.totalSplits = shareClass.totalSplits + 1;
-    shareClass.save();
+  if (equityToken) {
+    equityToken.splitNum = event.params.splitNum;
+    equityToken.splitDen = event.params.splitDen;
+    equityToken.totalSplits = equityToken.totalSplits + 1;
+    equityToken.save();
     
     // Create corporate action record
-    const actionId = tokenAddress + "-split-" + shareClass.totalSplits.toString();
+    const actionId = tokenAddress + "-split-" + equityToken.totalSplits.toString();
     const action = new CorporateAction(actionId);
     action.token = tokenAddress;
     action.actionType = "STOCK_SPLIT";
@@ -589,16 +589,16 @@ export function handleStockSplitApplied(event: StockSplitApplied): void {
  */
 export function handleStockDividendApplied(event: StockDividendApplied): void {
   const tokenAddress = event.address.toHexString();
-  const shareClass = ShareClass.load(tokenAddress);
+  const equityToken = EquityToken.load(tokenAddress);
   
-  if (shareClass) {
-    shareClass.divNum = event.params.divNum;
-    shareClass.divDen = event.params.divDen;
-    shareClass.totalDividends = shareClass.totalDividends + 1;
-    shareClass.save();
+  if (equityToken) {
+    equityToken.divNum = event.params.divNum;
+    equityToken.divDen = event.params.divDen;
+    equityToken.totalDividends = equityToken.totalDividends + 1;
+    equityToken.save();
     
     // Create corporate action record
-    const actionId = tokenAddress + "-dividend-" + shareClass.totalDividends.toString();
+    const actionId = tokenAddress + "-dividend-" + equityToken.totalDividends.toString();
     const action = new CorporateAction(actionId);
     action.token = tokenAddress;
     action.actionType = "STOCK_DIVIDEND";
@@ -616,12 +616,12 @@ export function handleStockDividendApplied(event: StockDividendApplied): void {
 export function handleTokenRetired(event: TokenRetired): void {
   const tokenAddress = event.address.toHexString();
   
-  // Try loading as ShareClass first
-  let shareClass = ShareClass.load(tokenAddress);
-  if (shareClass != null) {
-    shareClass.retired = true;
-    shareClass.retiredAt = event.params.timestamp;
-    shareClass.save();
+  // Try loading as EquityToken first
+  let equityToken = EquityToken.load(tokenAddress);
+  if (equityToken != null) {
+    equityToken.retired = true;
+    equityToken.retiredAt = event.params.timestamp;
+    equityToken.save();
     return;
   }
   
@@ -650,12 +650,12 @@ export function handleTokenRetired(event: TokenRetired): void {
 export function handleTokenUnretired(event: TokenUnretired): void {
   const tokenAddress = event.address.toHexString();
   
-  // Try loading as ShareClass first
-  let shareClass = ShareClass.load(tokenAddress);
-  if (shareClass != null) {
-    shareClass.retired = false;
-    shareClass.retiredAt = null;
-    shareClass.save();
+  // Try loading as EquityToken first
+  let equityToken = EquityToken.load(tokenAddress);
+  if (equityToken != null) {
+    equityToken.retired = false;
+    equityToken.retiredAt = null;
+    equityToken.save();
     return;
   }
   
@@ -693,22 +693,22 @@ export function handleTokenTypeSet(event: TokenTypeSet): void {
     assetType
   ]);
   
-  // Try loading as ShareClass first
-  let shareClass = ShareClass.load(tokenAddress);
-  if (shareClass != null) {
-    shareClass.cfiCode = cfiCode;
+  // Try loading as EquityToken first
+  let equityToken = EquityToken.load(tokenAddress);
+  if (equityToken != null) {
+    equityToken.cfiCode = cfiCode;
     // Map assetType string to enum value
     if (assetType == "ShareClass") {
-      shareClass.assetType = "ShareClass";
+      equityToken.assetType = "ShareClass";
     } else if (assetType == "MembershipUnit") {
-      shareClass.assetType = "MembershipUnit";
+      equityToken.assetType = "MembershipUnit";
     } else if (assetType == "DaoToken") {
-      shareClass.assetType = "DaoToken";
+      equityToken.assetType = "DaoToken";
     } else {
       // Keep existing or default
-      shareClass.assetType = "ShareClass";
+      equityToken.assetType = "ShareClass";
     }
-    shareClass.save();
+    equityToken.save();
     return;
   }
   
@@ -871,10 +871,10 @@ export function handleTokenUserRoleUpdated(event: UserRoleUpdated): void {
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
     
-    // Link to token if it exists (try ShareClass first, then Safe)
-    const shareClass = ShareClass.load(diamondAddress);
+    // Link to token if it exists (try EquityToken first, then Safe)
+    const equityToken = EquityToken.load(diamondAddress);
     const safe = Safe.load(diamondAddress);
-    if (shareClass || safe) {
+    if (equityToken || safe) {
       diamond.token = diamondAddress;
     }
     diamond.save();
@@ -960,10 +960,10 @@ export function handleTokenFunctionAccessChanged(event: FunctionAccessChanged): 
     diamond.createdAt = event.block.timestamp;
     diamond.createdTx = event.transaction.hash;
     
-    // Link to token if it exists (try ShareClass first, then Safe)
-    const shareClass = ShareClass.load(diamondAddress);
+    // Link to token if it exists (try EquityToken first, then Safe)
+    const equityToken = EquityToken.load(diamondAddress);
     const safe = Safe.load(diamondAddress);
-    if (shareClass || safe) {
+    if (equityToken || safe) {
       diamond.token = diamondAddress;
     }
     diamond.save();
@@ -1228,8 +1228,8 @@ export function handleOptionGranted(event: OptionGranted): void {
   const grantId = event.params.grantId;
   const id = `${tokenAddress}-${grantId.toString()}`;
 
-  // Token/ShareClass must exist
-  let token = ShareClass.load(tokenAddress);
+  // Token/EquityToken must exist
+  let token = EquityToken.load(tokenAddress);
   if (!token) {
     log.warning("OptionGranted for unknown token: {}", [tokenAddress]);
     return;

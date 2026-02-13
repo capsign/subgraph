@@ -70,7 +70,7 @@ import {
   CallCommitment,
   AssetDisposal,
   FundTaxYearSummary,
-  ShareClass,
+  EquityToken,
   CallContribution,
   MemberCommitment,
   FeeAccrualEvent,
@@ -822,12 +822,12 @@ export function handleAssetDisposed(event: AssetDisposed): void {
     vehicle.save();
   }
   
-  // Load token for symbol (ShareClass is the main token entity)
+  // Load token for symbol (EquityToken is the main token entity)
   const tokenAddress = event.params.token.toHexString();
-  let shareClass = ShareClass.load(tokenAddress);
+  let equityToken = EquityToken.load(tokenAddress);
   let tokenSymbol = tokenAddress.slice(0, 10); // Default: truncated address
-  if (shareClass) {
-    tokenSymbol = shareClass.symbol;
+  if (equityToken) {
+    tokenSymbol = equityToken.symbol;
   }
   
   // Get payment token symbol - for now just use USDC as default

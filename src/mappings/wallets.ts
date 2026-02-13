@@ -742,6 +742,7 @@ export function handleDisclosureProvided(event: DisclosureProvided): void {
 
 // Re-export governance handlers
 export {
+  handleGovernanceInitialized,
   handleProposalCreated,
   handleProposalCanceled,
   handleVoteCast,

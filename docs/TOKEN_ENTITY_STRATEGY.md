@@ -2,7 +2,7 @@
 
 ## Overview
 
-The subgraph uses a **hybrid interface + concrete entity approach** for handling different token types (ShareClass, SAFE, ESO, etc.).
+The subgraph uses a **hybrid interface + concrete entity approach** for handling different token types (EquityToken, SAFE, ESO, etc.).
 
 ## Architecture
 
@@ -15,9 +15,9 @@ Common fields shared by all token types:
 
 ### Concrete Entities
 
-#### ShareClass
+#### EquityToken
 - **Purpose**: Traditional equity shares (Common, Preferred, etc.)
-- **Facet**: TokenShareClassFacet
+- **Facet**: TokenEquityTokenFacet
 - **Specific Fields**:
   - `issuer`: The company issuing the shares
   - `agents`: Transfer agents
@@ -32,7 +32,7 @@ Common fields shared by all token types:
   - `defaultValuationCap`: Valuation cap for conversions
   - `defaultDiscountRate`: Discount rate (basis points)
   - `defaultProRataRight`: Pro-rata participation rights
-  - `defaultTargetEquityToken`: Which ShareClass this converts to
+  - `defaultTargetEquityToken`: Which EquityToken this converts to
   - `defaultHasMFN`: Most Favored Nation clause
 - **Relationships**:
   - `conversions`: Track when SAFEs convert to equity
@@ -42,7 +42,7 @@ Common fields shared by all token types:
 - **Facet**: TokenESOFacet
 - **Specific Fields**:
   - `issuer`: The company issuing options
-  - `underlyingShareClass`: Which ShareClass these options exercise into
+  - `underlyingEquityToken`: Which EquityToken these options exercise into
   - `defaultExercisePrice`: Strike price
   - `defaultExpirationPeriod`: How long after grant until expiry
   - `poolSize`: Total options in the pool
@@ -65,7 +65,7 @@ TokenFactory.TokenCreated event
     ↓
 Determine token type by checking which facets are installed
     ↓
-Create appropriate entity (ShareClass, Safe, ESO, or Token)
+Create appropriate entity (EquityToken, Safe, ESO, or Token)
     ↓
 Initialize with factory data
     ↓
@@ -80,8 +80,8 @@ function determineTokenType(tokenAddress: Address): string {
   const diamond = Diamond.load(tokenAddress.toHexString());
   
   // Check for type-specific facets
-  if (hasTokenShareClassFacet(tokenAddress)) {
-    return "ShareClass";
+  if (hasTokenEquityTokenFacet(tokenAddress)) {
+    return "EquityToken";
   } else if (hasTokenSAFEFacet(tokenAddress)) {
     return "Safe";
   } else if (hasTokenESOFacet(tokenAddress)) {
@@ -95,7 +95,7 @@ function determineTokenType(tokenAddress: Address): string {
 
 ### Type-Specific Event Handlers
 
-#### ShareClass Events (TokenShareClassFacet)
+#### EquityToken Events (TokenEquityTokenFacet)
 - `IssuerSet(address indexed issuer)`
 - `AgentAdded(address indexed agent)`
 - `AgentRemoved(address indexed agent)`
@@ -103,7 +103,7 @@ function determineTokenType(tokenAddress: Address): string {
 
 #### SAFE Events (TokenSAFEFacet)
 - `SAFETermsSet(uint256 valuationCap, uint256 discountRate, ...)`
-- `SAFEConverted(bytes32 indexed lotId, address shareClass, uint256 shares)`
+- `SAFEConverted(bytes32 indexed lotId, address equityToken, uint256 shares)`
 
 #### ESO Events (TokenESOFacet)
 - `OptionGranted(address indexed grantee, bytes32 indexed lotId, uint256 quantity, ...)`
@@ -124,7 +124,7 @@ function determineTokenType(tokenAddress: Address): string {
 
 ```graphql
 query GetAllTokens {
-  shareClasses { ...ITokenFields }
+  equityTokens { ...ITokenFields }
   safes { ...ITokenFields }
   employeeStockOptions { ...ITokenFields }
   tokens { ...ITokenFields }
@@ -134,8 +134,8 @@ query GetAllTokens {
 ### Query Specific Type with Type-Specific Fields
 
 ```graphql
-query GetShareClasses($issuer: Bytes!) {
-  shareClasses(where: { issuer: $issuer }) {
+query GetEquityTokenes($issuer: Bytes!) {
+  equityTokens(where: { issuer: $issuer }) {
     # IToken fields
     id
     name
@@ -144,7 +144,7 @@ query GetShareClasses($issuer: Bytes!) {
     creator
     paused
     
-    # ShareClass-specific
+    # EquityToken-specific
     issuer
     agents
     maxSupply
@@ -162,7 +162,7 @@ Note: GraphQL interfaces don't support direct queries, so we need to query each 
 
 ### Phase 1: Schema Update (Current)
 - ✅ Define IToken interface
-- ✅ Create ShareClass, Safe, ESO, Token entities
+- ✅ Create EquityToken, Safe, ESO, Token entities
 - ✅ Add type-specific relationship entities (SAFEConversion, ESOGrant, TransferCondition)
 
 ### Phase 2: Mapping Updates
@@ -189,7 +189,7 @@ subgraph/src/mappings/
 ├── token-factory.ts       # Token creation, type detection
 ├── tokens.ts              # Common token events (TokenInitialized)
 ├── token-admin.ts         # Admin events (pause, freeze)
-├── share-class.ts         # ShareClass-specific events
+├── share-class.ts         # EquityToken-specific events
 ├── safe.ts                # SAFE-specific events
 ├── eso.ts                 # ESO-specific events
 └── transfer-conditions.ts # Vesting, lockups

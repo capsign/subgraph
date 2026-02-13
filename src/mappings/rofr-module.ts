@@ -8,7 +8,7 @@ import {
   TransferCompleted,
   TransferCancelled,
 } from "../../generated/templates/ROFRModule/ROFRModule";
-import { ROFRTransferRequest, ShareClass } from "../../generated/schema";
+import { ROFRTransferRequest, EquityToken } from "../../generated/schema";
 import { ROFRModule as ROFRModuleContract } from "../../generated/templates/ROFRModule/ROFRModule";
 
 /**
