@@ -115,6 +115,10 @@ type Wallet @entity {
   # Redemption control (gates, suspensions, side pockets)
   redemptionRequests: [RedemptionRequest!]! @derivedFrom(field: "wallet")
   sidePockets: [SidePocket!]! @derivedFrom(field: "wallet")
+
+  # Governance
+  governanceConfig: GovernanceConfig
+  proposals: [Proposal!]! @derivedFrom(field: "wallet")
 }
 
 # ============ ENTITY CLASSIFICATION (GLEIF ELF Codes) ============
@@ -1137,6 +1141,10 @@ type Activity @entity {
   vault: DeFiVault # Direct reference for convenience
   vaultName: String # Denormalized for faster queries
   vaultAmount: BigInt # Amount deposited/withdrawn (in asset units)
+
+  # Governance references
+  proposal: Proposal
+  vote: Vote
 }
 
 # Tracks native asset transfers (ETH, USDC, etc.)
@@ -1255,6 +1263,14 @@ enum ActivityType {
   SIDE_POCKET_CREATED
   SIDE_POCKET_DISTRIBUTED
   GATE_PERIOD_RESET
+  # Governance activities
+  PROPOSAL_CREATED
+  PROPOSAL_CANCELED
+  PROPOSAL_QUEUED
+  PROPOSAL_EXECUTED
+  PROPOSAL_VETOED
+  VOTE_CAST
+  SECOND_TIER_PROPOSAL_CREATED
 }
 
 type Offering @entity {
@@ -2797,6 +2813,135 @@ type VaultValuationUpdate @entity {
   vaultAddress: Bytes!
   oldValue: BigInt!
   newValue: BigInt!
+  timestamp: BigInt!
+  tx: Bytes!
+  blockNumber: BigInt!
+}
+
+# ============ GOVERNANCE ENTITIES ============
+
+enum VotingStrategyType {
+  TOKEN_WEIGHTED
+  PER_CAPITA
+  ROLE_BASED
+  MULTI_CLASS
+}
+
+enum ProposalState {
+  PENDING
+  ACTIVE
+  CANCELED
+  DEFEATED
+  SUCCEEDED
+  QUEUED
+  EXPIRED
+  EXECUTED
+}
+
+enum VoteSupport {
+  AGAINST
+  FOR
+  ABSTAIN
+}
+
+# Governance configuration for a wallet diamond
+type GovernanceConfig @entity {
+  id: ID! # Wallet address
+  wallet: Wallet!
+  defaultVotingDelay: BigInt!
+  defaultVotingPeriod: BigInt!
+  defaultProposalThreshold: BigInt!
+  defaultVotingToken: Bytes!
+  proposalCount: BigInt!
+  proposalTypes: [ProposalType!]! @derivedFrom(field: "governanceConfig")
+  proposals: [Proposal!]! @derivedFrom(field: "governanceConfig")
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# Proposal type configuration
+type ProposalType @entity {
+  id: ID! # wallet-typeId
+  governanceConfig: GovernanceConfig!
+  typeId: Bytes! # bytes32
+  name: String!
+  quorumBps: Int!
+  approvalThresholdBps: Int!
+  votingDelay: BigInt!
+  votingPeriod: BigInt!
+  timelockDelay: BigInt!
+  requiredRoleToPropose: Int!
+  requiredRoleToVote: Int!
+  requiresUnanimity: Boolean!
+  isOptimistic: Boolean!
+  requiresTwoTierApproval: Boolean!
+  secondTierTypeId: Bytes # bytes32, null if not two-tier
+  isActive: Boolean!
+  createdAt: BigInt!
+  createdTx: Bytes!
+  lastUpdatedAt: BigInt!
+  lastUpdatedTx: Bytes!
+}
+
+# A governance proposal
+type Proposal @entity {
+  id: ID! # wallet-proposalId
+  governanceConfig: GovernanceConfig!
+  wallet: Wallet! # The wallet diamond this proposal belongs to
+  proposalId: BigInt! # On-chain proposal ID
+  proposalType: Bytes! # bytes32 typeId
+  proposalTypeName: String # Denormalized for queries
+  proposer: Bytes!
+  description: String!
+
+  # Execution data
+  targets: [Bytes!]!
+  values: [BigInt!]!
+  calldatas: [Bytes!]!
+
+  # Timing
+  voteStart: BigInt!
+  voteEnd: BigInt!
+  executionETA: BigInt # null until queued
+
+  # Vote tallies
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+  voterCount: Int!
+
+  # State flags
+  canceled: Boolean!
+  executed: Boolean!
+  vetoed: Boolean!
+  vetoedBy: Bytes
+
+  # Two-tier governance (Option B)
+  tier: Int! # 0 = single-tier, 1 = first-tier, 2 = second-tier
+  parentProposal: Proposal # For tier-2 proposals
+  childProposal: Proposal # For tier-1 proposals that spawned a second tier
+
+  # Computed state (updated by handlers)
+  currentState: ProposalState!
+
+  # Individual votes
+  votes: [Vote!]! @derivedFrom(field: "proposal")
+
+  createdAt: BigInt!
+  createdTx: Bytes!
+  blockNumber: BigInt!
+}
+
+# An individual vote on a proposal
+type Vote @entity {
+  id: ID! # tx-logIndex
+  proposal: Proposal!
+  voter: Bytes!
+  support: VoteSupport!
+  weight: BigInt!
+  reason: String
   timestamp: BigInt!
   tx: Bytes!
   blockNumber: BigInt!

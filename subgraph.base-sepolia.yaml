@@ -628,6 +628,10 @@ templates:
         - RedemptionSuspension
         - SidePocket
         - GatePeriod
+        - GovernanceConfig
+        - ProposalType
+        - Proposal
+        - Vote
       abis:
         - name: WalletDiamond
           file: ./abis/WalletDiamond.json
@@ -672,6 +676,14 @@ templates:
           file: ./abis/VaultAdapterFacet.json
         - name: RedemptionControlFacet
           file: ./abis/RedemptionControlFacet.json
+        - name: GovernanceCoreFacet
+          file: ./abis/GovernanceCoreFacet.json
+        - name: GovernanceVoteFacet
+          file: ./abis/GovernanceVoteFacet.json
+        - name: GovernanceExecuteFacet
+          file: ./abis/GovernanceExecuteFacet.json
+        - name: GovernanceConfigFacet
+          file: ./abis/GovernanceConfigFacet.json
       eventHandlers:
         # Rule 701 events
         - event: EquityTokenRegistered(indexed address,string)
@@ -962,6 +974,34 @@ templates:
           receipt: false
         - event: GatePeriodReset(uint256,uint256,uint256)
           handler: handleGatePeriodReset
+          receipt: false
+        # Governance events (from GovernanceCoreFacet, GovernanceVoteFacet, GovernanceExecuteFacet, GovernanceConfigFacet)
+        - event: ProposalCreated(indexed uint256,indexed bytes32,indexed address,address[],uint256[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
+          receipt: false
+        - event: ProposalCanceled(indexed uint256,indexed address)
+          handler: handleProposalCanceled
+          receipt: false
+        - event: VoteCast(indexed address,indexed uint256,indexed uint8,uint256,string)
+          handler: handleVoteCast
+          receipt: false
+        - event: ProposalQueued(indexed uint256,uint256)
+          handler: handleProposalQueued
+          receipt: false
+        - event: ProposalExecuted(indexed uint256)
+          handler: handleProposalExecuted
+          receipt: false
+        - event: ProposalVetoed(indexed uint256,indexed address)
+          handler: handleProposalVetoed
+          receipt: false
+        - event: ProposalTypeRegistered(indexed bytes32,string,uint16,uint16)
+          handler: handleProposalTypeRegistered
+          receipt: false
+        - event: ProposalTypeUpdated(indexed bytes32)
+          handler: handleProposalTypeUpdated
+          receipt: false
+        - event: SecondTierProposalCreated(indexed uint256,indexed uint256,indexed bytes32)
+          handler: handleSecondTierProposalCreated
           receipt: false
       file: ./src/mappings/wallets.ts
 

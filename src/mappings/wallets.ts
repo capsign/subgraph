@@ -740,6 +740,19 @@ export function handleDisclosureProvided(event: DisclosureProvided): void {
   status.save();
 }
 
+// Re-export governance handlers
+export {
+  handleProposalCreated,
+  handleProposalCanceled,
+  handleVoteCast,
+  handleProposalQueued,
+  handleProposalExecuted,
+  handleProposalVetoed,
+  handleProposalTypeRegistered,
+  handleProposalTypeUpdated,
+  handleSecondTierProposalCreated,
+} from "./governance";
+
 // Re-export asset disposal handler
 export { handleAssetDisposed, handleWashSaleDetected } from "./asset-disposal";
 
