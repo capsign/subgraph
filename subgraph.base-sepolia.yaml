@@ -77,7 +77,7 @@ dataSources:
     source:
       address: "0x01cdbAcb482Ee98c74e9e70Dbc485cFCAE794849"
       abi: FacetRegistry
-      startBlock: 37624000 # Demo reset - clean slate
+      startBlock: 37549000 # Before first FacetRegistered events (~37550573)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -199,8 +199,6 @@ dataSources:
           file: ./abis/TokenFactory.json
         - name: TokenMetadata
           file: ./abis/TokenMetadataFacet.json
-        - name: DiamondInspect
-          file: ./abis/DiamondInspectFacet.json
         - name: TokenTypeFacet
           file: ./abis/TokenTypeFacet.json
         - name: ERC20
@@ -547,6 +545,10 @@ templates:
           handler: handleSAFEConverted
         - event: SAFECancelled(indexed address,uint256)
           handler: handleSAFECancelled
+        - event: SAFEClaimed(indexed address)
+          handler: handleSAFEClaimed
+        - event: SAFEClaimCancelled()
+          handler: handleSAFEClaimCancelled
         - event: TargetEquityTokenSet(indexed address)
           handler: handleTargetEquityTokenSet
         - event: MaxSupplyUpdated(uint256)

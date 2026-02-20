@@ -1,8 +1,25 @@
 import {
   FacetRegistered,
-  FacetRemoved
+  FacetRemoved,
+  FacetRegistry
 } from "../../generated/FacetRegistry/FacetRegistry";
 import { Facet, FacetRegistryEvent } from "../../generated/schema";
+import { Bytes } from "@graphprotocol/graph-ts";
+
+/**
+ * Parse packedSelectors bytes into an array of hex selector strings.
+ * Each selector is 4 bytes (8 hex chars) packed sequentially.
+ */
+function parsePackedSelectors(packed: Bytes): string[] {
+  const selectors: string[] = [];
+  const hex = packed.toHexString().slice(2); // strip "0x"
+  for (let i = 0; i < hex.length; i += 8) {
+    if (i + 8 <= hex.length) {
+      selectors.push("0x" + hex.slice(i, i + 8));
+    }
+  }
+  return selectors;
+}
 
 export function handleFacetRegistered(event: FacetRegistered): void {
   const facetAddress = event.params.facetAddress.toHexString();
@@ -13,13 +30,19 @@ export function handleFacetRegistered(event: FacetRegistered): void {
     facet = new Facet(facetAddress);
     facet.createdAt = event.block.timestamp;
     facet.createdTx = event.transaction.hash;
-    // Initialize required array field immediately to avoid null access
     facet.selectors = [];
   }
   
   facet.name = event.params.name;
   facet.version = event.params.version;
   facet.removed = false;
+
+  // Fetch selectors from the facet contract's packedSelectors() function
+  const facetContract = FacetRegistry.bind(event.params.facetAddress);
+  const selectorsResult = facetContract.try_packedSelectors();
+  if (!selectorsResult.reverted && selectorsResult.value.length > 0) {
+    facet.selectors = parsePackedSelectors(selectorsResult.value);
+  }
   
   facet.save();
   
@@ -32,7 +55,7 @@ export function handleFacetRegistered(event: FacetRegistered): void {
   registryEvent.timestamp = event.block.timestamp;
   registryEvent.tx = event.transaction.hash;
   registryEvent.blockNumber = event.block.number;
-  registryEvent.selectors = facet.selectors;
+  registryEvent.selectors = facet.selectors.length > 0 ? facet.selectors : null;
   registryEvent.save();
 }
 

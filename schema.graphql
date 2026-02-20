@@ -2026,6 +2026,13 @@ type Safe implements Token @entity {
   convertedAt: BigInt
   convertedTx: Bytes
   
+  # Email claim flow (for SAFEs deployed without known investor)
+  claimExpiresAt: BigInt
+  claimed: Boolean!
+  claimedAt: BigInt
+  claimedTx: Bytes
+  claimCancelled: Boolean!
+
   # Cancellation
   refundAmount: BigInt # Amount refunded on cancellation
   cancelledAt: BigInt

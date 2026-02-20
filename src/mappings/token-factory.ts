@@ -11,7 +11,6 @@ import {
 import { Diamond, EquityToken, Safe, PromissoryNote, UserRole } from "../../generated/schema";
 import { TokenDiamond } from "../../generated/templates";
 import { TokenMetadata } from "../../generated/TokenFactory/TokenMetadata";
-import { DiamondInspect } from "../../generated/TokenFactory/DiamondInspect";
 import { TokenTypeFacet } from "../../generated/TokenFactory/TokenTypeFacet";
 import { TokenSAFEFacet } from "../../generated/TokenFactory/TokenSAFEFacet";
 import { ERC20 } from "../../generated/TokenFactory/ERC20";
@@ -150,6 +149,13 @@ export function handleTokenCreated(event: TokenCreated): void {
     safe.cancelledAt = null;
     safe.cancelledTx = null;
     
+    // Claim fields
+    safe.claimExpiresAt = null;
+    safe.claimed = false;
+    safe.claimedAt = null;
+    safe.claimedTx = null;
+    safe.claimCancelled = false;
+    
     safe.save();
     
     // Link token to diamond
@@ -264,15 +270,13 @@ export function handleTokenCreated(event: TokenCreated): void {
 }
 
 /**
- * Detect token type using TokenTypeFacet.getAssetType() which returns the
- * human-readable type directly (e.g. "ShareClass", "Safe", "PromissoryNote").
- * Falls back to selector-sniffing for legacy tokens deployed before TokenTypeFacet existed.
+ * Detect token type using TokenTypeFacet.getAssetType().
+ * All tokens are deployed with TokenTypeFacet which stores the canonical type string.
  *
  * @param tokenAddress - Address of the token diamond
  * @returns Token type string ("Safe", "PromissoryNote", or "ShareClass")
  */
 function detectTokenType(tokenAddress: Address): string {
-  // Primary: query TokenTypeFacet.getAssetType() directly
   let typeFacet = TokenTypeFacet.bind(tokenAddress);
   let assetTypeResult = typeFacet.try_getAssetType();
   if (!assetTypeResult.reverted && assetTypeResult.value.length > 0) {
@@ -284,26 +288,9 @@ function detectTokenType(tokenAddress: Address): string {
     return rawType;
   }
 
-  // Fallback: selector-sniffing for legacy tokens without TokenTypeFacet
-  log.info("Token {} has no TokenTypeFacet, falling back to selector detection", [
+  log.warning("Token {} has no TokenTypeFacet, defaulting to ShareClass", [
     tokenAddress.toHexString(),
   ]);
-  let inspect = DiamondInspect.bind(tokenAddress);
-  let ZERO_ADDRESS = Address.fromString("0x0000000000000000000000000000000000000000");
-
-  // TokenSAFEFacet: getSAFE() = 0x18795539
-  let safeFacetResult = inspect.try_facetAddress(Bytes.fromHexString("0x18795539"));
-  if (!safeFacetResult.reverted && !safeFacetResult.value.equals(ZERO_ADDRESS)) {
-    return "Safe";
-  }
-
-  // TokenNoteFacet: getNote() = 0xdf3ac476
-  let noteFacetResult = inspect.try_facetAddress(Bytes.fromHexString("0xdf3ac476"));
-  if (!noteFacetResult.reverted && !noteFacetResult.value.equals(ZERO_ADDRESS)) {
-    return "PromissoryNote";
-  }
-
-  // Default to ShareClass (most common equity type)
   return "ShareClass";
 }
 

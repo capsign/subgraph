@@ -21,6 +21,8 @@ import {
   SAFEActivated,
   SAFEConverted,
   SAFECancelled,
+  SAFEClaimed,
+  SAFEClaimCancelled,
   TargetEquityTokenSet,
   UserRoleUpdated,
   FunctionAccessChanged,
@@ -43,12 +45,13 @@ import {
   OptionExpired,
   OptionForfeited
 } from "../../generated/templates/TokenDiamond/TokenOptionFacet";
+import { TokenDiamond } from "../../generated/templates/TokenDiamond/TokenDiamond";
 import { TokenLots } from "../../generated/templates/TokenDiamond/TokenLots";
 import { TokenClaims } from "../../generated/templates/TokenDiamond/TokenClaims";
 import { ERC20 } from "../../generated/templates/TokenDiamond/ERC20";
 import { TokenNoteFacet } from "../../generated/templates/TokenDiamond/TokenNoteFacet";
 import { EquityToken, Lot, CorporateAction, Wallet, Safe, Diamond, UserRole, FunctionAccess, TokenClaim, LotComplianceConfig, ComplianceModule, AuthorityDelegation, PromissoryNote, Valuation409A, OptionGrant, OptionExercise } from "../../generated/schema";
-import { BigInt, Bytes, log, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, log, Address, store } from "@graphprotocol/graph-ts";
 import { createActivity } from "./activity";
 
 // Re-export DiamondCut handler for this template
@@ -680,7 +683,12 @@ export function handleTokenUnretired(event: TokenUnretired): void {
 
 /**
  * Handle TokenTypeSet event
- * Updates the token's assetType and cfiCode based on the ISO 10962 classification
+ * Updates the token's assetType and cfiCode based on the ISO 10962 classification.
+ *
+ * Because TokenCreated fires before template events are processed, all tokens
+ * are initially created as EquityToken by handleTokenCreated. This handler
+ * corrects the entity type if it should actually be a Safe or PromissoryNote
+ * by migrating the entity.
  */
 export function handleTokenTypeSet(event: TokenTypeSet): void {
   const tokenAddress = event.address.toHexString();
@@ -692,42 +700,148 @@ export function handleTokenTypeSet(event: TokenTypeSet): void {
     cfiCode.toHexString(),
     assetType
   ]);
-  
-  // Try loading as EquityToken first
+
   let equityToken = EquityToken.load(tokenAddress);
+
+  if (assetType == "Safe" || assetType == "SAFE") {
+    // Migrate from EquityToken to Safe if needed
+    if (equityToken != null) {
+      let safe = new Safe(tokenAddress);
+      safe.name = equityToken.name;
+      safe.symbol = equityToken.symbol;
+      safe.decimals = equityToken.decimals;
+      safe.totalSupply = equityToken.totalSupply;
+      safe.creator = equityToken.admin;
+      safe.admin = equityToken.admin;
+      safe.deployer = equityToken.admin;
+      safe.createdAt = equityToken.createdAt;
+      safe.createdTx = equityToken.createdTx;
+      safe.assetType = "Safe";
+      safe.tokenCategory = "CONVERTIBLE";
+      safe.cfiCode = cfiCode;
+      safe.baseURI = equityToken.baseURI;
+      safe.complianceConditions = equityToken.complianceConditions;
+      safe.paused = equityToken.paused;
+      safe.frozenAccounts = equityToken.frozenAccounts;
+      safe.frozenLots = equityToken.frozenLots;
+      safe.retired = equityToken.retired;
+      safe.retiredAt = equityToken.retiredAt;
+      safe.transferController = equityToken.transferController;
+      safe.hasTransferConditions = equityToken.hasTransferConditions;
+
+      // SAFE-specific defaults (updated by SAFEInitialized event)
+      const zeroAddr = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+      safe.issuer = zeroAddr;
+      safe.investor = zeroAddr;
+      safe.investmentAmount = BigInt.fromI32(0);
+      safe.paymentToken = zeroAddr;
+      safe.valuationCap = BigInt.fromI32(0);
+      safe.discountBasisPoints = 0;
+      safe.hasMFN = false;
+      safe.hasProRata = false;
+      safe.targetEquityToken = zeroAddr;
+      safe.sharesReceived = null;
+      safe.status = "INITIALIZED";
+      safe.isTransferable = false;
+      safe.agreementDocumentId = null;
+      safe.activatedAt = null;
+      safe.activatedTx = null;
+      safe.conversionPrice = null;
+      safe.convertedAt = null;
+      safe.convertedTx = null;
+      safe.refundAmount = null;
+      safe.cancelledAt = null;
+      safe.cancelledTx = null;
+      safe.claimExpiresAt = null;
+      safe.claimed = false;
+      safe.claimedAt = null;
+      safe.claimedTx = null;
+      safe.claimCancelled = false;
+
+      safe.save();
+      store.remove("EquityToken", tokenAddress);
+      log.info("Migrated token {} from EquityToken to Safe", [tokenAddress]);
+      return;
+    }
+    let safe = Safe.load(tokenAddress);
+    if (safe != null) {
+      safe.cfiCode = cfiCode;
+      safe.assetType = "Safe";
+      safe.save();
+    }
+    return;
+  }
+
+  if (assetType == "PromissoryNote") {
+    // Migrate from EquityToken to PromissoryNote if needed
+    if (equityToken != null) {
+      let note = new PromissoryNote(tokenAddress);
+      note.name = equityToken.name;
+      note.symbol = equityToken.symbol;
+      note.decimals = equityToken.decimals;
+      note.totalSupply = equityToken.totalSupply;
+      note.creator = equityToken.admin;
+      note.admin = equityToken.admin;
+      note.deployer = equityToken.admin;
+      note.createdAt = equityToken.createdAt;
+      note.createdTx = equityToken.createdTx;
+      note.assetType = "PromissoryNote";
+      note.tokenCategory = "DEBT";
+      note.cfiCode = cfiCode;
+      note.baseURI = equityToken.baseURI;
+      note.uri = equityToken.baseURI;
+      note.complianceConditions = equityToken.complianceConditions;
+      note.paused = equityToken.paused;
+      note.frozenAccounts = equityToken.frozenAccounts;
+      note.frozenLots = equityToken.frozenLots;
+      note.retired = equityToken.retired;
+      note.retiredAt = equityToken.retiredAt;
+      note.transferController = equityToken.transferController;
+      note.hasTransferConditions = equityToken.hasTransferConditions;
+
+      // PromissoryNote-specific defaults (updated by NoteInitialized event)
+      note.principalAmount = BigInt.fromI32(0);
+      note.interestRate = 0;
+      note.issuanceDate = equityToken.createdAt;
+      note.maturityDate = equityToken.createdAt;
+      note.paymentCurrency = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+      note.paymentType = "BULLET";
+      note.isSubordinated = false;
+      note.gracePeriodDays = 0;
+      note.debtor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+      note.creditor = Bytes.fromHexString("0x0000000000000000000000000000000000000000");
+      note.totalPaid = BigInt.fromI32(0);
+      note.interestPaid = BigInt.fromI32(0);
+      note.principalPaid = BigInt.fromI32(0);
+      note.outstandingBalance = BigInt.fromI32(0);
+      note.status = "ACTIVE";
+      note.isMatured = false;
+      note.isDefaulted = false;
+      note.defaultedAt = null;
+
+      note.save();
+      store.remove("EquityToken", tokenAddress);
+      log.info("Migrated token {} from EquityToken to PromissoryNote", [tokenAddress]);
+      return;
+    }
+    let pNote = PromissoryNote.load(tokenAddress);
+    if (pNote != null) {
+      pNote.cfiCode = cfiCode;
+      pNote.assetType = "PromissoryNote";
+      pNote.save();
+    }
+    return;
+  }
+  
+  // Equity token types (ShareClass, MembershipUnit, DaoToken, etc.)
   if (equityToken != null) {
     equityToken.cfiCode = cfiCode;
-    // Map assetType string to enum value
-    if (assetType == "ShareClass") {
-      equityToken.assetType = "ShareClass";
-    } else if (assetType == "MembershipUnit") {
-      equityToken.assetType = "MembershipUnit";
-    } else if (assetType == "DaoToken") {
-      equityToken.assetType = "DaoToken";
-    } else {
-      // Keep existing or default
-      equityToken.assetType = "ShareClass";
+    // Validate against known enum values before setting
+    if (assetType == "ShareClass" || assetType == "MembershipUnit" || assetType == "DaoToken" ||
+        assetType == "UnitInterest" || assetType == "TokenizedAsset") {
+      equityToken.assetType = assetType;
     }
     equityToken.save();
-    return;
-  }
-  
-  // Try loading as Safe
-  let safe = Safe.load(tokenAddress);
-  if (safe != null) {
-    safe.cfiCode = cfiCode;
-    safe.assetType = "Safe";
-    safe.save();
-    return;
-  }
-  
-  // Try loading as PromissoryNote
-  let pNote = PromissoryNote.load(tokenAddress);
-  if (pNote != null) {
-    pNote.cfiCode = cfiCode;
-    pNote.assetType = "PromissoryNote";
-    pNote.save();
-    return;
   }
 }
 
@@ -746,6 +860,20 @@ export function handleSAFEInitialized(event: SAFEInitialized): void {
     safe.valuationCap = event.params.valuationCap;
     safe.discountBasisPoints = event.params.discountBasisPoints;
     safe.status = "INITIALIZED";
+
+    // Read paymentToken and additional fields from getSAFE() (not in the event)
+    const diamond = TokenDiamond.bind(event.address);
+    const safeResult = diamond.try_getSAFE();
+    if (!safeResult.reverted) {
+      safe.paymentToken = safeResult.value.getPaymentToken();
+      const terms = safeResult.value.getTerms();
+      safe.hasMFN = terms.hasMFN;
+      safe.hasProRata = terms.hasProRata;
+      safe.targetEquityToken = safeResult.value.getTargetEquityToken();
+    } else {
+      log.warning("getSAFE() reverted for {}", [tokenAddress]);
+    }
+
     safe.save();
   }
 }
@@ -833,6 +961,48 @@ export function handleSAFECancelled(event: SAFECancelled): void {
       event.block.number
     );
     activity.save();
+  }
+}
+
+/**
+ * Handle SAFEClaimed event (bilateral SAFE)
+ * Emitted when an investor claims a SAFE via email claim flow
+ */
+export function handleSAFEClaimed(event: SAFEClaimed): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    safe.investor = event.params.investor;
+    safe.claimed = true;
+    safe.claimedAt = event.block.timestamp;
+    safe.claimedTx = event.transaction.hash;
+    safe.save();
+    
+    const activityId = event.transaction.hash.toHexString() + "-" + event.logIndex.toString();
+    let activity = createActivity(
+      activityId,
+      "SAFE_CLAIMED",
+      event.params.investor,
+      event.block.timestamp,
+      event.transaction.hash,
+      event.block.number
+    );
+    activity.save();
+  }
+}
+
+/**
+ * Handle SAFEClaimCancelled event (bilateral SAFE)
+ * Emitted when issuer cancels an unclaimed SAFE claim
+ */
+export function handleSAFEClaimCancelled(event: SAFEClaimCancelled): void {
+  const tokenAddress = event.address.toHexString();
+  const safe = Safe.load(tokenAddress);
+  
+  if (safe != null) {
+    safe.claimCancelled = true;
+    safe.save();
   }
 }
 
